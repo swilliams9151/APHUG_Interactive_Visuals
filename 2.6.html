@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.6: Malthusian Theory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        canvas {
+            border-radius: 0.75rem;
+            background-color: #1e293b; /* slate-800 */
+        }
+
+        /* Card Active State */
+        .theory-card {
+            transition: all 0.2s ease;
+        }
+        .theory-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .theory-card.active {
+            ring: 2px solid #dc2626;
+            background-color: #fef2f2;
+        }
+        /* Boserup style override */
+        .theory-card.active.boserup {
+            ring-color: #10b981;
+            background-color: #ecfdf5;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-red-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.6: Malthusian Theory</h1>
+                <p class="text-red-200 text-sm mt-1">Population Growth (Geometric) vs. Food Supply (Arithmetic)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-red-800 px-3 py-1 rounded border border-red-700">
+                IMP-2.B.3
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: THE SIMULATOR -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left: Controls -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 uppercase tracking-wider border-b pb-2">1. Theory Scenarios</h2>
+                
+                <div class="space-y-3 flex-1">
+                    <!-- Scenario 1: Malthus -->
+                    <button onclick="setScenario('malthus')" id="card-malthus" class="theory-card active w-full text-left p-4 rounded-lg border border-red-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-red-800 text-sm">Thomas Malthus (1798)</h3>
+                            <span class="text-2xl">📉</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-snug">
+                            Population grows <strong>Geometrically</strong> (1, 2, 4, 8). Food grows <strong>Arithmetically</strong> (1, 2, 3, 4). Famine is inevitable.
+                        </p>
+                    </button>
+
+                    <!-- Scenario 2: Boserup -->
+                    <button onclick="setScenario('boserup')" id="card-boserup" class="theory-card w-full text-left p-4 rounded-lg border border-emerald-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-emerald-800 text-sm">Ester Boserup (Critic)</h3>
+                            <span class="text-2xl">🌽</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-snug">
+                            "Necessity is the mother of invention." Humans will innovate (Green Revolution) to increase food supply.
+                        </p>
+                    </button>
+
+                    <!-- Scenario 3: Neo-Malthusian -->
+                    <button onclick="setScenario('neo')" id="card-neo" class="theory-card w-full text-left p-4 rounded-lg border border-indigo-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-indigo-800 text-sm">Neo-Malthusians</h3>
+                            <span class="text-2xl">💧</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-snug">
+                            It's not just food. We are running out of <strong>non-renewable resources</strong> (Water, Oil, Space).
+                        </p>
+                    </button>
+                </div>
+
+                <!-- Sliders for Manual Adjustment -->
+                <div class="mt-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Adjust Variables</h4>
+                    
+                    <div class="mb-4">
+                        <label class="flex justify-between text-xs font-bold text-red-600 mb-1">
+                            Pop. Growth (Geometric)
+                            <span id="val-pop">2.5%</span>
+                        </label>
+                        <input type="range" id="input-pop" min="1" max="5" step="0.1" value="2.5" oninput="updateSim()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600">
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-emerald-600 mb-1">
+                            Food Growth (Arithmetic)
+                            <span id="val-food">Low</span>
+                        </label>
+                        <input type="range" id="input-food" min="1" max="10" step="0.5" value="2" oninput="updateSim()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right: The Visualizer -->
+            <section class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                <div class="flex justify-between items-end mb-4">
+                    <h2 class="text-xl font-extrabold text-slate-800">Simulation Graph</h2>
+                    <div id="outcome-badge" class="px-3 py-1 rounded text-xs font-bold bg-red-100 text-red-800 animate-pulse">
+                        Crisis Point: Year 45
+                    </div>
+                </div>
+
+                <!-- Canvas -->
+                <div class="relative w-full h-[350px] bg-slate-900 rounded-xl shadow-inner overflow-hidden">
+                    <canvas id="graphCanvas" class="w-full h-full"></canvas>
+                    
+                    <!-- Legend -->
+                    <div class="absolute top-4 left-4 bg-slate-800/90 backdrop-blur px-3 py-2 rounded border border-slate-700 text-xs">
+                        <div class="flex items-center text-red-400 mb-1">
+                            <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span> Population (J-Curve)
+                        </div>
+                        <div class="flex items-center text-emerald-400">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> Resources (Linear)
+                        </div>
+                    </div>
+                </div>
+
+                <div id="explanation-text" class="mt-4 text-sm text-slate-600 italic bg-slate-50 p-3 rounded border-l-4 border-red-500">
+                    The population (red) has exceeded the food supply (green). This is the <strong>Malthusian Catastrophe</strong>, leading to war, famine, or disease to check growth.
+                </div>
+            </section>
+        </div>
+
+        <!-- SECTION 2: CHECKS ON POPULATION -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-red-900">3. Malthus's "Checks"</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                
+                <!-- Positive Checks -->
+                <div class="bg-white p-6 rounded-xl border border-red-100 shadow-sm flex gap-4 hover:shadow-md transition">
+                    <div class="text-4xl">☠️</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-red-800">Positive Checks</h3>
+                        <p class="text-xs text-red-600 font-bold uppercase mb-2">Increases Death Rate</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Events that shorten life span to reduce the population. Malthus saw these as "natural" outcomes of overpopulation.
+                            <br><span class="italic text-slate-400">Examples: Famine, War, Disease, Disaster.</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Preventive Checks -->
+                <div class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm flex gap-4 hover:shadow-md transition">
+                    <div class="text-4xl">🛑</div>
+                    <div>
+                        <h3 class="text-lg font-bold text-blue-800">Preventive Checks</h3>
+                        <p class="text-xs text-blue-600 font-bold uppercase mb-2">Decreases Birth Rate</p>
+                        <p class="text-sm text-slate-600 leading-relaxed">
+                            Voluntary actions taken by people to limit population growth before a crisis occurs.
+                            <br><span class="italic text-slate-400">Examples: Moral restraint, delaying marriage, birth control (Neo-Malthusian).</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- GRAPH ENGINE ---
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        
+        // State
+        let popGrowth = 2.5; // Exponent base
+        let foodGrowth = 2;  // Linear slope
+        let maxYears = 100;
+
+        function resize() {
+            width = canvas.clientWidth;
+            height = canvas.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+            draw();
+        }
+        window.addEventListener('resize', resize);
+        
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Padding
+            const pad = 40;
+            const graphW = width - pad * 2;
+            const graphH = height - pad * 2;
+
+            // Axes
+            ctx.strokeStyle = '#475569'; // slate-600
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(pad, pad); // Top Y
+            ctx.lineTo(pad, height - pad); // Origin
+            ctx.lineTo(width - pad, height - pad); // Right X
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#94a3b8'; // slate-400
+            ctx.font = '10px sans-serif';
+            ctx.fillText("Time (Years)", width/2, height - 10);
+            ctx.save();
+            ctx.translate(15, height/2);
+            ctx.rotate(-Math.PI/2);
+            ctx.fillText("Quantity", 0, 0);
+            ctx.restore();
+
+            // --- PLOT DATA ---
+            // Start points
+            const p0 = 10; // Pop start low
+            const f0 = 25; // Food start higher
+
+            ctx.lineWidth = 3;
+            
+            // Food Line (Linear): y = mx + b
+            ctx.strokeStyle = '#10b981'; // Emerald
+            ctx.beginPath();
+            ctx.moveTo(pad, height - pad - (f0/100)*graphH); // Map 0-100 scale roughly
+            
+            // Pop Line (Exponential): y = a * (1+r)^x
+            const popPoints = [];
+            const foodPoints = [];
+            
+            let crisisYear = -1;
+
+            for(let year = 0; year <= maxYears; year++) {
+                const x = pad + (year / maxYears) * graphW;
+                
+                // Food Math
+                const fVal = f0 + (foodGrowth * year);
+                const fy = height - pad - (fVal * 2); // Scale factor 2 for visual
+                foodPoints.push({x, y: fy, val: fVal});
+
+                // Pop Math
+                // r is percent (e.g. 2.5 -> 0.025)
+                const r = popGrowth / 100; 
+                const pVal = p0 * Math.pow(1 + r, year);
+                const py = height - pad - (pVal * 2);
+                popPoints.push({x, y: py, val: pVal});
+
+                // Check Collision
+                if (year > 0 && pVal > fVal && crisisYear === -1) {
+                    crisisYear = year;
+                }
+            }
+
+            // Draw Food
+            ctx.beginPath();
+            ctx.moveTo(foodPoints[0].x, foodPoints[0].y);
+            foodPoints.forEach(p => {
+                // Clip to bounds
+                if(p.y > pad) ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // Draw Pop
+            ctx.strokeStyle = '#ef4444'; // Red
+            ctx.beginPath();
+            ctx.moveTo(popPoints[0].x, popPoints[0].y);
+            popPoints.forEach(p => {
+                if(p.y > pad) ctx.lineTo(p.x, p.y);
+            });
+            ctx.stroke();
+
+            // Draw Crisis Point
+            const badge = document.getElementById('outcome-badge');
+            const text = document.getElementById('explanation-text');
+
+            if (crisisYear > -1) {
+                const px = pad + (crisisYear / maxYears) * graphW;
+                const py = height - pad - ((f0 + foodGrowth * crisisYear) * 2);
+                
+                // Visual Marker
+                ctx.fillStyle = '#f87171';
+                ctx.beginPath();
+                ctx.arc(px, py, 6, 0, Math.PI*2);
+                ctx.fill();
+                
+                // Dotted Line
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(px, height - pad);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                badge.innerText = `Crisis Point: Year ${crisisYear}`;
+                badge.className = "px-3 py-1 rounded text-xs font-bold bg-red-100 text-red-800 animate-pulse";
+                text.innerHTML = "The population (red) has exceeded resources (green). This is the <strong>Malthusian Catastrophe</strong>. According to Malthus, nature will now reduce the population through famine/disease.";
+                text.className = "mt-4 text-sm text-slate-600 italic bg-slate-50 p-3 rounded border-l-4 border-red-500";
+            } else {
+                badge.innerText = "No Crisis Detected";
+                badge.className = "px-3 py-1 rounded text-xs font-bold bg-emerald-100 text-emerald-800";
+                text.innerHTML = "<strong>Boserup Effect:</strong> Innovation has kept food supply ahead of population growth. No starvation will occur.";
+                text.className = "mt-4 text-sm text-slate-600 italic bg-slate-50 p-3 rounded border-l-4 border-emerald-500";
+            }
+        }
+
+        function updateSim() {
+            popGrowth = parseFloat(document.getElementById('input-pop').value);
+            foodGrowth = parseFloat(document.getElementById('input-food').value);
+            
+            document.getElementById('val-pop').innerText = popGrowth + "%";
+            document.getElementById('val-food').innerText = foodGrowth > 5 ? "High (Tech)" : "Low (Manual)";
+
+            draw();
+        }
+
+        function setScenario(type) {
+            // Reset UI
+            document.querySelectorAll('.theory-card').forEach(c => {
+                c.classList.remove('active', 'boserup');
+                c.style.borderColor = '';
+                c.style.backgroundColor = '';
+            });
+            
+            const card = document.getElementById(`card-${type}`);
+            
+            if (type === 'malthus') {
+                card.classList.add('active');
+                document.getElementById('input-pop').value = 3.5; // High growth
+                document.getElementById('input-food').value = 2.0; // Low food
+            } else if (type === 'boserup') {
+                card.classList.add('active', 'boserup');
+                document.getElementById('input-pop').value = 3.0; // High growth
+                document.getElementById('input-food').value = 8.0; // HUGE food growth (Green Rev)
+            } else if (type === 'neo') {
+                card.classList.add('active');
+                card.style.borderColor = '#6366f1';
+                card.style.backgroundColor = '#eef2ff';
+                document.getElementById('input-pop').value = 4.0; // Very high growth (LDCs)
+                document.getElementById('input-food').value = 3.0; // Food ok, but resources draining
+            }
+
+            updateSim();
+        }
+
+        // Init
+        setTimeout(resize, 100);
+
+    </script>
+</body>
+</html>
