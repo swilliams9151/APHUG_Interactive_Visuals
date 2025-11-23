@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Unit 4.1: Political Patterns & Processes</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #map-container {
+            width: 100%;
+            position: relative;
+        }
+        #map {
+            height: 75vh;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 0;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+        }
+        .leaflet-popup-content {
+            margin: 0;
+            max-width: 320px;
+        }
+        /* Legend Styling */
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        .legend i {
+            width: 12px;
+            height: 12px;
+            float: left;
+            margin-right: 8px;
+            margin-top: 4px;
+            border-radius: 50%;
+        }
+    </style>
+    
+    <!-- Load Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="p-4 md:p-6">
+
+    <div class="max-w-6xl w-full">
+        <header class="mb-4 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Political Geography Explorer</h1>
+                    <p class="text-indigo-600 font-semibold mt-1">AP Human Geography Unit 4, Topic 4.1</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-sm text-gray-500 max-w-md">
+                    Explore concepts: Nation-States, Stateless Nations, Multinational States, Multistate Nations, and Autonomous Regions.
+                </div>
+            </div>
+        </header>
+
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Load Leaflet JS at the end of body -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        window.onload = function() {
+            // Safety check
+            if (typeof L === 'undefined') {
+                document.getElementById('map').innerHTML = '<p class="text-center text-red-500 pt-10">Error: Map library not loaded.</p>';
+                return;
+            }
+
+            // 1. Initialize Map
+            const map = L.map('map', {
+                center: [30, 10], 
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 2. Data: Political Entities covering Unit 4.1 Concepts
+            const politicalEntities = [
+                // --- Stateless Nations ---
+                {
+                    name: "Kurds (Kurdistan)",
+                    coords: [37.0, 43.0],
+                    type: "Stateless Nation",
+                    color: "#ef4444", // Red-500
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Stateless Nation</span>
+                            <h3 class="font-bold text-lg mt-2">The Kurds</h3>
+                            <p class="mt-1">An ethnic group spread across Turkey, Iraq, Iran, and Syria without a sovereign state.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Self-Determination:</strong> Ongoing struggle for independence.</li>
+                                <li><strong>Multistate Nation:</strong> A nation that stretches across multiple state borders.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Palestinians",
+                    coords: [31.9, 35.2],
+                    type: "Stateless Nation",
+                    color: "#ef4444",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Stateless Nation</span>
+                            <h3 class="font-bold text-lg mt-2">Palestinians</h3>
+                            <p class="mt-1">Arabs living in the West Bank, Gaza, and Israel without a fully sovereign state.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Territoriality:</strong> Conflict over land ownership and sovereignty.</li>
+                                <li><strong>Displaced:</strong> Large refugee diaspora in Jordan/Lebanon.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Basques",
+                    coords: [43.0, -2.5],
+                    type: "Stateless Nation",
+                    color: "#ef4444",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded uppercase">Stateless Nation</span>
+                            <h3 class="font-bold text-lg mt-2">Basques</h3>
+                            <p class="mt-1">An isolated language group in Spain/France seeking autonomy/independence.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Devolution:</strong> Pressure for regional power transfer.</li>
+                                <li><strong>Cultural Boundary:</strong> Distinct language (Euskara).</li>
+                            </ul>
+                        </div>`
+                },
+
+                // --- Nation-States ---
+                {
+                    name: "Japan",
+                    coords: [36.2, 138.2],
+                    type: "Nation-State",
+                    color: "#3b82f6", // Blue-500
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">Nation-State</span>
+                            <h3 class="font-bold text-lg mt-2">Japan</h3>
+                            <p class="mt-1">The ideal example of a nation-state: >98% of the population is ethnically Japanese.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Homogeneity:</strong> Cultural and political boundaries match closely.</li>
+                                <li><strong>Immigration:</strong> Historically restrictive to maintain national unity.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Iceland",
+                    coords: [64.9, -19.0],
+                    type: "Nation-State",
+                    color: "#3b82f6",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded uppercase">Nation-State</span>
+                            <h3 class="font-bold text-lg mt-2">Iceland</h3>
+                            <p class="mt-1">An island nation with a unified culture and history dating back to the Vikings.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Geographic Isolation:</strong> Helped preserve cultural homogeneity.</li>
+                            </ul>
+                        </div>`
+                },
+
+                // --- Multinational States ---
+                {
+                    name: "United Kingdom",
+                    coords: [54.0, -2.0],
+                    type: "Multinational State",
+                    color: "#a855f7", // Purple-500
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded uppercase">Multinational State</span>
+                            <h3 class="font-bold text-lg mt-2">United Kingdom</h3>
+                            <p class="mt-1">One state containing four distinct nations: English, Scottish, Welsh, and N. Irish.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Devolution:</strong> Scotland and Wales have their own parliaments.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Russia",
+                    coords: [61.5, 105.0],
+                    type: "Multinational State",
+                    color: "#a855f7",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded uppercase">Multinational State</span>
+                            <h3 class="font-bold text-lg mt-2">Russia</h3>
+                            <p class="mt-1">The world's largest state, recognizing many ethnic republics within its borders.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Republics:</strong> Areas like Chechnya or Tatarstan represent non-Russian nations.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Former Yugoslavia",
+                    coords: [44.0, 18.0],
+                    type: "Multinational State",
+                    color: "#a855f7",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded uppercase">Multinational State (Historical)</span>
+                            <h3 class="font-bold text-lg mt-2">Former Yugoslavia</h3>
+                            <p class="mt-1">A failed multinational state that broke apart in the 1990s.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Balkanization:</strong> Violent fragmentation of a state along ethnic lines.</li>
+                                <li><strong>Shatterbelt:</strong> A region of chronic instability.</li>
+                            </ul>
+                        </div>`
+                },
+
+                // --- Multistate Nations ---
+                {
+                    name: "Koreans (North & South)",
+                    coords: [38.0, 127.0],
+                    type: "Multistate Nation",
+                    color: "#10b981", // Emerald-500
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded uppercase">Multistate Nation</span>
+                            <h3 class="font-bold text-lg mt-2">The Koreas</h3>
+                            <p class="mt-1">One distinct nation (people) divided between two sovereign states (North & South).</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Boundaries:</strong> The DMZ is a superimposed, geometric boundary.</li>
+                                <li><strong>Unification:</strong> Shared ethnicity creates potential centripetal force, but political ideology separates.</li>
+                            </ul>
+                        </div>`
+                },
+
+                // --- Autonomous / Semi-Autonomous Regions ---
+                {
+                    name: "Navajo Nation",
+                    coords: [36.0, -109.0],
+                    type: "Semi-Autonomous Region",
+                    color: "#f59e0b", // Amber-500
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded uppercase">Semi-Autonomous</span>
+                            <h3 class="font-bold text-lg mt-2">Navajo Nation</h3>
+                            <p class="mt-1">A Native American reservation in the US with its own government and laws.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Sovereignty:</strong> Has "tribal sovereignty" but is subject to US federal law.</li>
+                                <li><strong>Scale:</strong> A distinct political unit within a larger state structure.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Hong Kong",
+                    coords: [22.3, 114.1],
+                    type: "Autonomous Region",
+                    color: "#f59e0b",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded uppercase">Autonomous Region</span>
+                            <h3 class="font-bold text-lg mt-2">Hong Kong</h3>
+                            <p class="mt-1">A Special Administrative Region (SAR) of China.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>One Country, Two Systems:</strong> Maintains its own legal/economic system distinct from mainland China.</li>
+                                <li><strong>Sovereignty:</strong> China holds ultimate sovereignty, but HK has high autonomy.</li>
+                            </ul>
+                        </div>`
+                },
+                {
+                    name: "Nunavut",
+                    coords: [64.0, -95.0],
+                    type: "Autonomous Region",
+                    color: "#f59e0b",
+                    desc: `
+                        <div class="text-sm">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded uppercase">Autonomous Region</span>
+                            <h3 class="font-bold text-lg mt-2">Nunavut</h3>
+                            <p class="mt-1">A Canadian territory created in 1999 to give autonomy to the Inuit people.</p>
+                            <ul class="list-disc ml-4 mt-2 space-y-1 text-gray-600">
+                                <li><strong>Devolution:</strong> A peaceful transfer of power to an indigenous group.</li>
+                                <li><strong>Self-Determination:</strong> Allows Inuit management of land and resources.</li>
+                            </ul>
+                        </div>`
+                }
+            ];
+
+            // 3. Helper to create icons
+            function createCustomIcon(color) {
+                return L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="background-color: ${color};" class="w-5 h-5 rounded-full border-2 border-white shadow-md transform hover:scale-125 transition-transform duration-200"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+            }
+
+            // 4. Add Markers to Map
+            politicalEntities.forEach(entity => {
+                const marker = L.marker(entity.coords, {
+                    icon: createCustomIcon(entity.color)
+                }).addTo(map);
+
+                marker.bindPopup(entity.desc);
+                
+                // Optional: Open on hover (desktop) or click (mobile)
+                marker.on('click', function() {
+                    this.openPopup();
+                });
+            });
+
+            // 5. Add Legend
+            const legend = L.control({position: 'bottomright'});
+
+            legend.onAdd = function (map) {
+                const div = L.DomUtil.create('div', 'legend');
+                const categories = [
+                    { label: "Stateless Nation", color: "#ef4444" },
+                    { label: "Nation-State", color: "#3b82f6" },
+                    { label: "Multinational State", color: "#a855f7" },
+                    { label: "Multistate Nation", color: "#10b981" },
+                    { label: "Autonomous Region", color: "#f59e0b" }
+                ];
+
+                div.innerHTML += "<strong>Key Concepts</strong><br>";
+                categories.forEach(cat => {
+                    div.innerHTML += `<div class="flex items-center mt-1"><span style="background:${cat.color}" class="w-3 h-3 rounded-full mr-2 inline-block"></span>${cat.label}</div>`;
+                });
+                return div;
+            };
+
+            legend.addTo(map);
+        };
+    </script>
+</body>
+</html>
