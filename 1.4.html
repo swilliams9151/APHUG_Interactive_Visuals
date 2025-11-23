@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 1.4: Spatial Concepts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Dot Transitions */
+        .pattern-dot { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Slider Styling */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+            background: #f59e0b; cursor: pointer; margin-top: -10px; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: #e2e8f0; border-radius: 2px;
+        }
+
+        /* Map Point Animation */
+        .pulse-ring {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-amber-600 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 1.4: Spatial Concepts</h1>
+                <p class="text-amber-100 text-sm mt-1">Location, Place, Flows, and Pattern (PSO-1.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-amber-700 px-3 py-1 rounded border border-amber-500">
+                Thinking Geographically
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: LOCATION (Absolute vs Relative) -->
+        <section class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-slate-100 bg-slate-50">
+                    <h2 class="text-xl font-bold text-slate-800">1. Location: Two Ways to Describe "Where"</h2>
+                    <p class="text-sm text-slate-500 mt-1">Click a landmark on the map.</p>
+                </div>
+                
+                <div class="relative flex-1 bg-emerald-50 min-h-[300px] cursor-crosshair" id="location-map">
+                    <!-- Background -->
+                    <svg viewBox="0 0 400 300" class="absolute inset-0 w-full h-full">
+                        <!-- River -->
+                        <path d="M 0 150 Q 200 100 400 150" stroke="#3b82f6" stroke-width="15" fill="none" opacity="0.5" />
+                        <!-- Roads -->
+                        <line x1="200" y1="0" x2="200" y2="300" stroke="#94a3b8" stroke-width="8" />
+                        <line x1="0" y1="150" x2="400" y2="150" stroke="#94a3b8" stroke-width="8" stroke-dasharray="15,5" />
+                        
+                        <!-- Locations (Clickable) -->
+                        <!-- School -->
+                        <circle onclick="showLocation('school')" cx="120" cy="80" r="15" fill="#ef4444" class="cursor-pointer hover:scale-110 transition" />
+                        <text x="120" y="115" text-anchor="middle" font-size="10" font-weight="bold" fill="#7f1d1d" pointer-events="none">School</text>
+                        
+                        <!-- Mall -->
+                        <circle onclick="showLocation('mall')" cx="300" cy="220" r="15" fill="#8b5cf6" class="cursor-pointer hover:scale-110 transition" />
+                        <text x="300" y="255" text-anchor="middle" font-size="10" font-weight="bold" fill="#4c1d95" pointer-events="none">Mall</text>
+                        
+                        <!-- Park -->
+                        <rect onclick="showLocation('park')" x="250" y="50" width="40" height="40" fill="#10b981" class="cursor-pointer hover:scale-110 transition" />
+                        <text x="270" y="105" text-anchor="middle" font-size="10" font-weight="bold" fill="#064e3b" pointer-events="none">Park</text>
+                    </svg>
+                </div>
+
+                <div class="p-6 bg-slate-50 border-t border-slate-200">
+                    <div id="loc-output" class="hidden">
+                        <h3 id="loc-title" class="font-bold text-lg text-slate-800 mb-2">School</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-3 rounded border border-slate-200">
+                                <div class="text-[10px] uppercase font-bold text-slate-400">Absolute Location</div>
+                                <div id="loc-abs" class="text-sm font-mono text-indigo-600">34.5°N, 88.2°W</div>
+                                <div class="text-[10px] text-slate-400 italic mt-1">Objective. Coordinates. Address.</div>
+                            </div>
+                            <div class="bg-white p-3 rounded border border-slate-200">
+                                <div class="text-[10px] uppercase font-bold text-slate-400">Relative Location</div>
+                                <div id="loc-rel" class="text-sm font-serif text-emerald-600">North of the river, west of the highway.</div>
+                                <div class="text-[10px] text-slate-400 italic mt-1">Subjective. Uses landmarks.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="loc-placeholder" class="text-center text-slate-400 italic text-sm p-4">
+                        Select a red/purple/green marker to analyze.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: DISTANCE DECAY (Friction of Distance) -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-slate-100 bg-slate-50">
+                    <h2 class="text-xl font-bold text-slate-800">2. Distance Decay (Interaction)</h2>
+                    <p class="text-sm text-slate-500 mt-1">The further away you are, the less likely you are to interact. (Drag the dot)</p>
+                </div>
+
+                <div class="relative flex-1 bg-slate-900 flex items-center justify-center overflow-hidden p-8">
+                    <!-- Signal Waves -->
+                    <div id="signal-1" class="absolute w-20 h-20 border border-amber-500/50 rounded-full pulse-ring"></div>
+                    <div id="signal-2" class="absolute w-40 h-40 border border-amber-500/30 rounded-full pulse-ring" style="animation-delay: 0.5s"></div>
+                    <div id="signal-3" class="absolute w-60 h-60 border border-amber-500/10 rounded-full pulse-ring" style="animation-delay: 1s"></div>
+
+                    <!-- Center (Hearth) -->
+                    <div class="absolute w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_20px_rgba(245,158,11,0.8)] z-10"></div>
+                    <div class="absolute mt-12 text-amber-500 text-xs font-bold tracking-widest">HEARTH</div>
+
+                    <!-- Interactive Slider (Overlay) -->
+                    <div class="absolute bottom-8 w-3/4 z-20">
+                        <input type="range" id="decay-slider" min="0" max="100" value="20" oninput="updateDecay()">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2">
+                            <span>Near</span>
+                            <span>Far</span>
+                        </div>
+                    </div>
+
+                    <!-- The User (Dot) -->
+                    <div id="user-dot" class="absolute w-6 h-6 bg-white rounded-full shadow-xl transition-all duration-100 flex items-center justify-center text-[8px]">🙂</div>
+                </div>
+
+                <div class="p-6 bg-white text-center">
+                    <div class="text-xs font-bold uppercase text-slate-400 mb-1">Interaction Strength</div>
+                    <div id="interaction-meter" class="text-2xl font-extrabold text-emerald-500 transition-colors">High</div>
+                    <p id="interaction-desc" class="text-sm text-slate-600 mt-2">You are close to the hearth. Interaction is frequent.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PATTERNS -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">3. Spatial Patterns</h2>
+                    <p class="text-sm text-slate-500">The geometric arrangement of objects in space.</p>
+                </div>
+                <div class="flex bg-slate-100 p-1 rounded-lg">
+                    <button onclick="setPattern('clustered')" class="px-4 py-2 text-xs font-bold rounded hover:bg-white hover:shadow transition">Clustered</button>
+                    <button onclick="setPattern('dispersed')" class="px-4 py-2 text-xs font-bold rounded hover:bg-white hover:shadow transition">Dispersed</button>
+                    <button onclick="setPattern('linear')" class="px-4 py-2 text-xs font-bold rounded hover:bg-white hover:shadow transition">Linear</button>
+                </div>
+            </div>
+
+            <div class="relative h-64 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                <!-- River for Linear context -->
+                <path id="river-path" d="M 0 150 Q 300 100 600 150" stroke="#93c5fd" stroke-width="20" fill="none" class="absolute opacity-0 transition-opacity duration-500" />
+                
+                <!-- Container for Dots -->
+                <div id="pattern-container" class="relative w-full h-full">
+                    <!-- Dots injected via JS -->
+                </div>
+            </div>
+            
+            <div id="pattern-desc" class="mt-4 text-center text-sm text-slate-600 italic">
+                Select a pattern above to visualize it.
+            </div>
+        </section>
+
+        <!-- SECTION 4: SPACE vs PLACE -->
+        <section class="bg-slate-800 text-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-xl font-bold mb-6">4. Space vs. Place</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="p-6 rounded-xl border border-slate-600 bg-slate-700/50">
+                    <h3 class="text-lg font-bold text-slate-300 mb-2">Space (Abstract)</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        The physical gap between two objects. It has no social connection or feeling. 
+                        <br><em class="text-slate-500">"An empty room." "Coordinates on a map."</em>
+                    </p>
+                </div>
+                <div class="p-6 rounded-xl border border-amber-500/50 bg-amber-900/20">
+                    <h3 class="text-lg font-bold text-amber-400 mb-2">Place (Meaning)</h3>
+                    <p class="text-sm text-slate-300 leading-relaxed">
+                        A specific point on Earth distinguished by a particular character. It has emotional value ("Sense of Place").
+                        <br><em class="text-amber-200/70">"My childhood bedroom." "Paris."</em>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. LOCATION LOGIC ---
+        const locations = {
+            'school': {
+                title: "Central High School",
+                abs: "34.5°N, 88.2°W",
+                rel: "North of the river, west of the highway."
+            },
+            'mall': {
+                title: "Grand Mall",
+                abs: "34.2°N, 88.0°W",
+                rel: "South of the river, east of the highway intersection."
+            },
+            'park': {
+                title: "City Park",
+                abs: "34.6°N, 88.1°W",
+                rel: "Northeast of the school, adjacent to the highway."
+            }
+        };
+
+        function showLocation(key) {
+            document.getElementById('loc-placeholder').classList.add('hidden');
+            document.getElementById('loc-output').classList.remove('hidden');
+            
+            const data = locations[key];
+            document.getElementById('loc-title').innerText = data.title;
+            document.getElementById('loc-abs').innerText = data.abs;
+            document.getElementById('loc-rel').innerText = data.rel;
+        }
+
+        // --- 2. DISTANCE DECAY LOGIC ---
+        function updateDecay() {
+            const val = document.getElementById('decay-slider').value;
+            const dot = document.getElementById('user-dot');
+            const meter = document.getElementById('interaction-meter');
+            const desc = document.getElementById('interaction-desc');
+
+            // Move Dot (Relative to center)
+            // Center is roughly 50%. Slider moves from 0% (Center) to 45% (Edge)
+            const offset = (val / 100) * 40; 
+            dot.style.left = `calc(50% + ${offset}%)`;
+            dot.style.top = "50%";
+            dot.style.transform = "translate(-50%, -50%)";
+
+            // Update Meter
+            if (val < 20) {
+                meter.innerText = "High";
+                meter.className = "text-2xl font-extrabold text-emerald-500 transition-colors";
+                desc.innerText = "You are close to the hearth. Interaction is frequent.";
+            } else if (val < 60) {
+                meter.innerText = "Medium";
+                meter.className = "text-2xl font-extrabold text-yellow-500 transition-colors";
+                desc.innerText = "Friction of Distance is increasing. Interactions become less frequent.";
+            } else {
+                meter.innerText = "Low";
+                meter.className = "text-2xl font-extrabold text-red-500 transition-colors";
+                desc.innerText = "Distance Decay is high. You are too far away to interact regularly.";
+            }
+        }
+
+        // --- 3. PATTERN LOGIC ---
+        const container = document.getElementById('pattern-container');
+        let dots = [];
+
+        // Create dots once
+        for(let i=0; i<20; i++) {
+            const d = document.createElement('div');
+            d.className = "absolute w-3 h-3 bg-slate-800 rounded-full shadow pattern-dot";
+            container.appendChild(d);
+            dots.push(d);
+        }
+
+        function setPattern(type) {
+            const river = document.getElementById('river-path');
+            const desc = document.getElementById('pattern-desc');
+
+            if (type === 'clustered') {
+                river.style.opacity = 0;
+                desc.innerHTML = "<strong>Clustered:</strong> Objects are grouped closely together in a specific area (e.g., houses around a village center).";
+                dots.forEach(d => {
+                    // Cluster in center
+                    const x = 45 + Math.random() * 10;
+                    const y = 45 + Math.random() * 10;
+                    d.style.left = x + "%";
+                    d.style.top = y + "%";
+                });
+            } else if (type === 'dispersed') {
+                river.style.opacity = 0;
+                desc.innerHTML = "<strong>Dispersed:</strong> Objects are scattered relatively far apart (e.g., isolated farmhouses in the Midwest).";
+                dots.forEach(d => {
+                    // Random spread
+                    const x = Math.random() * 90;
+                    const y = Math.random() * 90;
+                    d.style.left = x + "%";
+                    d.style.top = y + "%";
+                });
+            } else if (type === 'linear') {
+                river.style.opacity = 1;
+                desc.innerHTML = "<strong>Linear:</strong> Objects are arranged in a line, often following a feature like a road or river.";
+                dots.forEach((d, i) => {
+                    // Follow the river path (Approx equation)
+                    // Simple line for visuals
+                    const x = 10 + (i * 4);
+                    const y = 50 + Math.sin(i)*2; // Slight wiggle
+                    d.style.left = x + "%";
+                    d.style.top = y + "%";
+                });
+            }
+        }
+
+        // Init
+        updateDecay();
+        setPattern('dispersed');
+
+    </script>
+</body>
+</html>
