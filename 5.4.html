@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.4: Second Agricultural Revolution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Tech Card Hover */
+        .tech-btn {
+            transition: all 0.2s ease;
+        }
+        .tech-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .tech-btn.active {
+            border-color: #ea580c; /* orange-600 */
+            background-color: #fff7ed; /* orange-50 */
+        }
+
+        /* Worker Animation */
+        .worker {
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Factory Smoke */
+        @keyframes smoke {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            50% { opacity: 0.5; }
+            100% { opacity: 0; transform: translateY(-20px) scale(1.5); }
+        }
+        .smoke-particle {
+            animation: smoke 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-orange-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.4: The Second Agricultural Revolution</h1>
+                <p class="text-orange-200 text-sm mt-1">Technology, Efficiency, and the Industrial Link (SPS-5.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-orange-800 px-3 py-1 rounded border border-orange-700">
+                1700s - 1900s (Coincides with Ind. Rev.)
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: TECH & MIGRATION SIMULATOR (SPS-5.C.1) -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left: Technology Menu -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                <h2 class="text-xl font-bold text-orange-900 mb-4 border-b pb-2">1. Innovations</h2>
+                <p class="text-sm text-slate-500 mb-4">Add technology to increase farm efficiency. Watch what happens to the workers.</p>
+
+                <div class="space-y-3 flex-1">
+                    <!-- Tech 1 -->
+                    <button onclick="addTech('seed_drill')" id="btn-seed_drill" class="tech-btn w-full text-left p-4 rounded-lg border border-slate-200 bg-white flex items-center gap-3">
+                        <div class="text-2xl">🌱</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Jethro Tull's Seed Drill</h3>
+                            <p class="text-[10px] text-slate-500">Plants seeds in rows vs. scattering. Increases yield.</p>
+                        </div>
+                    </button>
+
+                    <!-- Tech 2 -->
+                    <button onclick="addTech('enclosure')" id="btn-enclosure" class="tech-btn w-full text-left p-4 rounded-lg border border-slate-200 bg-white flex items-center gap-3">
+                        <div class="text-2xl">🧱</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Enclosure Acts</h3>
+                            <p class="text-[10px] text-slate-500">Consolidates small common lands into large private farms.</p>
+                        </div>
+                    </button>
+
+                    <!-- Tech 3 -->
+                    <button onclick="addTech('reaper')" id="btn-reaper" class="tech-btn w-full text-left p-4 rounded-lg border border-slate-200 bg-white flex items-center gap-3">
+                        <div class="text-2xl">🚜</div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">McCormick Reaper / Steel Plow</h3>
+                            <p class="text-[10px] text-slate-500">Mechanized harvesting. One machine replaces 5 men.</p>
+                        </div>
+                    </button>
+                </div>
+                
+                <button onclick="resetSim()" class="mt-4 text-xs text-center text-orange-600 hover:text-orange-800 underline">Reset Simulation</button>
+            </section>
+
+            <!-- Right: Rural-to-Urban Shift -->
+            <section class="lg:col-span-2 bg-slate-900 rounded-xl shadow-lg border border-slate-700 relative overflow-hidden p-6">
+                <div class="flex justify-between text-white mb-4 font-bold text-sm uppercase tracking-wider">
+                    <span>Rural (The Farm)</span>
+                    <span>Urban (The Factory)</span>
+                </div>
+
+                <!-- The Stage -->
+                <div class="relative h-64 bg-slate-800 rounded-lg border border-slate-600 overflow-hidden flex">
+                    
+                    <!-- Rural Zone -->
+                    <div class="w-1/2 h-full bg-emerald-800/30 border-r border-slate-600 relative">
+                        <!-- Crops -->
+                        <div id="crop-area" class="absolute bottom-0 w-full h-12 flex justify-center gap-1 text-xl opacity-50">
+                            🌾🌾🌾
+                        </div>
+                        <!-- Workers Container -->
+                        <div id="rural-container" class="absolute inset-0 p-4 grid grid-cols-4 content-start gap-2">
+                            <!-- Workers start here -->
+                        </div>
+                    </div>
+
+                    <!-- Urban Zone -->
+                    <div class="w-1/2 h-full bg-slate-800 relative">
+                        <!-- Factory -->
+                        <div class="absolute bottom-4 right-8 text-6xl opacity-50">🏭</div>
+                        <!-- Smoke -->
+                        <div class="absolute bottom-20 right-12 flex gap-1">
+                            <div class="w-2 h-2 bg-white rounded-full smoke-particle" style="animation-delay: 0s"></div>
+                            <div class="w-3 h-3 bg-white rounded-full smoke-particle" style="animation-delay: 0.5s"></div>
+                        </div>
+                        <!-- Workers Container -->
+                        <div id="urban-container" class="absolute inset-0 p-4 grid grid-cols-4 content-start gap-2">
+                            <!-- Workers move here -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Stats -->
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800 p-3 rounded border border-slate-600 text-center">
+                        <div class="text-xs text-slate-400 uppercase">Food Production</div>
+                        <div id="stat-food" class="text-2xl font-extrabold text-emerald-400">Low</div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded border border-slate-600 text-center">
+                        <div class="text-xs text-slate-400 uppercase">Factory Labor Force</div>
+                        <div id="stat-labor" class="text-2xl font-extrabold text-blue-400">0 Workers</div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- SECTION 2: THE DEMOGRAPHIC CHAIN REACTION -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6">2. The Chain Reaction (Cause & Effect)</h2>
+            
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-center">
+                
+                <div class="w-full md:w-1/5 p-4 bg-orange-50 rounded-lg border border-orange-200 text-center group hover:scale-105 transition cursor-default">
+                    <div class="text-3xl mb-2">🚜</div>
+                    <h3 class="font-bold text-orange-900 text-sm">New Technology</h3>
+                    <p class="text-[10px] text-orange-700 mt-1">Seed Drill, Steel Plow</p>
+                </div>
+
+                <div class="text-slate-300 text-2xl">➔</div>
+
+                <div class="w-full md:w-1/5 p-4 bg-emerald-50 rounded-lg border border-emerald-200 text-center group hover:scale-105 transition cursor-default">
+                    <div class="text-3xl mb-2">🍞</div>
+                    <h3 class="font-bold text-emerald-900 text-sm">Surplus Food</h3>
+                    <p class="text-[10px] text-emerald-700 mt-1">More calories available</p>
+                </div>
+
+                <div class="text-slate-300 text-2xl">➔</div>
+
+                <div class="w-full md:w-1/5 p-4 bg-blue-50 rounded-lg border border-blue-200 text-center group hover:scale-105 transition cursor-default">
+                    <div class="text-3xl mb-2">💪</div>
+                    <h3 class="font-bold text-blue-900 text-sm">Better Health</h3>
+                    <p class="text-[10px] text-blue-700 mt-1">Less famine, stronger immunity</p>
+                </div>
+
+                <div class="text-slate-300 text-2xl">➔</div>
+
+                <div class="w-full md:w-1/5 p-4 bg-purple-50 rounded-lg border border-purple-200 text-center group hover:scale-105 transition cursor-default">
+                    <div class="text-3xl mb-2">📈</div>
+                    <h3 class="font-bold text-purple-900 text-sm">Population Boom</h3>
+                    <p class="text-[10px] text-purple-700 mt-1">Longer Life Expectancy (Stage 2)</p>
+                </div>
+
+            </div>
+            
+            <div class="mt-6 text-center">
+                <span class="inline-block bg-slate-100 text-slate-600 px-4 py-2 rounded-full text-xs font-bold border border-slate-200">
+                    Result: Stage 2 of the Demographic Transition Model
+                </span>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- SIMULATION LOGIC ---
+        let workers = [];
+        let techsAdded = 0;
+        const maxTechs = 3;
+
+        function initSim() {
+            const rural = document.getElementById('rural-container');
+            const urban = document.getElementById('urban-container');
+            
+            rural.innerHTML = '';
+            urban.innerHTML = '';
+            workers = [];
+            techsAdded = 0;
+
+            // Create 12 workers on the farm
+            for(let i=0; i<12; i++) {
+                const w = document.createElement('div');
+                w.className = "worker w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-lg shadow-sm";
+                w.innerText = "🧑‍🌾";
+                w.id = `worker-${i}`;
+                rural.appendChild(w);
+                workers.push(w);
+            }
+
+            updateStats();
+            resetButtons();
+        }
+
+        function addTech(id) {
+            const btn = document.getElementById(`btn-${id}`);
+            if(btn.classList.contains('active')) return; // Already added
+
+            btn.classList.add('active');
+            techsAdded++;
+
+            // Move workers: Each tech displaces 3 workers
+            const toMove = 3;
+            let movedCount = 0;
+            
+            const rural = document.getElementById('rural-container');
+            const urban = document.getElementById('urban-container');
+
+            // Find workers still in rural
+            const ruralWorkers = Array.from(rural.children);
+            
+            for(let i=0; i<toMove; i++) {
+                if (ruralWorkers[i]) {
+                    const w = ruralWorkers[i];
+                    
+                    // Visual Move
+                    // 1. Change icon to factory worker
+                    setTimeout(() => { w.innerText = "👷"; }, 400);
+                    
+                    // 2. Append to Urban container (CSS transition handles the slide if using FLIP, but simplest here is append)
+                    // To make it animate smoothly across containers is complex without libraries.
+                    // We will use a fade out/in effect for simplicity in this vanilla setup.
+                    w.style.opacity = 0;
+                    w.style.transform = "translateX(100px)";
+                    
+                    setTimeout(() => {
+                        urban.appendChild(w);
+                        w.style.opacity = 1;
+                        w.style.transform = "translateX(0)";
+                    }, 500);
+                }
+            }
+
+            updateStats();
+            updateCrops();
+        }
+
+        function updateCrops() {
+            const cropArea = document.getElementById('crop-area');
+            if (techsAdded === 1) cropArea.innerHTML = "🌾🌾🌾🌾🌾"; // More food
+            if (techsAdded === 2) cropArea.innerHTML = "🌽🌽🌽🌽🌽🌽🌽";
+            if (techsAdded === 3) cropArea.innerHTML = "🍞🍞🍞🍞🍞🍞🍞🍞🍞"; // Surplus!
+        }
+
+        function updateStats() {
+            const laborStat = document.getElementById('stat-labor');
+            const foodStat = document.getElementById('stat-food');
+            
+            // Calculate urban workers
+            const urbanCount = techsAdded * 3;
+            laborStat.innerText = `${urbanCount} Workers`;
+            
+            if (techsAdded === 0) {
+                foodStat.innerText = "Subsistence";
+                foodStat.className = "text-2xl font-extrabold text-slate-400";
+            } else if (techsAdded < 3) {
+                foodStat.innerText = "Growing";
+                foodStat.className = "text-2xl font-extrabold text-emerald-400";
+            } else {
+                foodStat.innerText = "MASSIVE SURPLUS";
+                foodStat.className = "text-2xl font-extrabold text-amber-400 animate-pulse";
+            }
+        }
+
+        function resetButtons() {
+            document.querySelectorAll('.tech-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('crop-area').innerHTML = "🌾🌾🌾";
+        }
+
+        function resetSim() {
+            initSim();
+        }
+
+        // Init
+        initSim();
+
+    </script>
+</body>
+</html>
