@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 4.10: Consequences of Forces</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Map Region Animation */
+        .region {
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1), fill 0.5s ease;
+            transform-origin: center;
+        }
+
+        /* Meter Animation */
+        .meter-fill {
+            transition: width 0.5s ease-out, background-color 0.5s ease;
+        }
+
+        /* Card Styles */
+        .scenario-card {
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-800 p-4 shadow-md border-b border-slate-700 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold text-white">Topic 4.10: State Stability Simulator</h1>
+                <p class="text-slate-400 text-xs mt-1">Balance Centripetal and Centrifugal Forces to prevent a Failed State.</p>
+            </div>
+            <div class="text-right">
+                <div class="text-xs uppercase font-bold tracking-wider text-slate-500">State Cohesion</div>
+                <div class="w-48 h-4 bg-slate-700 rounded-full mt-1 overflow-hidden border border-slate-600">
+                    <div id="cohesion-meter" class="h-full bg-emerald-500 meter-fill" style="width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row max-w-6xl mx-auto w-full overflow-hidden">
+
+        <!-- LEFT: SCENARIO CONTROL -->
+        <section class="w-full md:w-1/3 p-6 flex flex-col bg-slate-800 border-r border-slate-700 overflow-y-auto">
+            
+            <div id="game-container" class="space-y-6">
+                <!-- Dynamic Content Injected Here -->
+                <div class="text-center mt-10">
+                    <h2 class="text-xl font-bold text-white">Welcome, Leader.</h2>
+                    <p class="text-slate-400 text-sm mt-2 mb-6">
+                        Your country, <strong>Geographia</strong>, faces internal and external pressures. 
+                        Your decisions will either unify the state (Centripetal) or tear it apart (Centrifugal).
+                    </p>
+                    <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition transform active:scale-95">
+                        Begin Simulation
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vocabulary Reference (Bottom Left) -->
+            <div class="mt-auto pt-6 border-t border-slate-700">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Key Vocabulary (SPS-4.C)</h3>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-red-900/30 p-2 rounded border border-red-900/50">
+                        <strong class="text-red-400">Centrifugal</strong>
+                        <ul class="list-disc pl-3 text-slate-400 mt-1 space-y-1">
+                            <li>Uneven Development</li>
+                            <li>Stateless Nations</li>
+                            <li>Failed States</li>
+                        </ul>
+                    </div>
+                    <div class="bg-emerald-900/30 p-2 rounded border border-emerald-900/50">
+                        <strong class="text-emerald-400">Centripetal</strong>
+                        <ul class="list-disc pl-3 text-slate-400 mt-1 space-y-1">
+                            <li>Equitable Infrastructure</li>
+                            <li>Cultural Cohesion</li>
+                            <li>Ethnonationalism</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT: VISUALIZER -->
+        <section class="flex-1 bg-slate-900 relative flex flex-col items-center justify-center p-8">
+            
+            <!-- Status Text -->
+            <div id="status-text" class="absolute top-6 text-center transition-all duration-500 opacity-0 transform -translate-y-4">
+                <h2 id="status-title" class="text-2xl font-bold text-white"></h2>
+                <p id="status-desc" class="text-sm text-slate-300 mt-1"></p>
+            </div>
+
+            <!-- The Map -->
+            <svg id="state-map" viewBox="0 0 400 400" class="w-full max-w-md drop-shadow-2xl">
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Region 1 (Northwest) -->
+                <path id="r1" class="region" d="M 200 200 L 200 50 L 50 50 L 50 200 Z" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+                
+                <!-- Region 2 (Northeast) -->
+                <path id="r2" class="region" d="M 200 200 L 350 200 L 350 50 L 200 50 Z" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+                
+                <!-- Region 3 (Southwest) -->
+                <path id="r3" class="region" d="M 200 200 L 50 200 L 50 350 L 200 350 Z" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+                
+                <!-- Region 4 (Southeast) -->
+                <path id="r4" class="region" d="M 200 200 L 200 350 L 350 350 L 350 200 Z" fill="#64748b" stroke="#1e293b" stroke-width="2" />
+
+                <!-- Capital Star (Center) -->
+                <path id="capital" d="M 200 185 L 205 195 L 215 195 L 208 202 L 210 212 L 200 205 L 190 212 L 192 202 L 185 195 L 195 195 Z" fill="white" class="transition-opacity duration-300" />
+            </svg>
+
+            <!-- Outcome Label -->
+            <div id="state-label" class="mt-8 text-xl font-bold tracking-[0.2em] text-slate-500 uppercase transition-all duration-500">
+                Stable State
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // Game State
+        let cohesion = 50; // 0 to 100
+        let currentScenario = 0;
+
+        // Scenarios based on Essential Knowledge (SPS-4.C)
+        const scenarios = [
+            {
+                title: "Uneven Development",
+                desc: "The industrial North is wealthy, while the agrarian South is poor. The South feels neglected.",
+                type: "Economic",
+                choices: [
+                    {
+                        text: "Build National Highway Network",
+                        outcome: "good",
+                        change: 15,
+                        feedback: "You invested in <strong>Equitable Infrastructure</strong>. Connecting the regions increased trade and unity.",
+                        term: "Centripetal Force"
+                    },
+                    {
+                        text: "Ignore it (Focus on North)",
+                        outcome: "bad",
+                        change: -20,
+                        feedback: "The gap widened. The South is developing an <strong>Ethnic Nationalist Movement</strong> against you.",
+                        term: "Centrifugal Force"
+                    }
+                ]
+            },
+            {
+                title: "Cultural Identity",
+                desc: "A minority group in the East speaks a different language and wants to teach it in schools.",
+                type: "Cultural",
+                choices: [
+                    {
+                        text: "Make Official Language Only",
+                        outcome: "bad",
+                        change: -25,
+                        feedback: "Forcing a single identity backfired. The minority group now considers itself a <strong>Stateless Nation</strong> seeking independence.",
+                        term: "Centrifugal Force"
+                    },
+                    {
+                        text: "Grant Cultural Autonomy",
+                        outcome: "good",
+                        change: 10,
+                        feedback: "You promoted <strong>Cultural Cohesion</strong> by respecting diversity. They feel part of the state now.",
+                        term: "Centripetal Force"
+                    }
+                ]
+            },
+            {
+                title: "National Threat",
+                desc: "A neighboring country has threatened to invade your borders.",
+                type: "Political",
+                choices: [
+                    {
+                        text: "Rally the Nation for Defense",
+                        outcome: "good",
+                        change: 20,
+                        feedback: "External threats often create <strong>Nationalism</strong>. The people united to defend the homeland.",
+                        term: "Centripetal Force"
+                    },
+                    {
+                        text: "Relies on Regional Militias",
+                        outcome: "bad",
+                        change: -15,
+                        feedback: "Weak central leadership creates a power vacuum, a sign of a potential <strong>Failed State</strong>.",
+                        term: "Centrifugal Force"
+                    }
+                ]
+            },
+            {
+                title: "Resource Discovery",
+                desc: "Oil is found in the West! The region wants to keep 100% of the profits.",
+                type: "Economic",
+                choices: [
+                    {
+                        text: "Share Profits Nationally",
+                        outcome: "good",
+                        change: 10,
+                        feedback: "Redistributing wealth ensures <strong>Equitable Development</strong> across the state.",
+                        term: "Centripetal Force"
+                    },
+                    {
+                        text: "Let West Keep All Profits",
+                        outcome: "bad",
+                        change: -20,
+                        feedback: "<strong>Uneven Development</strong> skyrocketed. The other regions are furious and rioting.",
+                        term: "Centrifugal Force"
+                    }
+                ]
+            }
+        ];
+
+        function startGame() {
+            cohesion = 50;
+            currentScenario = 0;
+            updateVisuals();
+            loadScenario();
+        }
+
+        function loadScenario() {
+            if (currentScenario >= scenarios.length) {
+                endGame();
+                return;
+            }
+
+            const scen = scenarios[currentScenario];
+            const container = document.getElementById('game-container');
+            
+            container.innerHTML = `
+                <div class="scenario-card bg-slate-700 p-6 rounded-xl border border-slate-600 shadow-lg">
+                    <div class="text-xs font-bold text-indigo-400 uppercase mb-1">${scen.type} Crisis</div>
+                    <h3 class="text-xl font-bold text-white mb-2">${scen.title}</h3>
+                    <p class="text-slate-300 text-sm mb-6">${scen.desc}</p>
+                    
+                    <div class="space-y-3">
+                        <button onclick="makeChoice(0)" class="w-full text-left p-4 rounded-lg bg-slate-800 hover:bg-slate-600 border border-slate-600 transition group">
+                            <div class="font-bold text-indigo-200 group-hover:text-white">Option A</div>
+                            <div class="text-xs text-slate-400 group-hover:text-slate-200">${scen.choices[0].text}</div>
+                        </button>
+                        <button onclick="makeChoice(1)" class="w-full text-left p-4 rounded-lg bg-slate-800 hover:bg-slate-600 border border-slate-600 transition group">
+                            <div class="font-bold text-indigo-200 group-hover:text-white">Option B</div>
+                            <div class="text-xs text-slate-400 group-hover:text-slate-200">${scen.choices[1].text}</div>
+                        </button>
+                    </div>
+                </div>
+                <div class="text-center text-xs text-slate-500">Scenario ${currentScenario + 1} of ${scenarios.length}</div>
+            `;
+        }
+
+        function makeChoice(index) {
+            const scen = scenarios[currentScenario];
+            const choice = scen.choices[index];
+            
+            // Apply Logic
+            cohesion += choice.change;
+            if (cohesion > 100) cohesion = 100;
+            if (cohesion < 0) cohesion = 0;
+
+            updateVisuals();
+
+            // Show Feedback
+            const container = document.getElementById('game-container');
+            const colorText = choice.outcome === 'good' ? 'text-emerald-400' : 'text-red-400';
+            const borderColor = choice.outcome === 'good' ? 'border-emerald-500/50' : 'border-red-500/50';
+            const bgColor = choice.outcome === 'good' ? 'bg-emerald-900/20' : 'bg-red-900/20';
+
+            container.innerHTML = `
+                <div class="scenario-card ${bgColor} p-6 rounded-xl border ${borderColor} shadow-lg text-center">
+                    <h3 class="text-xl font-bold ${colorText} mb-2">${choice.term} Applied!</h3>
+                    <p class="text-slate-200 text-sm mb-6 leading-relaxed">${choice.feedback}</p>
+                    <button onclick="nextTurn()" class="bg-slate-200 text-slate-900 hover:bg-white font-bold py-2 px-6 rounded transition">
+                        Next Scenario
+                    </button>
+                </div>
+            `;
+        }
+
+        function nextTurn() {
+            currentScenario++;
+            loadScenario();
+        }
+
+        function endGame() {
+            const container = document.getElementById('game-container');
+            let title, desc, color;
+
+            if (cohesion >= 80) {
+                title = "Highly Stable State";
+                desc = "You have created a model of unity. Through <strong>Equitable Infrastructure</strong> and cultural inclusion, Centripetal forces dominate.";
+                color = "text-emerald-400";
+            } else if (cohesion >= 40) {
+                title = "Fragile State";
+                desc = "The country is intact, but <strong>Centrifugal Forces</strong> like uneven development threaten its long-term survival. Careful management is needed.";
+                color = "text-yellow-400";
+            } else {
+                title = "Failed State";
+                desc = "The state has disintegrated. <strong>Ethnic Separatism</strong> and neglect led to fragmentation. The government holds no power.";
+                color = "text-red-500";
+            }
+
+            container.innerHTML = `
+                <div class="text-center mt-10">
+                    <h2 class="text-3xl font-extrabold ${color} mb-4">${title}</h2>
+                    <p class="text-slate-300 mb-8">${desc}</p>
+                    <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg">
+                        Play Again
+                    </button>
+                </div>
+            `;
+        }
+
+        function updateVisuals() {
+            // 1. Update Meter
+            const meter = document.getElementById('cohesion-meter');
+            meter.style.width = `${cohesion}%`;
+            
+            // Color logic
+            if (cohesion > 70) {
+                meter.className = "h-full bg-emerald-500 meter-fill";
+                document.getElementById('state-label').innerText = "Unified State";
+                document.getElementById('state-label').className = "mt-8 text-xl font-bold tracking-[0.2em] text-emerald-500 uppercase transition-all duration-500";
+                document.getElementById('capital').style.opacity = 1;
+            } else if (cohesion > 30) {
+                meter.className = "h-full bg-yellow-500 meter-fill";
+                document.getElementById('state-label').innerText = "Unstable State";
+                document.getElementById('state-label').className = "mt-8 text-xl font-bold tracking-[0.2em] text-yellow-500 uppercase transition-all duration-500";
+                document.getElementById('capital').style.opacity = 0.5;
+            } else {
+                meter.className = "h-full bg-red-600 meter-fill animate-pulse";
+                document.getElementById('state-label').innerText = "Failed State";
+                document.getElementById('state-label').className = "mt-8 text-xl font-bold tracking-[0.2em] text-red-600 uppercase transition-all duration-500";
+                document.getElementById('capital').style.opacity = 0;
+            }
+
+            // 2. Update Map Geometry (Explode or Contract)
+            // Logic: As cohesion drops below 50, regions translate away from center (200,200)
+            // Max fragmentation at cohesion 0.
+            
+            const regions = ['r1', 'r2', 'r3', 'r4'];
+            const offsets = {
+                'r1': { dx: -1, dy: -1 },
+                'r2': { dx: 1, dy: -1 },
+                'r3': { dx: -1, dy: 1 },
+                'r4': { dx: 1, dy: 1 }
+            };
+
+            // Calculate spread factor (0 to 40px)
+            let spread = 0;
+            if (cohesion < 50) {
+                spread = (50 - cohesion) * 1.5; // Max spread around 75px
+            }
+
+            // Calculate color
+            // High cohesion = Green/Blue. Low = Red/Grey.
+            let fillColor;
+            if (cohesion > 60) fillColor = "#10b981"; // emerald-500
+            else if (cohesion > 30) fillColor = "#64748b"; // slate-500
+            else fillColor = "#ef4444"; // red-500
+
+            regions.forEach(id => {
+                const el = document.getElementById(id);
+                const dir = offsets[id];
+                el.style.transform = `translate(${dir.dx * spread}px, ${dir.dy * spread}px)`;
+                el.setAttribute('fill', fillColor);
+            });
+        }
+
+        // Init Visuals
+        updateVisuals();
+
+    </script>
+</body>
+</html>
