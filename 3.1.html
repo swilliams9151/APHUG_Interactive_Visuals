@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.1: Introduction to Culture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Iceberg Animation */
+        .float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Tooltip transition */
+        .tooltip {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* Card Hover */
+        .trait-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .trait-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-sky-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-sky-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 3.1: Introduction to Culture</h1>
+                <p class="text-sky-200 text-sm mt-1">Traits, Attitudes, and the Cultural Iceberg (PSO-3.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-sky-800 px-3 py-1 rounded border border-sky-700">
+                Material vs. Non-Material
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE CULTURAL ICEBERG -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-sky-100">
+            <div class="p-6 border-b border-slate-100 bg-sky-50">
+                <h2 class="text-xl font-bold text-sky-900">1. The Cultural Iceberg (PSO-3.A.1)</h2>
+                <p class="text-sm text-slate-500 mt-1">Culture is like an iceberg: 10% is visible (Material), but 90% is hidden (Non-Material). Hover to explore.</p>
+            </div>
+
+            <div class="relative h-[500px] w-full bg-gradient-to-b from-sky-200 to-sky-800 overflow-hidden flex justify-center items-center">
+                
+                <!-- Water Line -->
+                <div class="absolute top-[40%] left-0 w-full h-full bg-sky-800/50 backdrop-blur-[2px] z-10 border-t border-sky-400/50"></div>
+
+                <!-- Iceberg SVG -->
+                <svg viewBox="0 0 400 500" class="h-[80%] w-auto z-20 float drop-shadow-2xl">
+                    <!-- Visible Part (Top) -->
+                    <g id="ice-top" class="cursor-pointer group" onmouseenter="showTooltip('material')" onmouseleave="hideTooltip()">
+                        <path d="M 150 200 L 200 50 L 300 200 Z" fill="#e0f2fe" stroke="#bae6fd" stroke-width="2" />
+                        <text x="225" y="150" text-anchor="middle" fill="#0369a1" font-weight="bold" font-size="14" class="opacity-70 group-hover:opacity-100 transition">Artifacts</text>
+                    </g>
+                    
+                    <!-- Hidden Part (Bottom) -->
+                    <g id="ice-bottom" class="cursor-pointer group" onmouseenter="showTooltip('non-material')" onmouseleave="hideTooltip()">
+                        <path d="M 150 200 L 100 450 L 350 400 L 300 200 Z" fill="#7dd3fc" stroke="#38bdf8" stroke-width="2" opacity="0.8" />
+                        <text x="225" y="300" text-anchor="middle" fill="#0c4a6e" font-weight="bold" font-size="14" class="opacity-70 group-hover:opacity-100 transition">Mentifacts & Sociofacts</text>
+                    </g>
+                </svg>
+
+                <!-- Dynamic Tooltip -->
+                <div id="iceberg-tooltip" class="absolute top-10 right-10 w-64 bg-white/95 p-4 rounded-xl shadow-xl opacity-0 transform translate-x-10 tooltip border-l-4 border-sky-500 z-30">
+                    <h3 id="tt-title" class="font-bold text-sky-900 mb-2 text-lg">Title</h3>
+                    <p id="tt-desc" class="text-xs text-slate-600 leading-relaxed mb-2">Description</p>
+                    <ul id="tt-list" class="text-xs text-slate-500 list-disc pl-4 space-y-1"></ul>
+                </div>
+
+                <!-- Labels -->
+                <div class="absolute top-[35%] left-4 bg-white/80 px-3 py-1 rounded-full text-xs font-bold text-sky-800 shadow">
+                    Visible Culture
+                </div>
+                <div class="absolute bottom-[20%] left-4 bg-sky-900/80 px-3 py-1 rounded-full text-xs font-bold text-sky-100 shadow border border-sky-500">
+                    Invisible Culture
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: CULTURAL TRAITS (PSO-3.A.2) -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-amber-500">2. Cultural Traits & Geography</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <!-- Food -->
+                <div class="trait-card bg-white p-6 rounded-xl shadow-md border border-slate-100">
+                    <div class="text-4xl mb-4">🌮</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Food Preferences</h3>
+                    <p class="text-sm text-slate-600 mb-4">Deeply tied to <strong>Physical Geography</strong>. Cultures eat what they can grow.</p>
+                    <div class="bg-amber-50 p-3 rounded text-xs text-amber-900 border border-amber-100">
+                        <strong>Ex:</strong> Japan (Island) ➔ Sushi (Fish). Mexico (Dry) ➔ Corn/Tortillas.
+                    </div>
+                </div>
+
+                <!-- Architecture -->
+                <div class="trait-card bg-white p-6 rounded-xl shadow-md border border-slate-100">
+                    <div class="text-4xl mb-4">🛖</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Architecture</h3>
+                    <p class="text-sm text-slate-600 mb-4">Built forms reflect available resources and climate adaptation.</p>
+                    <div class="bg-stone-50 p-3 rounded text-xs text-stone-900 border border-stone-100">
+                        <strong>Ex:</strong> Mongolia (Steppe) ➔ Yurts (Portable). SW USA (Desert) ➔ Adobe (Cooling).
+                    </div>
+                </div>
+
+                <!-- Land Use -->
+                <div class="trait-card bg-white p-6 rounded-xl shadow-md border border-slate-100">
+                    <div class="text-4xl mb-4">🌾</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Land Use</h3>
+                    <p class="text-sm text-slate-600 mb-4">How a society alters the landscape for agriculture or settlement.</p>
+                    <div class="bg-emerald-50 p-3 rounded text-xs text-emerald-900 border border-emerald-100">
+                        <strong>Ex:</strong> SE Asia ➔ Terracing (Rice). USA ➔ Grid System (Township & Range).
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: ATTITUDES (PSO-3.A.3) -->
+        <section class="bg-slate-800 rounded-2xl p-8 shadow-2xl text-white">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white">3. The Perspective Shifter</h2>
+                    <p class="text-slate-400 text-sm mt-1">How do we judge differences? Toggle the lens below.</p>
+                </div>
+                
+                <!-- Toggle -->
+                <div class="flex bg-slate-700 p-1 rounded-lg mt-4 md:mt-0">
+                    <button onclick="setLens('ethno')" id="btn-ethno" class="px-4 py-2 text-xs font-bold rounded shadow bg-red-500 text-white transition">Ethnocentrism</button>
+                    <button onclick="setLens('relativism')" id="btn-relativism" class="px-4 py-2 text-xs font-bold rounded text-slate-400 hover:text-white transition">Cultural Relativism</button>
+                </div>
+            </div>
+
+            <!-- The Scenario -->
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <!-- Image/Icon -->
+                <div class="w-32 h-32 bg-slate-700 rounded-full flex items-center justify-center text-6xl shadow-inner shrink-0">
+                    🦗
+                </div>
+                
+                <!-- Content Bubble -->
+                <div class="flex-1 relative">
+                    <div id="lens-bubble" class="bg-white text-slate-800 p-6 rounded-xl shadow-lg border-l-8 border-red-500 transition-all duration-300">
+                        <h4 id="lens-title" class="font-bold text-lg text-red-600 mb-2 uppercase tracking-wider">Judgment Mode</h4>
+                        <p id="lens-text" class="text-lg font-serif italic mb-4">"Ew! Why are they eating bugs? That is disgusting and uncivilized. They should eat normal food like burgers."</p>
+                        <div class="text-xs text-slate-500 border-t border-slate-100 pt-3">
+                            <strong>Definition:</strong> Judging another culture based on the standards of your own culture.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. ICEBERG LOGIC ---
+        const icebergData = {
+            'material': {
+                title: "Material Culture (Visible)",
+                desc: "The physical objects, resources, and spaces that people use to define their culture. These are the 'Artifacts'.",
+                items: ["Food & Clothing", "Architecture", "Art & Music", "Technology & Tools", "Land Use Patterns"]
+            },
+            'non-material': {
+                title: "Non-Material Culture (Invisible)",
+                desc: "The abstract ideas, beliefs, and values that define a society. These are 'Mentifacts' (ideas) and 'Sociofacts' (institutions).",
+                items: ["Religious Beliefs", "Gender Roles", "Concepts of Time & Space", "Notions of Modesty", "Body Language Rules"]
+            }
+        };
+
+        function showTooltip(type) {
+            const data = icebergData[type];
+            const tooltip = document.getElementById('iceberg-tooltip');
+            
+            document.getElementById('tt-title').innerText = data.title;
+            document.getElementById('tt-desc').innerText = data.desc;
+            document.getElementById('tt-list').innerHTML = data.items.map(i => `<li>${i}</li>`).join('');
+
+            // Styling update based on depth
+            if(type === 'non-material') {
+                tooltip.classList.replace('border-sky-500', 'border-sky-800');
+                document.getElementById('tt-title').classList.replace('text-sky-900', 'text-sky-800');
+            } else {
+                tooltip.classList.replace('border-sky-800', 'border-sky-500');
+                document.getElementById('tt-title').classList.replace('text-sky-800', 'text-sky-900');
+            }
+
+            tooltip.classList.remove('opacity-0', 'translate-x-10');
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('iceberg-tooltip');
+            tooltip.classList.add('opacity-0', 'translate-x-10');
+        }
+
+        // --- 3. PERSPECTIVE LOGIC ---
+        const lensData = {
+            'ethno': {
+                title: "Ethnocentrism",
+                color: "red",
+                text: "\"Ew! Why are they eating bugs? That is disgusting and uncivilized. They should eat normal food like burgers.\"",
+                def: "Judging another culture based on the standards of your own culture. Viewing one's own culture as superior."
+            },
+            'relativism': {
+                title: "Cultural Relativism",
+                color: "emerald",
+                text: "\"In this tropical climate, insects are an abundant, sustainable source of protein. It makes sense for their environment.\"",
+                def: "Evaluating a culture by its own standards. Trying to understand practices within their specific context."
+            }
+        };
+
+        function setLens(mode) {
+            const data = lensData[mode];
+            const bubble = document.getElementById('lens-bubble');
+            const title = document.getElementById('lens-title');
+            const text = document.getElementById('lens-text');
+            const btnEthno = document.getElementById('btn-ethno');
+            const btnRel = document.getElementById('btn-relativism');
+
+            // Update Text Content
+            title.innerText = data.title;
+            text.innerText = data.text;
+            bubble.querySelector('div').innerHTML = `<strong>Definition:</strong> ${data.def}`;
+
+            // Update Styles
+            if (mode === 'ethno') {
+                bubble.className = "bg-white text-slate-800 p-6 rounded-xl shadow-lg border-l-8 border-red-500 transition-all duration-300";
+                title.className = "font-bold text-lg text-red-600 mb-2 uppercase tracking-wider";
+                
+                btnEthno.className = "px-4 py-2 text-xs font-bold rounded shadow bg-red-500 text-white transition";
+                btnRel.className = "px-4 py-2 text-xs font-bold rounded text-slate-400 hover:text-white transition";
+            } else {
+                bubble.className = "bg-white text-slate-800 p-6 rounded-xl shadow-lg border-l-8 border-emerald-500 transition-all duration-300";
+                title.className = "font-bold text-lg text-emerald-600 mb-2 uppercase tracking-wider";
+
+                btnRel.className = "px-4 py-2 text-xs font-bold rounded shadow bg-emerald-500 text-white transition";
+                btnEthno.className = "px-4 py-2 text-xs font-bold rounded text-slate-400 hover:text-white transition";
+            }
+        }
+
+    </script>
+</body>
+</html>
