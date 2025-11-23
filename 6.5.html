@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.5: Internal Structure of Cities</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Zone Transitions */
+        .zone-path {
+            transition: opacity 0.3s, fill 0.3s;
+            cursor: pointer;
+        }
+        .zone-path:hover {
+            stroke: white;
+            stroke-width: 3;
+            opacity: 0.9;
+        }
+
+        /* Active Button State */
+        .model-btn.active {
+            background-color: #fff;
+            border-left: 4px solid #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            font-weight: 800;
+        }
+        .model-btn { border-left: 4px solid transparent; }
+        
+        /* Label Animation */
+        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.5: Internal Structure of Cities</h1>
+                <p class="text-indigo-200 text-sm mt-1">Urban Models: North American & International (PSO-6.D)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-indigo-800 px-3 py-1 rounded border border-indigo-700">
+                Burgess • Hoyt • Harris-Ullman • Galactic
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <div class="grid lg:grid-cols-4 gap-6 h-[600px]">
+            
+            <!-- Sidebar: Model Selection -->
+            <aside class="lg:col-span-1 bg-slate-800 rounded-xl border border-slate-700 overflow-y-auto flex flex-col">
+                <div class="p-4 bg-slate-900/50 border-b border-slate-700">
+                    <h2 class="font-bold text-slate-400 uppercase text-xs tracking-wider">Select a Model</h2>
+                </div>
+                
+                <div class="flex-1 p-2 space-y-1">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-2 mb-1 px-3">North American</div>
+                    <button onclick="renderModel('concentric')" id="btn-concentric" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">1. Concentric Zone (1923)</button>
+                    <button onclick="renderModel('sector')" id="btn-sector" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">2. Hoyt Sector (1939)</button>
+                    <button onclick="renderModel('nuclei')" id="btn-nuclei" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">3. Multiple Nuclei (1945)</button>
+                    <button onclick="renderModel('galactic')" id="btn-galactic" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">4. Galactic City (1960s+)</button>
+
+                    <div class="text-[10px] font-bold text-slate-500 uppercase mt-4 mb-1 px-3">International</div>
+                    <button onclick="renderModel('latam')" id="btn-latam" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">5. Latin American (Griffin-Ford)</button>
+                    <button onclick="renderModel('african')" id="btn-african" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">6. Sub-Saharan African (De Blij)</button>
+                    <button onclick="renderModel('seasia')" id="btn-seasia" class="model-btn w-full text-left px-4 py-3 rounded hover:bg-slate-700 transition text-sm">7. Southeast Asian (McGee)</button>
+                </div>
+            </aside>
+
+            <!-- Main Visualization Area -->
+            <section class="lg:col-span-3 flex flex-col gap-6">
+                
+                <!-- The Canvas -->
+                <div class="relative flex-1 bg-white rounded-xl shadow-2xl overflow-hidden flex items-center justify-center border-4 border-slate-200">
+                    
+                    <!-- Title Overlay -->
+                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-4 py-2 rounded shadow z-10">
+                        <h2 id="model-title" class="text-xl font-extrabold text-slate-800">Select a Model</h2>
+                        <p id="model-subtitle" class="text-xs text-slate-500 italic">Click sidebar to visualize</p>
+                    </div>
+
+                    <!-- Critique Toggle -->
+                    <button onclick="toggleCritique()" class="absolute top-4 right-4 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-bold shadow transition z-10">
+                        Reality Check ⚠️
+                    </button>
+
+                    <!-- SVG Container -->
+                    <svg id="city-svg" viewBox="0 0 600 400" class="w-full h-full bg-slate-50">
+                        <!-- Shapes injected via JS -->
+                    </svg>
+                    
+                    <!-- Tooltip (Floating) -->
+                    <div id="tooltip" class="absolute pointer-events-none bg-slate-900 text-white text-xs p-2 rounded shadow-lg opacity-0 transition-opacity max-w-[200px] z-20">
+                        Info
+                    </div>
+
+                    <!-- Reality Check Overlay (Hidden) -->
+                    <div id="critique-overlay" class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300 z-30 p-10">
+                        <div class="bg-white text-slate-800 p-6 rounded-xl shadow-2xl max-w-lg">
+                            <h3 class="text-lg font-bold text-red-600 mb-2 flex items-center"><span class="text-2xl mr-2">⚠️</span> Limitations & Weaknesses</h3>
+                            <p id="critique-text" class="text-sm text-slate-600 leading-relaxed">Select a model to see its critique.</p>
+                            <button onclick="toggleCritique()" class="mt-4 w-full bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded font-bold text-xs">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Legend / Key -->
+                <div id="legend-container" class="h-24 bg-slate-800 rounded-xl border border-slate-700 p-4 flex flex-wrap gap-3 items-center justify-center text-xs text-slate-400 overflow-y-auto">
+                    <span class="italic">Hover over the map zones to see details.</span>
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- MODEL DATA ---
+        const models = {
+            'concentric': {
+                title: "Burgess Concentric Zone Model (1923)",
+                sub: "Based on Chicago. Era: Walking/Horse.",
+                critique: "Assumes flat land (isotropic plain). Doesn't account for cars or highways. In modern cities, gentrification creates high-class zones in the center, reversing the ring logic.",
+                shapes: [
+                    { type: 'circle', r: 180, fill: '#bae6fd', name: "Commuter Zone", desc: "Wealthy suburbs. People commute to CBD." },
+                    { type: 'circle', r: 140, fill: '#bfdbfe', name: "Residential Zone", desc: "Middle-class housing." },
+                    { type: 'circle', r: 100, fill: '#93c5fd', name: "Working Class Zone", desc: "Blue-collar housing. Close to factories." },
+                    { type: 'circle', r: 60, fill: '#fdba74', name: "Zone of Transition", desc: "Mix of industry and poor housing. Immigrant enclaves." },
+                    { type: 'circle', r: 30, fill: '#ef4444', name: "CBD", desc: "Central Business District. High density." }
+                ]
+            },
+            'sector': {
+                title: "Hoyt Sector Model (1939)",
+                sub: "Based on US cities. Era: Railroads/Streetcars.",
+                critique: "Based on rail transport. Doesn't account for cars which allow suburbs to spread in all directions, not just along wedges. Multiple nuclei often form in reality.",
+                shapes: [
+                    { type: 'circle', r: 180, fill: '#f1f5f9', name: "Background", desc: "General City Area" }, // Base
+                    { type: 'wedge', d: "M 300 200 L 480 200 A 180 180 0 0 0 300 20 Z", fill: '#dcfce7', name: "High Class Res.", desc: "Wealthy sector extending out from CBD, usually along desirable high ground or transit." },
+                    { type: 'wedge', d: "M 300 200 L 300 380 A 180 180 0 0 0 120 200 Z", fill: '#e0f2fe', name: "Low Class Res.", desc: "Near industry/railroads. Noise and pollution." },
+                    { type: 'wedge', d: "M 300 200 L 300 20 L 120 200 Z", fill: '#fcd34d', name: "Industry/Transport", desc: "Follows rail lines radiating from center." },
+                    { type: 'circle', r: 25, fill: '#ef4444', name: "CBD", desc: "Central Business District." }
+                ]
+            },
+            'nuclei': {
+                title: "Harris-Ullman Multiple Nuclei (1945)",
+                sub: "Era: Early Automobile. Decentralization begins.",
+                critique: "Still doesn't fully capture the massive sprawl of modern 'Galactic' cities or the service economy dominance. Does not fit non-Western cities well.",
+                shapes: [
+                    { type: 'rect', x: 250, y: 150, w: 50, h: 50, fill: '#ef4444', name: "CBD", desc: "Original Center." },
+                    { type: 'rect', x: 200, y: 100, w: 60, h: 150, fill: '#fdba74', name: "Wholesale/Light Mfg", desc: "Near CBD but spreading." },
+                    { type: 'rect', x: 50, y: 50, w: 100, h: 100, fill: '#fcd34d', name: "Heavy Industry", desc: "Separate node, away from high class." },
+                    { type: 'rect', x: 400, y: 250, w: 80, h: 80, fill: '#dcfce7', name: "Outlying Business Dist.", desc: "A new node competing with CBD." },
+                    { type: 'rect', x: 350, y: 50, w: 150, h: 100, fill: '#bfdbfe', name: "High Class Res.", desc: "Far from industry." },
+                    { type: 'rect', x: 100, y: 250, w: 100, h: 80, fill: '#e2e8f0', name: "Low Class Res.", desc: "Near industry." }
+                ]
+            },
+            'galactic': {
+                title: "Galactic City Model (1960s+)",
+                sub: "Peripheral Model. Era: Highways/Interstates.",
+                critique: "Assumes massive car ownership. Creates sprawl and environmental issues. Decentralizes the city so much the CBD loses importance.",
+                shapes: [
+                    { type: 'circle', r: 150, fill: 'none', stroke: '#334155', width: 8, name: "Beltway/Ring Road", desc: "Highway circling the city." },
+                    { type: 'circle', r: 30, fill: '#ef4444', name: "CBD", desc: "Central City (Declining influence?)" },
+                    { type: 'circle', cx: 450, cy: 200, r: 15, fill: '#6366f1', name: "Edge City", desc: "Office parks/Malls on the highway." },
+                    { type: 'circle', cx: 150, cy: 200, r: 15, fill: '#6366f1', name: "Edge City", desc: "Retail/Business hub." },
+                    { type: 'circle', cx: 300, cy: 50, r: 15, fill: '#6366f1', name: "Edge City", desc: "Medical/Tech hub." },
+                    { type: 'circle', cx: 300, cy: 350, r: 20, fill: '#f59e0b', name: "Airport", desc: "Transport Node." },
+                    { type: 'rect', x: 100, y: 100, w: 400, h: 200, fill: '#e0f2fe', opacity: 0.3, name: "Suburbs", desc: "Sprawling residential areas." }
+                ]
+            },
+            'latam': {
+                title: "Latin American Model (Griffin-Ford)",
+                sub: "Inverse of US. Wealth in center/spine.",
+                critique: "Favelas (Squatter settlements) are often dangerous and lack services. The rich segregate themselves in the spine.",
+                shapes: [
+                    { type: 'circle', r: 180, fill: '#cbd5e1', name: "Periferico", desc: "Squatter settlements/Favelas on the outskirts." },
+                    { type: 'circle', r: 120, fill: '#fef3c7', name: "Zone of Maturity", desc: "Middle class housing." },
+                    { type: 'rect', x: 280, y: 200, w: 40, h: 180, fill: '#10b981', name: "The Spine", desc: "Elite commercial axis. High-end shops/offices." },
+                    { type: 'rect', x: 260, y: 200, w: 80, h: 180, fill: '#10b981', opacity: 0.3, name: "Elite Residential", desc: "Rich live along the spine." },
+                    { type: 'circle', r: 30, fill: '#ef4444', name: "CBD", desc: "Central Business District + Market." },
+                    { type: 'wedge', d: "M 300 200 L 200 10 L 400 10 Z", fill: '#475569', name: "Disamenity Sector", desc: "Poorest areas connecting CBD to Periferico. Often gang controlled." }
+                ]
+            },
+            'african': {
+                title: "Sub-Saharan African Model (De Blij)",
+                sub: "Three distinct CBDs.",
+                critique: "Rapid urbanization is outpacing infrastructure. Massive shantytowns form on the periphery.",
+                shapes: [
+                    { type: 'circle', r: 180, fill: '#f1f5f9', name: "Satellite Townships", desc: "Squatter settlements." },
+                    { type: 'circle', r: 120, fill: '#fef3c7', name: "Ethnic Neighborhoods", desc: "Tribal clustering." },
+                    { type: 'circle', cx: 300, cy: 200, r: 40, fill: 'none', stroke: '#000', width: 2, name: "Ring Road", desc: "Major transport." },
+                    { type: 'circle', cx: 270, cy: 190, r: 25, fill: '#ef4444', name: "Colonial CBD", desc: "Grid layout. Vertical buildings. Legacy of Europe." },
+                    { type: 'circle', cx: 330, cy: 190, r: 25, fill: '#f59e0b', name: "Traditional CBD", desc: "Single story. Commercial center." },
+                    { type: 'circle', cx: 300, cy: 240, r: 25, fill: '#10b981', name: "Market Zone", desc: "Open air stalls. Informal economy." }
+                ]
+            },
+            'seasia': {
+                title: "Southeast Asian Model (McGee)",
+                sub: "Focal point is the Port.",
+                critique: "No formal CBD. Market gardening on edge is disappearing due to sprawl.",
+                shapes: [
+                    { type: 'wedge', d: "M 300 400 L 50 50 L 550 50 Z", fill: '#f1f5f9', name: "Suburbs/Squatters", desc: "Mix of formal and informal housing." },
+                    { type: 'wedge', d: "M 300 400 L 150 150 L 450 150 Z", fill: '#fef3c7', name: "Alien Commercial", desc: "Often Chinese merchants." },
+                    { type: 'wedge', d: "M 300 400 L 200 250 L 400 250 Z", fill: '#dcfce7', name: "Western Commercial", desc: "Western businesses." },
+                    { type: 'rect', x: 100, y: 350, w: 400, h: 50, fill: '#3b82f6', name: "Port Zone", desc: "The focus of the city. Exports raw materials." },
+                    { type: 'rect', x: 50, y: 50, w: 100, h: 100, fill: '#166534', name: "Market Gardening", desc: "Vegetable farming on periphery." }
+                ]
+            }
+        };
+
+        // --- RENDER LOGIC ---
+        const svg = document.getElementById('city-svg');
+        const tooltip = document.getElementById('tooltip');
+        let currentModelId = null;
+
+        function renderModel(id) {
+            currentModelId = id;
+            const data = models[id];
+            
+            // Update UI
+            document.getElementById('model-title').innerText = data.title;
+            document.getElementById('model-subtitle').innerText = data.sub;
+            document.getElementById('critique-text').innerText = data.critique;
+            document.getElementById('critique-overlay').classList.remove('pointer-events-auto', 'opacity-100'); // Hide critique if open
+            
+            // Highlight Button
+            document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${id}`).classList.add('active');
+
+            // Render Legend
+            const legend = document.getElementById('legend-container');
+            legend.innerHTML = ""; // Clear
+
+            // Render Shapes
+            svg.innerHTML = ""; // Clear SVG
+
+            // Draw shapes in reverse order (so small ones are on top if concentric)
+            // Actually, data.shapes should be ordered Back -> Front in the object for ease
+            // My concentric data is Outer -> Inner, so that works nicely for drawing order?
+            // No, Outer first means Inner covers it. Correct.
+            
+            data.shapes.forEach((shape, index) => {
+                let el;
+                if (shape.type === 'circle') {
+                    el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    el.setAttribute("r", shape.r);
+                    // Default center to 300, 200 if not specified
+                    el.setAttribute("cx", shape.cx || 300);
+                    el.setAttribute("cy", shape.cy || 200);
+                } else if (shape.type === 'rect') {
+                    el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    el.setAttribute("x", shape.x);
+                    el.setAttribute("y", shape.y);
+                    el.setAttribute("width", shape.w);
+                    el.setAttribute("height", shape.h);
+                } else if (shape.type === 'wedge') {
+                    el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    el.setAttribute("d", shape.d);
+                }
+
+                // Common Attributes
+                el.setAttribute("fill", shape.fill || 'none');
+                if (shape.stroke) el.setAttribute("stroke", shape.stroke);
+                if (shape.width) el.setAttribute("stroke-width", shape.width);
+                if (shape.opacity) el.setAttribute("opacity", shape.opacity);
+                
+                el.classList.add('zone-path');
+                
+                // Interaction
+                el.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = e.pageX + 10 + 'px';
+                    tooltip.style.top = e.pageY + 10 + 'px';
+                    tooltip.style.opacity = 1;
+                    tooltip.innerHTML = `<strong>${shape.name}</strong><br>${shape.desc}`;
+                });
+                el.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = 0;
+                });
+
+                svg.appendChild(el);
+
+                // Add to Legend
+                const legItem = document.createElement('div');
+                legItem.className = "flex items-center gap-2 bg-slate-700 px-2 py-1 rounded";
+                legItem.innerHTML = `<div class="w-3 h-3 rounded-sm" style="background-color:${shape.fill === 'none' ? shape.stroke : shape.fill}"></div> ${shape.name}`;
+                legend.appendChild(legItem);
+            });
+        }
+
+        function toggleCritique() {
+            const overlay = document.getElementById('critique-overlay');
+            if (overlay.classList.contains('opacity-0')) {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        }
+
+        // Init
+        renderModel('concentric');
+
+    </script>
+</body>
+</html>
