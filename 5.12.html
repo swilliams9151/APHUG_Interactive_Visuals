@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.12: Women in Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Bar Animation */
+        .yield-bar { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s; }
+
+        /* Region Hover */
+        .region-btn { transition: all 0.2s ease; }
+        .region-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .region-btn.active { border-color: #db2777; background-color: #fdf2f8; ring: 2px solid #db2777; }
+
+        /* Worker Animation */
+        .worker-icon { transition: all 0.8s ease; }
+        .worker-leave { opacity: 0; transform: translateX(50px) translateY(-20px); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-pink-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.12: Women in Agriculture</h1>
+                <p class="text-pink-200 text-sm mt-1">Role Variation, Access, and Impact (IMP-5.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-pink-800 px-3 py-1 rounded border border-pink-700">
+                Closing the Gender Gap
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: REGIONAL PATTERNS (Data Analysis) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-pink-50 flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-pink-900">1. Geographic Variations (IMP-5.C.1)</h2>
+                    <p class="text-sm text-slate-600 mt-1">Compare the role of women in food production across regions.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 p-8">
+                
+                <!-- Region Selection -->
+                <div class="space-y-3">
+                    <button onclick="showRegion('africa')" id="btn-africa" class="region-btn active w-full text-left p-4 rounded-lg border border-slate-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-slate-800">Sub-Saharan Africa</h3>
+                            <span class="text-xl">🌍</span>
+                        </div>
+                        <div class="text-xs font-bold text-pink-600 bg-pink-50 inline-block px-2 py-1 rounded">50%+ of Labor Force</div>
+                    </button>
+
+                    <button onclick="showRegion('asia')" id="btn-asia" class="region-btn w-full text-left p-4 rounded-lg border border-slate-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-slate-800">South/SE Asia</h3>
+                            <span class="text-xl">🌏</span>
+                        </div>
+                        <div class="text-xs font-bold text-pink-600 bg-pink-50 inline-block px-2 py-1 rounded">High Participation</div>
+                    </button>
+
+                    <button onclick="showRegion('mdc')" id="btn-mdc" class="region-btn w-full text-left p-4 rounded-lg border border-slate-200 bg-white">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-bold text-slate-800">Developed World (MDCs)</h3>
+                            <span class="text-xl">🏙️</span>
+                        </div>
+                        <div class="text-xs font-bold text-blue-600 bg-blue-50 inline-block px-2 py-1 rounded">Agribusiness</div>
+                    </button>
+                </div>
+
+                <!-- Data Display -->
+                <div class="md:col-span-2 bg-slate-50 rounded-xl border border-slate-200 p-6 flex flex-col justify-center relative overflow-hidden">
+                    <!-- Background Icon -->
+                    <div id="bg-icon" class="absolute right-4 bottom-4 text-9xl opacity-5">👩‍🌾</div>
+
+                    <div id="region-content">
+                        <h3 class="text-2xl font-extrabold text-slate-800 mb-4">Sub-Saharan Africa</h3>
+                        
+                        <div class="grid grid-cols-2 gap-8 mb-6">
+                            <div>
+                                <span class="block text-xs font-bold text-slate-400 uppercase mb-1">Primary Role</span>
+                                <p class="text-sm font-medium text-slate-700">Subsistence Farming. Women produce up to 80% of food for household consumption.</p>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-bold text-slate-400 uppercase mb-1">Key Challenge</span>
+                                <p class="text-sm font-medium text-slate-700">Land Rights. Women work the land but rarely own it, limiting access to credit/loans.</p>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Workforce Composition</span>
+                            <div class="flex h-4 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                                <div class="h-full bg-pink-500" style="width: 50%"></div>
+                                <div class="h-full bg-blue-500" style="width: 50%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-bold mt-1">
+                                <span class="text-pink-600">50% Female</span>
+                                <span class="text-blue-600">50% Male</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE YIELD GAP (The Solution) -->
+        <section class="bg-slate-900 rounded-2xl shadow-xl p-8 text-slate-200 border border-slate-700">
+            <div class="flex flex-col md:flex-row gap-10 items-center">
+                
+                <div class="w-full md:w-1/3">
+                    <h2 class="text-xl font-bold text-white mb-4">2. The Access Gap</h2>
+                    <p class="text-sm text-slate-400 mb-6">
+                        Women have lower yields not because they are less skilled, but because they have less access to fertilizer, seeds, and machines.
+                        <br><br>
+                        <span class="text-pink-400 font-bold">Drag the slider</span> to give women equal resources.
+                    </p>
+                    
+                    <label class="flex justify-between text-xs font-bold uppercase text-slate-500 mb-2">
+                        Resource Equity
+                        <span id="equity-val" class="text-emerald-400">Low</span>
+                    </label>
+                    <input type="range" id="resource-slider" min="0" max="100" value="0" oninput="updateYield()" class="w-full h-3 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-pink-500">
+                </div>
+
+                <!-- Graph Visualizer -->
+                <div class="w-full md:w-2/3 bg-slate-800 p-6 rounded-xl border border-slate-600 relative">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 text-center">Crop Yield Potential</h3>
+                    
+                    <div class="flex justify-around items-end h-40 gap-8 px-8">
+                        <!-- Male Yield (Static baseline) -->
+                        <div class="w-24 flex flex-col items-center">
+                            <div class="w-full bg-blue-500 rounded-t shadow-lg opacity-50" style="height: 80%"></div>
+                            <div class="text-xs font-bold mt-2 text-blue-400">Male Farms</div>
+                        </div>
+
+                        <!-- Female Yield (Dynamic) -->
+                        <div class="w-24 flex flex-col items-center relative">
+                            <div id="female-bar" class="w-full bg-pink-600 rounded-t shadow-lg yield-bar relative" style="height: 60%">
+                                <div id="yield-boost" class="absolute -top-8 w-full text-center text-xs font-bold text-emerald-400 opacity-0 transition-opacity">+25%</div>
+                            </div>
+                            <div class="text-xs font-bold mt-2 text-pink-400">Female Farms</div>
+                        </div>
+                    </div>
+
+                    <div id="hunger-stat" class="mt-6 bg-slate-900 p-3 rounded text-center text-sm text-slate-400 border border-slate-700">
+                        Current State: <span class="text-red-400">Yield Gap Exists</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: FEMINIZATION OF AGRICULTURE -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">3. The "Feminization" of Agriculture</h2>
+            <p class="text-sm text-slate-500 mb-6">What happens when men migrate to cities for work?</p>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                
+                <!-- Simulation Stage -->
+                <div class="bg-green-50 rounded-xl border border-green-200 h-48 relative overflow-hidden p-4 flex flex-col justify-between">
+                    <div class="text-[10px] font-bold uppercase text-green-800 bg-white/50 inline-block px-2 py-1 rounded self-start">Rural Village</div>
+                    
+                    <!-- Workers Container -->
+                    <div id="village-workers" class="flex justify-center items-end gap-4 mb-2">
+                        <!-- Injected via JS -->
+                    </div>
+                    
+                    <div class="h-4 bg-green-200 rounded w-full mt-auto"></div> <!-- Ground -->
+                </div>
+
+                <!-- Controls & Impact -->
+                <div class="space-y-4">
+                    <button onclick="triggerMigration()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2">
+                        <span>🏙️</span> Simulate Male Migration
+                    </button>
+                    
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <h4 class="font-bold text-slate-700 text-sm mb-2">Result:</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs text-slate-600">
+                                <span>Female Workload</span>
+                                <span id="workload-val" class="font-bold text-red-500">Normal</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                <div id="workload-bar" class="h-full bg-red-500 transition-all duration-1000" style="width: 30%"></div>
+                            </div>
+                            <p id="mig-desc" class="text-xs text-slate-500 italic mt-2">Men and women share farm duties.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. REGION LOGIC ---
+        const regions = {
+            'africa': {
+                title: "Sub-Saharan Africa",
+                icon: "👩‍🌾",
+                role: "Subsistence Farming",
+                desc: "Women produce up to 80% of food for household consumption.",
+                challenge: "Land Rights. Women work the land but rarely own it, limiting access to credit/loans.",
+                stats: { f: 50, m: 50 },
+                color: "pink"
+            },
+            'asia': {
+                title: "South & Southeast Asia",
+                icon: "🍚",
+                role: "Labor intensive (Rice)",
+                desc: "Women provide the bulk of labor for wet rice cultivation (transplanting/weeding).",
+                challenge: "Mechanization. As farms modernize, women are often the first to lose jobs to machines.",
+                stats: { f: 40, m: 60 },
+                color: "purple"
+            },
+            'mdc': {
+                title: "Developed World (MDCs)",
+                icon: "🚜",
+                role: "Agribusiness & Processing",
+                desc: "Women less involved in field work, more in processing/packaging or management.",
+                challenge: "Representation. Women operate 30% of farms in the US but often go unrecognized in data.",
+                stats: { f: 30, m: 70 },
+                color: "blue"
+            }
+        };
+
+        function showRegion(key) {
+            // Buttons
+            document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${key}`).classList.add('active');
+
+            const data = regions[key];
+            const content = document.getElementById('region-content');
+            
+            content.innerHTML = `
+                <h3 class="text-2xl font-extrabold text-slate-800 mb-4">${data.title}</h3>
+                <div class="grid grid-cols-2 gap-8 mb-6">
+                    <div>
+                        <span class="block text-xs font-bold text-slate-400 uppercase mb-1">Primary Role</span>
+                        <p class="text-sm font-medium text-slate-700">${data.role}. ${data.desc}</p>
+                    </div>
+                    <div>
+                        <span class="block text-xs font-bold text-slate-400 uppercase mb-1">Key Challenge</span>
+                        <p class="text-sm font-medium text-slate-700">${data.challenge}</p>
+                    </div>
+                </div>
+                <div class="w-full bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Workforce Composition</span>
+                    <div class="flex h-4 bg-slate-200 rounded-full mt-2 overflow-hidden">
+                        <div class="h-full bg-${data.color}-500 transition-all duration-500" style="width: ${data.stats.f}%"></div>
+                        <div class="h-full bg-slate-400 transition-all duration-500" style="width: ${data.stats.m}%"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] font-bold mt-1">
+                        <span class="text-${data.color}-600">${data.stats.f}% Female</span>
+                        <span class="text-slate-500">${data.stats.m}% Male</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 2. YIELD GAP LOGIC ---
+        function updateYield() {
+            const val = parseInt(document.getElementById('resource-slider').value);
+            const bar = document.getElementById('female-bar');
+            const label = document.getElementById('equity-val');
+            const stat = document.getElementById('hunger-stat');
+            const boost = document.getElementById('yield-boost');
+
+            // Base height 60% -> Target 80% (Matching men)
+            const newHeight = 60 + (val * 0.2); 
+            bar.style.height = `${newHeight}%`;
+
+            if (val < 30) {
+                label.innerText = "Unequal";
+                label.className = "text-red-400 font-bold";
+                stat.innerHTML = `Status: <span class="text-red-400">Yield Gap High.</span> Women lack credit/tools.`;
+                boost.style.opacity = 0;
+            } else if (val > 80) {
+                label.innerText = "Equal Access";
+                label.className = "text-emerald-400 font-bold";
+                stat.innerHTML = `Status: <span class="text-emerald-400 font-bold">Success!</span> Yields rose by 20-30%.<br>Global hunger reduced by 150 million.`;
+                boost.style.opacity = 1;
+            } else {
+                label.innerText = "Improving";
+                label.className = "text-yellow-400 font-bold";
+                stat.innerHTML = `Status: <span class="text-yellow-400">Closing the Gap.</span> Productivity is rising.`;
+                boost.style.opacity = 0;
+            }
+        }
+
+        // --- 3. MIGRATION LOGIC ---
+        let migrated = false;
+        function initVillage() {
+            const cont = document.getElementById('village-workers');
+            cont.innerHTML = `
+                <div class="text-4xl worker-icon relative">👩‍🌾</div>
+                <div class="text-4xl worker-icon relative" id="man-1">👨‍🌾</div>
+                <div class="text-4xl worker-icon relative">👩‍🌾</div>
+                <div class="text-4xl worker-icon relative" id="man-2">👨‍🌾</div>
+                <div class="text-4xl worker-icon relative">👩‍🌾</div>
+            `;
+            migrated = false;
+            resetStats();
+        }
+
+        function triggerMigration() {
+            if (migrated) {
+                initVillage(); // Reset
+                return;
+            }
+            migrated = true;
+
+            // Animate Men Leaving
+            document.getElementById('man-1').classList.add('worker-leave');
+            document.getElementById('man-2').classList.add('worker-leave');
+
+            // Update Stats
+            document.getElementById('workload-bar').style.width = "95%";
+            document.getElementById('workload-val').innerText = "CRITICAL";
+            document.getElementById('mig-desc').innerHTML = "<strong>Feminization of Agriculture:</strong> Men left for city jobs. Women now do ALL the farm work + household duties.";
+        }
+
+        function resetStats() {
+            document.getElementById('workload-bar').style.width = "30%";
+            document.getElementById('workload-val').innerText = "Normal";
+            document.getElementById('mig-desc').innerText = "Men and women share farm duties.";
+        }
+
+        // Init
+        initVillage();
+
+    </script>
+</body>
+</html>
