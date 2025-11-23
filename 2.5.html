@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.5: The DTM & ETM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Graph Animation */
+        .graph-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes drawLine { to { stroke-dashoffset: 0; } }
+
+        /* Stage Button Active State */
+        .stage-btn.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            border-color: #4f46e5;
+            transform: scale(1.05);
+        }
+        
+        /* Transition for Info Panels */
+        .info-panel {
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+        .hidden-panel {
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+            transform: translateY(10px);
+        }
+        .visible-panel {
+            opacity: 1;
+            position: relative;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.5: The DTM & ETM</h1>
+                <p class="text-indigo-200 text-sm mt-1">Demographic & Epidemiological Transitions (IMP-2.B)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-indigo-800 px-3 py-1 rounded border border-indigo-700">
+                Explaining Growth & Decline
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: THE DTM GRAPH -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <h2 class="text-xl font-bold text-indigo-900">1. The Demographic Transition Model</h2>
+                
+                <!-- Stage Selectors -->
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+                    <button onclick="setStage(1)" id="btn-1" class="stage-btn active px-3 py-1 text-xs font-bold rounded transition hover:bg-slate-100">Stage 1</button>
+                    <button onclick="setStage(2)" id="btn-2" class="stage-btn px-3 py-1 text-xs font-bold rounded transition hover:bg-slate-100">Stage 2</button>
+                    <button onclick="setStage(3)" id="btn-3" class="stage-btn px-3 py-1 text-xs font-bold rounded transition hover:bg-slate-100">Stage 3</button>
+                    <button onclick="setStage(4)" id="btn-4" class="stage-btn px-3 py-1 text-xs font-bold rounded transition hover:bg-slate-100">Stage 4</button>
+                    <button onclick="setStage(5)" id="btn-5" class="stage-btn px-3 py-1 text-xs font-bold rounded transition hover:bg-slate-100">Stage 5</button>
+                </div>
+            </div>
+
+            <!-- Graph Visualization -->
+            <div class="relative w-full h-[400px] bg-white p-4">
+                
+                <svg viewBox="0 0 800 400" class="w-full h-full overflow-visible">
+                    <!-- Grid Lines -->
+                    <line x1="0" y1="350" x2="800" y2="350" stroke="#cbd5e1" stroke-width="2" /> <!-- X Axis -->
+                    <line x1="50" y1="0" x2="50" y2="350" stroke="#cbd5e1" stroke-width="2" /> <!-- Y Axis -->
+                    
+                    <!-- Stage Dividers -->
+                    <line x1="200" y1="20" x2="200" y2="350" stroke="#94a3b8" stroke-dasharray="5,5" />
+                    <line x1="350" y1="20" x2="350" y2="350" stroke="#94a3b8" stroke-dasharray="5,5" />
+                    <line x1="500" y1="20" x2="500" y2="350" stroke="#94a3b8" stroke-dasharray="5,5" />
+                    <line x1="650" y1="20" x2="650" y2="350" stroke="#94a3b8" stroke-dasharray="5,5" />
+
+                    <!-- Stage Labels -->
+                    <text x="125" y="20" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">Stage 1</text>
+                    <text x="275" y="20" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">Stage 2</text>
+                    <text x="425" y="20" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">Stage 3</text>
+                    <text x="575" y="20" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">Stage 4</text>
+                    <text x="725" y="20" text-anchor="middle" fill="#64748b" font-size="12" font-weight="bold">Stage 5</text>
+
+                    <!-- Curves (SVG Paths) -->
+                    <!-- CBR (Birth Rate) - Green -->
+                    <!-- High (50,50) -> High (200,50) -> Drops (350, 200) -> Low (500, 300) -> Very Low (650, 320) -->
+                    <path d="M 50 50 L 200 55 L 350 200 L 500 300 L 650 320 L 800 330" 
+                          fill="none" stroke="#10b981" stroke-width="4" class="graph-line" />
+                    <text x="60" y="40" fill="#10b981" font-weight="bold">CBR (Births)</text>
+
+                    <!-- CDR (Death Rate) - Red -->
+                    <!-- High (50,60) -> Drops Fast (200, 200) -> Low (350, 280) -> Low (500, 300) -> Rising? (650, 310) -->
+                    <path d="M 50 60 L 200 200 L 350 280 L 500 300 L 650 310 L 800 290" 
+                          fill="none" stroke="#ef4444" stroke-width="4" class="graph-line" />
+                    <text x="60" y="80" fill="#ef4444" font-weight="bold">CDR (Deaths)</text>
+
+                    <!-- Total Population - Orange Area -->
+                    <!-- Low -> Rises -> Rises Fast -> Levels -> Decline? -->
+                    <path d="M 50 330 Q 200 320 350 200 T 650 100 T 800 110" 
+                          fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10,5" class="graph-line" />
+                    <text x="700" y="90" fill="#f59e0b" font-weight="bold">Total Pop</text>
+
+                    <!-- Interactive Highlighter (Moves based on stage) -->
+                    <rect id="stage-highlight" x="50" y="20" width="150" height="330" fill="#4f46e5" opacity="0.1" class="transition-all duration-500" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- SECTION 2: ANALYSIS PANELS (DTM + ETM) -->
+        <div class="grid lg:grid-cols-2 gap-8 relative min-h-[300px]">
+            
+            <!-- DTM Details Panel -->
+            <div id="dtm-container" class="relative">
+                <!-- Content injected via JS -->
+            </div>
+
+            <!-- ETM (Epidemiological) Panel -->
+            <div class="bg-slate-800 text-white rounded-xl shadow-lg p-6 border-l-8 border-red-500 flex flex-col justify-center">
+                <h3 class="text-sm font-bold text-red-400 uppercase tracking-wider mb-2">Epidemiological Transition (IMP-2.B.2)</h3>
+                <h2 id="etm-title" class="text-2xl font-extrabold mb-4">Stage 1: Pestilence & Famine</h2>
+                <p id="etm-desc" class="text-slate-300 text-sm leading-relaxed mb-4">
+                    Infectious and parasitic diseases are the primary causes of death. Life expectancy is very low.
+                </p>
+                <div class="bg-slate-700/50 p-3 rounded border border-slate-600">
+                    <span class="text-xs text-slate-400 font-bold uppercase">Key Threat:</span>
+                    <span id="etm-threat" class="text-sm text-white font-bold ml-2">The Black Plague / Starvation</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        const stages = {
+            1: {
+                title: "Stage 1: High Stationary",
+                cbr: "High (40+)",
+                cdr: "High (40+)",
+                nir: "Low/Zero",
+                desc: "Births and deaths are both high and fluctuate violently. Population growth is effectively zero.",
+                example: "<strong>Example:</strong> Remote indigenous groups in the Amazon (No entire country is in Stage 1).",
+                etm: {
+                    title: "Pestilence & Famine",
+                    desc: "Mortality is high and fluctuating due to parasitic and infectious diseases, famine, and animal attacks. No sanitation or modern medicine.",
+                    threat: "The Black Plague, Smallpox, Starvation"
+                },
+                highlightX: 50, width: 150
+            },
+            2: {
+                title: "Stage 2: Early Expanding",
+                cbr: "High (Remains)",
+                cdr: "Rapidly Falling",
+                nir: "Very High (Explosion)",
+                desc: "Medical revolution or Industrialization reduces deaths drastically (sanitation), but cultural tradition keeps births high.",
+                example: "<strong>Example:</strong> Niger, Mali, Afghanistan (Sub-Saharan Africa).",
+                etm: {
+                    title: "Receding Pandemics",
+                    desc: "Improved sanitation, nutrition, and medicine reduce the spread of infectious diseases. Death rates plummet.",
+                    threat: "Cholera (reduced by sewers), Dr. John Snow's Map"
+                },
+                highlightX: 200, width: 150
+            },
+            3: {
+                title: "Stage 3: Late Expanding",
+                cbr: "Falling",
+                cdr: "Falling Slowly",
+                nir: "Moderate (Slowing)",
+                desc: "Urbanization and female education cause birth rates to drop. People realize they don't need large families in cities.",
+                example: "<strong>Example:</strong> Mexico, India, Brazil, Turkey.",
+                etm: {
+                    title: "Degenerative Diseases",
+                    desc: "As people live longer, they die from aging (degenerative) diseases and man-made conditions rather than infections.",
+                    threat: "Heart Disease, Cancer (Initial rise)"
+                },
+                highlightX: 350, width: 150
+            },
+            4: {
+                title: "Stage 4: Low Stationary",
+                cbr: "Low",
+                cdr: "Low",
+                nir: "Zero (ZPG)",
+                desc: "Births and deaths equalize at a low level. Population is stable and aging. Women are fully integrated into the workforce.",
+                example: "<strong>Example:</strong> USA, France, UK, China.",
+                etm: {
+                    title: "Delayed Degenerative",
+                    desc: "Medical advances extend life expectancy even further. Cancer and heart disease still kill, but treatment delays death.",
+                    threat: "Alzheimer's, Obesity, Diabetes"
+                },
+                highlightX: 500, width: 150
+            },
+            5: {
+                title: "Stage 5: Declining",
+                cbr: "Very Low",
+                cdr: "Rising (Slightly)",
+                nir: "Negative",
+                desc: "Birth rates fall below death rates. The population is very old, causing CDR to rise slightly (old age).",
+                example: "<strong>Example:</strong> Japan, Germany, Russia.",
+                etm: {
+                    title: "Reemergence (?)",
+                    desc: "Possible return of infectious diseases due to antibiotic resistance, poverty, or globalization travel.",
+                    threat: "Superbugs, Global Pandemics (COVID-19)"
+                },
+                highlightX: 650, width: 150
+            }
+        };
+
+        function setStage(num) {
+            // 1. Update Buttons
+            document.querySelectorAll('.stage-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${num}`).classList.add('active');
+
+            const data = stages[num];
+
+            // 2. Move Highlighter on Graph
+            const highlight = document.getElementById('stage-highlight');
+            highlight.setAttribute('x', data.highlightX);
+            highlight.setAttribute('width', data.width);
+
+            // 3. Update DTM Panel
+            const dtmContainer = document.getElementById('dtm-container');
+            dtmContainer.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-slate-200 h-full visible-panel">
+                    <h2 class="text-2xl font-bold text-indigo-900 mb-4">${data.title}</h2>
+                    
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="bg-emerald-50 p-2 rounded border border-emerald-100 text-center">
+                            <div class="text-[10px] font-bold text-emerald-600 uppercase">Births (CBR)</div>
+                            <div class="font-bold text-emerald-800">${data.cbr}</div>
+                        </div>
+                        <div class="bg-red-50 p-2 rounded border border-red-100 text-center">
+                            <div class="text-[10px] font-bold text-red-600 uppercase">Deaths (CDR)</div>
+                            <div class="font-bold text-red-800">${data.cdr}</div>
+                        </div>
+                        <div class="bg-blue-50 p-2 rounded border border-blue-100 text-center">
+                            <div class="text-[10px] font-bold text-blue-600 uppercase">Growth (NIR)</div>
+                            <div class="font-bold text-blue-800">${data.nir}</div>
+                        </div>
+                    </div>
+
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">${data.desc}</p>
+                    
+                    <div class="bg-slate-100 p-3 rounded text-xs text-slate-600 border-l-4 border-indigo-500">
+                        ${data.example}
+                    </div>
+                </div>
+            `;
+
+            // 4. Update ETM Panel
+            document.getElementById('etm-title').innerText = data.etm.title;
+            document.getElementById('etm-desc').innerText = data.etm.desc;
+            document.getElementById('etm-threat').innerText = data.etm.threat;
+        }
+
+        // Init
+        setStage(1);
+
+    </script>
+</body>
+</html>
