@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.3: Cultural Patterns & Landscapes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Transitions for SVG elements */
+        .landscape-element {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Card Animation */
+        .force-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .force-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 3.3: Cultural Patterns</h1>
+                <p class="text-teal-200 text-sm mt-1">Sense of Place, Placemaking, and Cultural Forces</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-800 px-3 py-1 rounded border border-teal-700">
+                PSO-3.D
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: THE CULTURAL LANDSCAPE DECODER -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-teal-900">1. The Cultural Landscape Decoder</h2>
+                    <p class="text-sm text-slate-500 mt-1">How do language and religion shape the "Sense of Place"? Change the inputs to see.</p>
+                </div>
+                <!-- Controls -->
+                <div class="flex gap-4">
+                    <select id="religion-select" onchange="updateLandscape()" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5">
+                        <option value="christian">Religion: Christianity</option>
+                        <option value="islam">Religion: Islam</option>
+                        <option value="buddhism">Religion: Buddhism</option>
+                        <option value="secular">Religion: Secular</option>
+                    </select>
+                    <select id="language-select" onchange="updateLandscape()" class="bg-white border border-slate-300 text-slate-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block p-2.5">
+                        <option value="english">Language: English</option>
+                        <option value="french">Language: French</option>
+                        <option value="spanish">Language: Spanish</option>
+                        <option value="arabic">Language: Arabic</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="relative h-[400px] bg-sky-100 overflow-hidden flex items-end justify-center">
+                
+                <!-- Clouds -->
+                <div class="absolute top-10 left-20 opacity-80 animate-pulse"><span class="text-6xl">☁️</span></div>
+                <div class="absolute top-20 right-40 opacity-60 animate-pulse" style="animation-delay: 2s;"><span class="text-5xl">☁️</span></div>
+
+                <!-- THE STREET SVG -->
+                <svg viewBox="0 0 800 400" class="w-full h-full max-w-4xl">
+                    <!-- Ground -->
+                    <rect x="0" y="350" width="800" height="50" fill="#64748b" />
+                    <line x1="0" y1="350" x2="800" y2="350" stroke="#475569" stroke-width="4" />
+
+                    <!-- Building 1: The Place of Worship (Left) -->
+                    <g id="worship-building" class="landscape-element">
+                        <!-- Base -->
+                        <rect x="50" y="150" width="200" height="200" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" />
+                        <rect x="120" y="250" width="60" height="100" fill="#334155" rx="2" /> <!-- Door -->
+                        
+                        <!-- Roof/Dome (Changes) -->
+                        <path id="roof-shape" d="M 40 150 L 150 50 L 260 150 Z" fill="#475569" class="landscape-element" />
+                        
+                        <!-- Symbol (Changes) -->
+                        <text id="worship-symbol" x="150" y="130" text-anchor="middle" font-size="40" class="landscape-element">✝️</text>
+                    </g>
+
+                    <!-- Building 2: The Shop (Right) -->
+                    <g id="shop-building">
+                        <!-- Base -->
+                        <rect x="550" y="200" width="200" height="150" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2" />
+                        <rect x="550" y="180" width="200" height="40" fill="#0f766e" /> <!-- Awning -->
+                        <rect x="600" y="250" width="100" height="100" fill="#94a3b8" opacity="0.3" /> <!-- Window -->
+                        
+                        <!-- Signage (Changes) -->
+                        <text id="shop-sign" x="650" y="205" text-anchor="middle" fill="white" font-family="serif" font-weight="bold" font-size="20" class="landscape-element">BAKERY</text>
+                    </g>
+
+                    <!-- Street Elements -->
+                    <g id="people">
+                        <text x="300" y="350" font-size="40">🚶</text>
+                        <text x="400" y="350" font-size="40">🚶‍♀️</text>
+                    </g>
+                </svg>
+
+                <!-- Annotation Overlay -->
+                <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-sm border border-slate-200 max-w-xs">
+                    <h3 class="text-xs font-bold text-teal-800 uppercase mb-1">Analysis</h3>
+                    <p id="analysis-text" class="text-xs text-slate-600 leading-relaxed">
+                        The visual evidence of religion (steeples, crosses) and language (signage) creates the cultural landscape.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: FORCES OF CULTURE (Centripetal vs Centrifugal) -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white rounded-xl shadow-lg p-6 h-full">
+                <div class="border-b border-slate-100 pb-4 mb-4">
+                    <h2 class="text-lg font-bold text-slate-800">2. Cultural Forces Analyzer</h2>
+                    <p class="text-sm text-slate-500">Does this cultural trait unite or divide the state?</p>
+                </div>
+
+                <div class="space-y-3">
+                    <div onclick="analyzeForce('japan')" class="force-card cursor-pointer p-4 rounded-lg border border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <div>
+                            <span class="text-xl mr-2">🇯🇵</span>
+                            <span class="font-bold text-slate-700">Japan</span>
+                            <span class="text-xs text-slate-500 block">Trait: Ethnicity (Homogeneity)</span>
+                        </div>
+                        <span class="text-slate-300">➔</span>
+                    </div>
+
+                    <div onclick="analyzeForce('belgium')" class="force-card cursor-pointer p-4 rounded-lg border border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <div>
+                            <span class="text-xl mr-2">🇧🇪</span>
+                            <span class="font-bold text-slate-700">Belgium</span>
+                            <span class="text-xs text-slate-500 block">Trait: Language (Flemish vs. French)</span>
+                        </div>
+                        <span class="text-slate-300">➔</span>
+                    </div>
+
+                    <div onclick="analyzeForce('usa')" class="force-card cursor-pointer p-4 rounded-lg border border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <div>
+                            <span class="text-xl mr-2">🇺🇸</span>
+                            <span class="font-bold text-slate-700">USA (Civic)</span>
+                            <span class="text-xs text-slate-500 block">Trait: Civic Nationalism (Shared Ideals)</span>
+                        </div>
+                        <span class="text-slate-300">➔</span>
+                    </div>
+
+                    <div onclick="analyzeForce('india')" class="force-card cursor-pointer p-4 rounded-lg border border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <div>
+                            <span class="text-xl mr-2">🇮🇳</span>
+                            <span class="font-bold text-slate-700">India</span>
+                            <span class="text-xs text-slate-500 block">Trait: Religion (Hindu vs. Muslim)</span>
+                        </div>
+                        <span class="text-slate-300">➔</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Result Display -->
+            <section class="bg-slate-800 rounded-xl shadow-lg p-6 flex flex-col justify-center items-center text-center relative overflow-hidden">
+                <!-- Background Icon -->
+                <div id="force-icon" class="absolute text-9xl opacity-10 transition-all duration-500">⚖️</div>
+                
+                <div id="force-result" class="z-10 transition-all duration-300">
+                    <h3 class="text-2xl font-bold text-slate-400 mb-2">Select a Scenario</h3>
+                    <p class="text-slate-500 text-sm">Click a card on the left to analyze the force.</p>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- SECTION 3: REGIONAL PATTERNS -->
+        <section class="bg-teal-50 rounded-xl border border-teal-100 p-6">
+            <h2 class="text-lg font-bold text-teal-900 mb-4">3. Regional Patterns & Sense of Place</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm">The Bible Belt (USA)</h4>
+                    <p class="text-xs text-slate-600 mt-1">A region in the SE United States dominated by Protestant (Baptist) Christianity. Visuals: Many churches, billboard scripture.</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm">Quebec (Canada)</h4>
+                    <p class="text-xs text-slate-600 mt-1">A distinct linguistic region. French signage (toponymy) and Catholic heritage create a unique sense of place distinct from English Canada.</p>
+                </div>
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-sm">The Mormon Corridor</h4>
+                    <p class="text-xs text-slate-600 mt-1">Centered on Utah. Patterns include grid-based cities, wide streets, and generic names (toponyms) derived from the Book of Mormon.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. LANDSCAPE DECODER LOGIC ---
+        
+        const landscapeData = {
+            religion: {
+                'christian': { symbol: "✝️", shape: "M 40 150 L 150 50 L 260 150 Z", color: "#475569" }, // Steeple
+                'islam': { symbol: "☪️", shape: "M 50 150 Q 150 50 250 150 Z", color: "#d4af37" }, // Dome
+                'buddhism': { symbol: "☸️", shape: "M 40 150 L 150 100 L 260 150 Z", color: "#b91c1c" }, // Pagoda-ish
+                'secular': { symbol: "🏛️", shape: "M 50 150 L 250 150 L 250 170 L 50 170 Z", color: "#64748b" } // Flat roof
+            },
+            language: {
+                'english': { text: "BAKERY" },
+                'french': { text: "BOULANGERIE" },
+                'spanish': { text: "PANADERÍA" },
+                'arabic': { text: "مخبز" } // Mukhbaz
+            }
+        };
+
+        function updateLandscape() {
+            const rel = document.getElementById('religion-select').value;
+            const lang = document.getElementById('language-select').value;
+            
+            const rData = landscapeData.religion[rel];
+            const lData = landscapeData.language[lang];
+
+            // Update Religion Graphics
+            document.getElementById('worship-symbol').textContent = rData.symbol;
+            document.getElementById('roof-shape').setAttribute('d', rData.shape);
+            document.getElementById('roof-shape').setAttribute('fill', rData.color);
+
+            // Update Language Graphics
+            document.getElementById('shop-sign').textContent = lData.text;
+
+            // Update Analysis Text
+            const analysis = document.getElementById('analysis-text');
+            analysis.innerHTML = `You have created a landscape with <strong>${rel.charAt(0).toUpperCase() + rel.slice(1)}</strong> architecture and <strong>${lang.charAt(0).toUpperCase() + lang.slice(1)}</strong> toponyms. This combination creates a unique cultural signature or "Sense of Place".`;
+        }
+
+        // --- 2. FORCES ANALYZER LOGIC ---
+
+        const forcesData = {
+            'japan': {
+                title: "Centripetal Force (Unifying)",
+                trait: "Ethnic Homogeneity",
+                desc: "Japan is a nation-state where 98% of the population is ethnically Japanese. This shared culture and history acts as a strong glue, creating national unity and stability.",
+                color: "text-emerald-400",
+                icon: "🤝"
+            },
+            'belgium': {
+                title: "Centrifugal Force (Dividing)",
+                trait: "Linguistic Diversity",
+                desc: "Belgium is divided between Flemish (Dutch) speakers in the North and Walloon (French) speakers in the South. This creates tension and pushes the country toward devolution.",
+                color: "text-red-400",
+                icon: "💔"
+            },
+            'usa': {
+                title: "Centripetal Force (Unifying)",
+                trait: "Civic Nationalism",
+                desc: "Despite diverse ethnicities, the US is united by shared political values (Constitution, Liberty) and symbols (Flag). This is 'Civic Nationalism' rather than Ethnic Nationalism.",
+                color: "text-emerald-400",
+                icon: "🇺🇸"
+            },
+            'india': {
+                title: "Centrifugal Force (Dividing)",
+                trait: "Religious Tension",
+                desc: "Tensions between the Hindu majority and Muslim minority (especially in Kashmir) act as a centrifugal force, challenging the unity of the state.",
+                color: "text-red-400",
+                icon: "⚡"
+            }
+        };
+
+        function analyzeForce(key) {
+            const data = forcesData[key];
+            const resultDiv = document.getElementById('force-result');
+            const bgIcon = document.getElementById('force-icon');
+
+            // Animate Out
+            resultDiv.style.opacity = 0;
+            
+            setTimeout(() => {
+                // Update Content
+                resultDiv.innerHTML = `
+                    <div class="text-6xl mb-4">${data.icon}</div>
+                    <h3 class="text-2xl font-extrabold ${data.color} mb-2 uppercase tracking-wider">${data.title}</h3>
+                    <div class="bg-slate-700/50 p-2 rounded text-xs font-mono text-slate-300 mb-4 inline-block border border-slate-600">
+                        Trait: ${data.trait}
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed max-w-md mx-auto">${data.desc}</p>
+                `;
+                
+                // Update BG Icon
+                bgIcon.textContent = data.icon;
+                bgIcon.className = `absolute text-9xl opacity-10 transition-all duration-500 ${data.color === 'text-red-400' ? 'text-red-500' : 'text-emerald-500'}`;
+
+                // Animate In
+                resultDiv.style.opacity = 1;
+            }, 300);
+        }
+
+    </script>
+</body>
+</html>
