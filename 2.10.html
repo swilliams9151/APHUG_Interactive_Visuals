@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.10: Causes of Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Card Animation */
+        .factor-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .factor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Journey Animation Classes */
+        .migrant-dot {
+            transition: cx 2s ease-in-out, cy 2s ease-in-out;
+        }
+        
+        .path-line {
+            stroke-dasharray: 10;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -20; }
+        }
+
+        /* Success/Fail Pulse */
+        .pulse-green { animation: pulseG 0.5s; }
+        .pulse-red { animation: pulseR 0.5s; }
+        @keyframes pulseG { 50% { background-color: #dcfce7; } }
+        @keyframes pulseR { 50% { background-color: #fee2e2; } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-orange-700 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.10: Causes of Migration</h1>
+                <p class="text-orange-200 text-sm mt-1">Push/Pull Factors & Intervening Obstacles (IMP-2.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-orange-600 px-3 py-1 rounded border border-orange-500">
+                Lee's Model of Migration
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE FACTOR SORTER (Push vs Pull) -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-orange-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-orange-900">1. The Push/Pull Sorter</h2>
+                    <p class="text-sm text-slate-600 mt-1">Categorize the scenarios correctly. (Score: <span id="score">0</span>)</p>
+                </div>
+                <button onclick="nextScenario()" class="text-xs bg-white border border-orange-200 px-3 py-1 rounded hover:bg-orange-100 transition">Skip</button>
+            </div>
+
+            <div class="p-8 grid md:grid-cols-3 gap-8 items-center">
+                
+                <!-- Push Zone -->
+                <div onclick="checkAnswer('push')" class="cursor-pointer h-48 rounded-xl border-2 border-dashed border-red-300 bg-red-50 hover:bg-red-100 flex flex-col items-center justify-center transition group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">📤</div>
+                    <h3 class="font-bold text-red-700">PUSH Factor</h3>
+                    <p class="text-xs text-red-500">Negative conditions aimed at LEAVING.</p>
+                </div>
+
+                <!-- The Scenario Card -->
+                <div id="scenario-card" class="relative h-48 bg-white rounded-xl shadow-2xl border border-slate-200 flex flex-col items-center justify-center p-6 text-center transform transition-transform hover:scale-105">
+                    <div id="scen-icon" class="text-5xl mb-4">🌪️</div>
+                    <h3 id="scen-text" class="text-lg font-bold text-slate-800">Hurricane destroys homes</h3>
+                    <div id="scen-type" class="mt-2 text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 px-2 py-1 rounded">Environmental</div>
+                </div>
+
+                <!-- Pull Zone -->
+                <div onclick="checkAnswer('pull')" class="cursor-pointer h-48 rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50 hover:bg-emerald-100 flex flex-col items-center justify-center transition group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">📥</div>
+                    <h3 class="font-bold text-emerald-700">PULL Factor</h3>
+                    <p class="text-xs text-emerald-500">Positive conditions aimed at ARRIVING.</p>
+                </div>
+
+            </div>
+            
+            <div id="feedback-msg" class="bg-slate-800 text-white text-center text-sm p-2 hidden">Correct!</div>
+        </section>
+
+        <!-- SECTION 2: THE JOURNEY SIMULATOR (Intervening Factors) -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 h-full">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">2. The Migrant's Journey</h2>
+                <p class="text-sm text-slate-500 mb-4">Migration isn't always a straight line. Add factors to see how they alter the path.</p>
+                
+                <div class="space-y-3">
+                    <button onclick="setJourney('clear')" class="w-full text-left p-3 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-sm transition flex items-center gap-2">
+                        <span>✈️</span> Clear Path
+                    </button>
+                    <button onclick="setJourney('obstacle')" class="w-full text-left p-3 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-800 font-bold text-sm transition flex items-center gap-2">
+                        <span>🧱</span> Add Intervening Obstacle
+                    </button>
+                    <button onclick="setJourney('opportunity')" class="w-full text-left p-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-sm transition flex items-center gap-2">
+                        <span>💼</span> Add Intervening Opportunity
+                    </button>
+                </div>
+
+                <div id="journey-explanation" class="mt-6 text-xs text-slate-500 italic bg-slate-50 p-3 rounded border border-slate-200">
+                    Select an option to visualize the route.
+                </div>
+            </section>
+
+            <!-- Visualizer -->
+            <section class="lg:col-span-2 bg-slate-900 rounded-xl shadow-lg border border-slate-700 relative overflow-hidden flex items-center justify-center">
+                
+                <svg id="journey-svg" viewBox="0 0 600 300" class="w-full h-full">
+                    <!-- Definitions -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                        </marker>
+                    </defs>
+
+                    <!-- Locations -->
+                    <!-- Origin -->
+                    <circle cx="50" cy="150" r="20" fill="#ef4444" />
+                    <text x="50" y="190" text-anchor="middle" fill="#ef4444" font-weight="bold" font-size="12">Origin</text>
+
+                    <!-- Destination -->
+                    <circle cx="550" cy="150" r="20" fill="#10b981" />
+                    <text x="550" y="190" text-anchor="middle" fill="#10b981" font-weight="bold" font-size="12">Destination</text>
+
+                    <!-- Path Layer (Dynamic) -->
+                    <g id="path-layer"></g>
+
+                    <!-- Feature Layer (Dynamic) -->
+                    <g id="feature-layer"></g>
+
+                    <!-- Migrant Dot -->
+                    <circle id="migrant" cx="50" cy="150" r="8" fill="white" stroke="black" stroke-width="2" />
+                </svg>
+
+            </section>
+        </div>
+
+        <!-- SECTION 3: CLASSIFICATION MATRIX (ESPNe) -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-orange-500">3. The 5 Types of Causes (ESPNe)</h2>
+            <div class="grid md:grid-cols-5 gap-4">
+                
+                <!-- Economic -->
+                <div class="factor-card bg-white p-4 rounded-xl shadow-sm border-t-4 border-blue-500">
+                    <div class="text-2xl mb-2">💰</div>
+                    <h3 class="font-bold text-sm text-slate-800">Economic</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">Jobs, Wages, Cost of Living.</p>
+                    <div class="mt-2 text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded">#1 Cause of Migration</div>
+                </div>
+
+                <!-- Social/Cultural -->
+                <div class="factor-card bg-white p-4 rounded-xl shadow-sm border-t-4 border-purple-500">
+                    <div class="text-2xl mb-2">🕌</div>
+                    <h3 class="font-bold text-sm text-slate-800">Cultural</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">Religious Freedom, Gender Roles, Ethnic Enclaves.</p>
+                </div>
+
+                <!-- Political -->
+                <div class="factor-card bg-white p-4 rounded-xl shadow-sm border-t-4 border-red-500">
+                    <div class="text-2xl mb-2">⚖️</div>
+                    <h3 class="font-bold text-sm text-slate-800">Political</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">War, Persecution, Asylum (Refugees).</p>
+                </div>
+
+                <!-- Environmental -->
+                <div class="factor-card bg-white p-4 rounded-xl shadow-sm border-t-4 border-emerald-500">
+                    <div class="text-2xl mb-2">🌵</div>
+                    <h3 class="font-bold text-sm text-slate-800">Environmental</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">Climate, Natural Disasters, Famine.</p>
+                </div>
+
+                <!-- Demographic -->
+                <div class="factor-card bg-white p-4 rounded-xl shadow-sm border-t-4 border-slate-500">
+                    <div class="text-2xl mb-2">📊</div>
+                    <h3 class="font-bold text-sm text-slate-800">Demographic</h3>
+                    <p class="text-[10px] text-slate-500 mt-1">Overpopulation, Gender Imbalance.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. SORTER LOGIC ---
+        const scenarios = [
+            { text: "Hurricane destroys homes", type: "Environmental", answer: "push", icon: "🌪️" },
+            { text: "Higher wages available", type: "Economic", answer: "pull", icon: "💸" },
+            { text: "Civil War outbreak", type: "Political", answer: "push", icon: "⚔️" },
+            { text: "Freedom of Religion", type: "Cultural", answer: "pull", icon: "🕊️" },
+            { text: "Religious Persecution", type: "Cultural", answer: "push", icon: "⛓️" },
+            { text: "Stable Government", type: "Political", answer: "pull", icon: "🏛️" },
+            { text: "Drought / Famine", type: "Environmental", answer: "push", icon: "🍂" },
+            { text: "Labor Shortage (Jobs)", type: "Economic", answer: "pull", icon: "👷" }
+        ];
+
+        let currentScenario = 0;
+        let score = 0;
+
+        function checkAnswer(choice) {
+            const current = scenarios[currentScenario];
+            const feedback = document.getElementById('feedback-msg');
+            
+            if (choice === current.answer) {
+                score++;
+                document.getElementById('score').innerText = score;
+                feedback.innerText = "Correct!";
+                feedback.className = "bg-emerald-600 text-white text-center text-sm p-2 animate-pulse";
+                nextScenario();
+            } else {
+                feedback.innerText = "Incorrect. Try again.";
+                feedback.className = "bg-red-600 text-white text-center text-sm p-2 animate-pulse";
+            }
+            
+            feedback.classList.remove('hidden');
+            setTimeout(() => feedback.classList.add('hidden'), 1000);
+        }
+
+        function nextScenario() {
+            currentScenario = (currentScenario + 1) % scenarios.length;
+            const next = scenarios[currentScenario];
+            
+            // Animate Card Swap
+            const card = document.getElementById('scenario-card');
+            card.style.opacity = 0;
+            
+            setTimeout(() => {
+                document.getElementById('scen-text').innerText = next.text;
+                document.getElementById('scen-type').innerText = next.type;
+                document.getElementById('scen-icon').innerText = next.icon;
+                card.style.opacity = 1;
+            }, 300);
+        }
+
+        // --- 2. JOURNEY LOGIC ---
+        function setJourney(type) {
+            const pathLayer = document.getElementById('path-layer');
+            const featLayer = document.getElementById('feature-layer');
+            const migrant = document.getElementById('migrant');
+            const exp = document.getElementById('journey-explanation');
+
+            // Reset
+            pathLayer.innerHTML = '';
+            featLayer.innerHTML = '';
+            migrant.setAttribute('cx', 50);
+            migrant.setAttribute('cy', 150);
+            migrant.setAttribute('opacity', 1);
+
+            if (type === 'clear') {
+                // Straight line
+                pathLayer.innerHTML = `<line x1="50" y1="150" x2="550" y2="150" stroke="#94a3b8" stroke-width="4" stroke-dasharray="10" class="path-line" />`;
+                exp.innerHTML = "<strong>Clear Path:</strong> Without obstacles, migration is straightforward (e.g., EU open borders). The migrant reaches the destination.";
+                
+                // Animate Dot
+                setTimeout(() => { migrant.setAttribute('cx', 550); }, 100);
+            } 
+            else if (type === 'obstacle') {
+                // Wall in middle
+                featLayer.innerHTML = `
+                    <rect x="290" y="50" width="20" height="200" fill="#475569" />
+                    <text x="300" y="40" text-anchor="middle" fill="#ef4444" font-size="10" font-weight="bold">Border Wall / Ocean</text>
+                `;
+                pathLayer.innerHTML = `<line x1="50" y1="150" x2="290" y2="150" stroke="#ef4444" stroke-width="4" stroke-dasharray="10" class="path-line" />`;
+                exp.innerHTML = "<strong>Intervening Obstacle:</strong> A barrier (physical like an ocean, or legal like a visa requirement) prevents the migrant from reaching the destination.";
+                
+                // Animate Dot (Stop at wall)
+                setTimeout(() => { migrant.setAttribute('cx', 280); }, 100);
+            } 
+            else if (type === 'opportunity') {
+                // City in middle
+                featLayer.innerHTML = `
+                    <circle cx="300" cy="220" r="15" fill="#f59e0b" />
+                    <text x="300" y="250" text-anchor="middle" fill="#f59e0b" font-size="10" font-weight="bold">Jobs in Nearby City</text>
+                `;
+                // Path curves to opportunity
+                pathLayer.innerHTML = `<path d="M 50 150 Q 150 150 300 220" fill="none" stroke="#f59e0b" stroke-width="4" stroke-dasharray="10" class="path-line" />`;
+                exp.innerHTML = "<strong>Intervening Opportunity:</strong> The migrant finds a positive factor (like a job or safe haven) closer to home and decides to settle there instead of the original destination.";
+                
+                // Animate Dot (Divert)
+                setTimeout(() => { 
+                    migrant.setAttribute('cx', 300); 
+                    migrant.setAttribute('cy', 220); 
+                }, 100);
+            }
+        }
+
+        // Init
+        setJourney('clear');
+
+    </script>
+</body>
+</html>
