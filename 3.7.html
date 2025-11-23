@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.7: Diffusion of Religion & Language</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Button Active States */
+        .btn-religion.active {
+            background-color: #f3f4f6;
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+        
+        /* Map Path Animation */
+        .diffusion-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s linear forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- SIDEBAR CONTROLS -->
+    <aside class="w-full md:w-1/3 lg:w-1/4 bg-white shadow-2xl z-10 flex flex-col border-r border-gray-200">
+        
+        <div class="p-6 bg-indigo-900 text-white">
+            <h1 class="text-2xl font-extrabold">Topic 3.7: Diffusion</h1>
+            <p class="text-indigo-200 text-xs mt-1">IMP-3.B: Universalizing vs. Ethnic Religions & Language Families</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            <!-- Universalizing Religions -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Universalizing Religions</h3>
+                <p class="text-[10px] text-gray-500 mb-2">Seek converts. Spread via Expansion & Relocation.</p>
+                <div class="space-y-2">
+                    <button onclick="showDiffusion('christianity')" id="btn-christianity" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">✝️</span>
+                        <div>
+                            <div class="font-bold text-sm">Christianity</div>
+                            <div class="text-[10px] text-gray-500">Hearth: West Bank</div>
+                        </div>
+                    </button>
+                    <button onclick="showDiffusion('islam')" id="btn-islam" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">☪️</span>
+                        <div>
+                            <div class="font-bold text-sm">Islam</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Mecca/Medina</div>
+                        </div>
+                    </button>
+                    <button onclick="showDiffusion('buddhism')" id="btn-buddhism" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">☸️</span>
+                        <div>
+                            <div class="font-bold text-sm">Buddhism</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Northern India/Nepal</div>
+                        </div>
+                    </button>
+                    <button onclick="showDiffusion('sikhism')" id="btn-sikhism" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">☬</span>
+                        <div>
+                            <div class="font-bold text-sm">Sikhism</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Punjab</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ethnic Religions -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Ethnic Religions</h3>
+                <p class="text-[10px] text-gray-500 mb-2">Born into. Spread primarily via Relocation (Migration).</p>
+                <div class="space-y-2">
+                    <button onclick="showDiffusion('hinduism')" id="btn-hinduism" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">🕉️</span>
+                        <div>
+                            <div class="font-bold text-sm">Hinduism</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Indus River Valley</div>
+                        </div>
+                    </button>
+                    <button onclick="showDiffusion('judaism')" id="btn-judaism" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">✡️</span>
+                        <div>
+                            <div class="font-bold text-sm">Judaism</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Israel/Palestine</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Language -->
+            <div>
+                <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Language Families</h3>
+                <div class="space-y-2">
+                    <button onclick="showDiffusion('indo')" id="btn-indo" class="btn-religion w-full text-left px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition flex items-center">
+                        <span class="text-xl mr-3">🗣️</span>
+                        <div>
+                            <div class="font-bold text-sm">Indo-European</div>
+                            <div class="text-[10px] text-gray-500">Hearth: Black Sea (Kurgan)</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- MAIN MAP AREA -->
+    <main class="flex-1 relative">
+        <div id="map"></div>
+        
+        <!-- Info Overlay -->
+        <div id="info-overlay" class="absolute bottom-8 left-8 right-8 md:w-96 bg-white/95 backdrop-blur p-4 rounded-xl shadow-xl border border-gray-200 z-[400] transition-all duration-500 transform translate-y-full opacity-0">
+            <h2 id="info-title" class="text-xl font-bold text-gray-800 mb-2"></h2>
+            <div class="text-sm text-gray-600 space-y-2" id="info-content"></div>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map;
+        let currentLayers = [];
+
+        // Data: Hearths and Paths
+        const diffusionData = {
+            'christianity': {
+                title: "Christianity",
+                hearth: [31.7683, 35.2137], // Jerusalem
+                color: "#3b82f6", // Blue
+                paths: [
+                    [[31.7, 35.2], [41.9, 12.4]], // To Rome (Hierarchical)
+                    [[41.9, 12.4], [51.5, -0.1]], // To Europe (Contagious)
+                    [[51.5, -0.1], [40.7, -74.0]], // To North America (Relocation)
+                    [[40.4, -3.7], [-34.6, -58.3]], // Spain to South America (Relocation/Contagious)
+                    [[51.5, -0.1], [-33.9, 18.4]] // To Africa (Colonialism)
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Universalizing</p>
+                    <p><strong>Hearth:</strong> West Bank / Israel</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li><strong>Relocation:</strong> Missionaries (Paul of Tarsus) moving through the Roman Empire.</li>
+                        <li><strong>Hierarchical:</strong> Emperor Constantine converting made it official.</li>
+                        <li><strong>Contagious:</strong> Spread through Europe and later the Americas via Colonialism.</li>
+                    </ul>
+                `
+            },
+            'islam': {
+                title: "Islam",
+                hearth: [21.3891, 39.8579], // Mecca
+                color: "#10b981", // Green
+                paths: [
+                    [[21.4, 39.9], [30.0, 31.2]], // To Egypt/North Africa (Conquest)
+                    [[21.4, 39.9], [33.3, 44.3]], // To Persia/Iraq
+                    [[21.4, 39.9], [-6.2, 106.8]], // To Indonesia (Trade - Relocation)
+                    [[30.0, 31.2], [36.7, 3.0]] // Across North Africa
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Universalizing</p>
+                    <p><strong>Hearth:</strong> Mecca/Medina (Saudi Arabia)</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li><strong>Expansion:</strong> Rapid spread through military conquest across North Africa and Persia.</li>
+                        <li><strong>Relocation:</strong> Spread to Southeast Asia (Indonesia) via Arab traders on the Indian Ocean.</li>
+                    </ul>
+                `
+            },
+            'buddhism': {
+                title: "Buddhism",
+                hearth: [27.1751, 83.5043], // Lumbini (Nepal border)
+                color: "#f59e0b", // Orange
+                paths: [
+                    [[27.2, 83.5], [35.8, 104.1]], // To China (Silk Road)
+                    [[35.8, 104.1], [35.6, 139.6]], // To Japan
+                    [[27.2, 83.5], [7.8, 80.7]] // To Sri Lanka
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Universalizing</p>
+                    <p><strong>Hearth:</strong> Northern India / Nepal</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li><strong>Hierarchical:</strong> Emperor Ashoka converted and sent missionaries.</li>
+                        <li><strong>Relocation:</strong> Monks traveling the Silk Road brought it to China, Korea, and Japan.</li>
+                        <li>Note: It largely faded in its original hearth (India) but thrived elsewhere.</li>
+                    </ul>
+                `
+            },
+            'sikhism': {
+                title: "Sikhism",
+                hearth: [31.6340, 74.8723], // Amritsar (Punjab)
+                color: "#6366f1", // Indigo
+                paths: [
+                    [[31.6, 74.9], [51.5, -0.1]], // To UK
+                    [[31.6, 74.9], [49.2, -123.1]], // To Canada
+                    [[31.6, 74.9], [37.7, -122.4]] // To USA
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Universalizing</p>
+                    <p><strong>Hearth:</strong> Punjab (India/Pakistan border)</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li>A younger religion (founded 15th century).</li>
+                        <li><strong>Relocation:</strong> Diffused globally relatively recently via migration to the UK, Canada, and USA.</li>
+                        <li>Remains highly clustered in the Punjab region.</li>
+                    </ul>
+                `
+            },
+            'hinduism': {
+                title: "Hinduism",
+                hearth: [30.0, 71.0], // Indus River Valley (approx)
+                color: "#ef4444", // Red
+                paths: [
+                    [[30.0, 71.0], [20.5, 78.9]], // Spread into India
+                    [[20.5, 78.9], [-8.4, 115.1]], // To Bali
+                    [[20.5, 78.9], [51.5, -0.1]], // To UK (Colonial Migration)
+                    [[20.5, 78.9], [10.6, -61.3]] // To Trinidad/Caribbean (Indentured Labor)
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Ethnic</p>
+                    <p><strong>Hearth:</strong> Indus River Valley (Pakistan)</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li><strong>Relocation Only:</strong> Does not seek converts. Spread is tied to physical migration of people.</li>
+                        <li>British Colonialism moved many Hindus to East Africa, the Caribbean, and the UK as laborers.</li>
+                    </ul>
+                `
+            },
+            'judaism': {
+                title: "Judaism",
+                hearth: [31.7683, 35.2137], // Jerusalem
+                color: "#8b5cf6", // Purple
+                paths: [
+                    [[31.8, 35.2], [52.0, 20.0]], // To Eastern Europe (Diaspora)
+                    [[52.0, 20.0], [40.7, -74.0]], // To USA (Migration/WWII)
+                    [[52.0, 20.0], [31.8, 35.2]]  // Return (Zionism)
+                ],
+                desc: `
+                    <p><strong>Type:</strong> Ethnic</p>
+                    <p><strong>Hearth:</strong> Israel</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li><strong>Diaspora:</strong> The Romans forced Jews out of the hearth in 70 CE, scattering them to Europe and North Africa.</li>
+                        <li><strong>Zionism:</strong> The migration back to the hearth in the 20th century.</li>
+                    </ul>
+                `
+            },
+            'indo': {
+                title: "Indo-European Language Family",
+                hearth: [45.0, 35.0], // Black Sea / Kurgan
+                color: "#0f766e", // Teal
+                paths: [
+                    [[45.0, 35.0], [50.0, 10.0]], // To Europe
+                    [[45.0, 35.0], [30.0, 70.0]], // To India/Iran
+                    [[50.0, 10.0], [40.0, -100.0]], // To Americas (Colonization)
+                    [[50.0, 10.0], [-25.0, 135.0]] // To Australia
+                ],
+                desc: `
+                    <p><strong>Family:</strong> Indo-European</p>
+                    <p><strong>Hearth Theories:</strong> Kurgan (Warriors) vs. Anatolian (Farmers)</p>
+                    <ul class="list-disc pl-4 mt-1">
+                        <li>Includes English, Spanish, Hindi, Russian, etc.</li>
+                        <li>Diffused via migration (warfare or agriculture) into Europe and South Asia.</li>
+                        <li>Later diffused globally via Colonialism (English/Spanish).</li>
+                    </ul>
+                `
+            }
+        };
+
+        window.onload = function() {
+            // Init Map
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            
+            // Add CartoDB Light Basemap
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+        };
+
+        function showDiffusion(key) {
+            // 1. Clear Lines
+            currentLayers.forEach(l => map.removeLayer(l));
+            currentLayers = [];
+
+            // 2. Reset UI Buttons
+            document.querySelectorAll('.btn-religion').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${key}`).classList.add('active');
+
+            const data = diffusionData[key];
+
+            // 3. Draw Hearth
+            const hearthMarker = L.circleMarker(data.hearth, {
+                radius: 10,
+                fillColor: data.color,
+                color: "#fff",
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map);
+            
+            // Add Pulse Effect Ring
+            const hearthPulse = L.circleMarker(data.hearth, {
+                radius: 20,
+                fillColor: data.color,
+                color: data.color,
+                weight: 1,
+                fillOpacity: 0.3
+            }).addTo(map);
+
+            currentLayers.push(hearthMarker, hearthPulse);
+
+            // 4. Draw Paths
+            data.paths.forEach((coords, index) => {
+                // Calculate Bezier curve point for aesthetics (simple midpoint lift)
+                // We just draw straight lines for simplicity but animate them
+                const polyline = L.polyline(coords, {
+                    color: data.color,
+                    weight: 3,
+                    dashArray: '10, 10',
+                    className: 'diffusion-path'
+                }).addTo(map);
+                
+                // Arrowhead at end
+                const endPoint = coords[coords.length-1];
+                const arrowHead = L.circleMarker(endPoint, {
+                    radius: 4,
+                    fillColor: data.color,
+                    color: "transparent",
+                    fillOpacity: 1
+                }).addTo(map);
+
+                currentLayers.push(polyline, arrowHead);
+            });
+
+            // 5. Update Info Box
+            const infoBox = document.getElementById('info-overlay');
+            const title = document.getElementById('info-title');
+            const content = document.getElementById('info-content');
+
+            title.innerText = data.title;
+            title.style.color = data.color;
+            content.innerHTML = data.desc;
+
+            // Show Box
+            infoBox.classList.remove('translate-y-full', 'opacity-0');
+
+            // 6. Fly to Hearth
+            map.flyTo(data.hearth, 3, { duration: 1.5 });
+        }
+
+    </script>
+</body>
+</html>
