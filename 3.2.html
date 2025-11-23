@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.2: Cultural Landscapes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Smooth transitions for SVG paths */
+        .layer { transition: opacity 0.8s ease-in-out, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hidden-layer { opacity: 0; transform: translateY(10px); pointer-events: none; }
+        .visible-layer { opacity: 1; transform: translateY(0); }
+
+        /* Time Machine Button Active State */
+        .time-btn.active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            border-color: #0f766e;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-stone-800 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 3.2: Cultural Landscapes</h1>
+                <p class="text-stone-400 text-sm mt-1">Sequent Occupancy, Architecture, and Identity (PSO-3.B)</p>
+            </div>
+            <div class="text-xs bg-stone-700 px-3 py-1 rounded border border-stone-600">
+                Visualizing the "Built Environment"
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: SEQUENT OCCUPANCY TIME MACHINE -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-stone-200">
+            <div class="p-6 border-b border-stone-100 bg-stone-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-teal-900">1. Sequent Occupancy Time Machine</h2>
+                    <p class="text-sm text-stone-500 mt-1">See how different cultures leave their imprint on the same place over time.</p>
+                </div>
+                
+                <!-- Timeline Controls -->
+                <div class="flex bg-white p-1 rounded-lg shadow-sm border border-stone-200">
+                    <button onclick="setTimeLayer('indigenous')" id="btn-indigenous" class="time-btn active px-4 py-2 text-xs font-bold rounded transition hover:bg-stone-100">1. Indigenous</button>
+                    <button onclick="setTimeLayer('colonial')" id="btn-colonial" class="time-btn px-4 py-2 text-xs font-bold rounded transition hover:bg-stone-100">2. Colonial</button>
+                    <button onclick="setTimeLayer('industrial')" id="btn-industrial" class="time-btn px-4 py-2 text-xs font-bold rounded transition hover:bg-stone-100">3. Industrial</button>
+                    <button onclick="setTimeLayer('postmodern')" id="btn-postmodern" class="time-btn px-4 py-2 text-xs font-bold rounded transition hover:bg-stone-100">4. Postmodern</button>
+                </div>
+            </div>
+
+            <div class="relative h-[450px] w-full bg-sky-100 overflow-hidden">
+                
+                <!-- BACKGROUND (Physical Geography - Constant) -->
+                <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 500">
+                    <!-- Sky -->
+                    <rect width="1000" height="500" fill="#e0f2fe" />
+                    <!-- Sun -->
+                    <circle cx="850" cy="80" r="40" fill="#fcd34d" opacity="0.8" />
+                    <!-- Mountains -->
+                    <path d="M 0 500 L 200 200 L 400 500 Z" fill="#94a3b8" opacity="0.5" />
+                    <path d="M 600 500 L 800 150 L 1000 500 Z" fill="#94a3b8" opacity="0.4" />
+                    <!-- Ground -->
+                    <path d="M 0 400 Q 500 350 1000 400 L 1000 500 L 0 500 Z" fill="#78716c" />
+                    <!-- River -->
+                    <path d="M 300 400 Q 500 500 700 500 L 500 500 Q 400 450 300 400 Z" fill="#38bdf8" />
+                </svg>
+
+                <!-- LAYER 1: INDIGENOUS -->
+                <svg id="layer-indigenous" class="layer visible-layer absolute inset-0 w-full h-full" viewBox="0 0 1000 500">
+                    <!-- Tents/Dwellings -->
+                    <path d="M 150 420 L 200 320 L 250 420 Z" fill="#d6d3d1" stroke="#57534e" stroke-width="2" />
+                    <path d="M 400 430 L 450 330 L 500 430 Z" fill="#d6d3d1" stroke="#57534e" stroke-width="2" />
+                    <!-- Nature -->
+                    <circle cx="120" cy="400" r="20" fill="#166534" opacity="0.8" /> <!-- Tree -->
+                    <rect x="115" y="400" width="10" height="30" fill="#451a03" />
+                </svg>
+
+                <!-- LAYER 2: COLONIAL -->
+                <svg id="layer-colonial" class="layer hidden-layer absolute inset-0 w-full h-full" viewBox="0 0 1000 500">
+                    <!-- Mission Church -->
+                    <rect x="150" y="300" width="100" height="120" fill="#f5f5f4" stroke="#78716c" stroke-width="2" />
+                    <path d="M 140 300 L 200 240 L 260 300 Z" fill="#ef4444" /> <!-- Roof -->
+                    <rect x="190" y="370" width="20" height="50" fill="#44403c" /> <!-- Door -->
+                    <line x1="200" y1="240" x2="200" y2="220" stroke="#000" stroke-width="3" /> <!-- Cross -->
+                    <line x1="190" y1="230" x2="210" y2="230" stroke="#000" stroke-width="3" />
+                    
+                    <!-- Dirt Roads (Grid) -->
+                    <path d="M 0 450 L 1000 450" stroke="#a8a29e" stroke-width="15" />
+                    <!-- Farm Fields -->
+                    <rect x="600" y="380" width="300" height="20" fill="#eab308" opacity="0.6" />
+                </svg>
+
+                <!-- LAYER 3: INDUSTRIAL -->
+                <svg id="layer-industrial" class="layer hidden-layer absolute inset-0 w-full h-full" viewBox="0 0 1000 500">
+                    <!-- Factory -->
+                    <rect x="400" y="250" width="200" height="150" fill="#713f12" stroke="#000" />
+                    <rect x="420" y="180" width="30" height="80" fill="#44403c" /> <!-- Smokestack -->
+                    <path d="M 420 180 Q 450 100 500 120" stroke="#57534e" stroke-width="10" opacity="0.5" stroke-dasharray="5,5" /> <!-- Smoke -->
+                    
+                    <!-- Row Houses (Tenements) -->
+                    <rect x="50" y="300" width="300" height="120" fill="#b45309" />
+                    <rect x="70" y="320" width="30" height="30" fill="#fff" />
+                    <rect x="120" y="320" width="30" height="30" fill="#fff" />
+                    
+                    <!-- Railroad -->
+                    <path d="M 0 480 L 1000 480" stroke="#000" stroke-width="4" />
+                    <line x1="0" y1="480" x2="1000" y2="480" stroke="#fff" stroke-width="2" stroke-dasharray="10,10" />
+                </svg>
+
+                <!-- LAYER 4: POSTMODERN -->
+                <svg id="layer-postmodern" class="layer hidden-layer absolute inset-0 w-full h-full" viewBox="0 0 1000 500">
+                    <!-- Skyscraper (Glass) -->
+                    <rect x="700" y="100" width="100" height="350" fill="#bae6fd" stroke="#0ea5e9" stroke-width="2" opacity="0.9" />
+                    <line x1="750" y1="100" x2="750" y2="450" stroke="#0ea5e9" />
+                    
+                    <!-- Repurposed Factory (Lofts) - Evidence of Sequent Occupance! -->
+                    <rect x="400" y="250" width="200" height="150" fill="#713f12" opacity="0.8" />
+                    <text x="500" y="300" text-anchor="middle" fill="white" font-family="sans-serif" font-weight="bold">ART LOFTS</text>
+                    
+                    <!-- Highway -->
+                    <path d="M 0 460 L 1000 460" stroke="#334155" stroke-width="40" />
+                    <line x1="0" y1="460" x2="1000" y2="460" stroke="#fbbf24" stroke-width="2" stroke-dasharray="20,20" />
+                </svg>
+
+                <!-- Info Box Overlay -->
+                <div id="layer-info" class="absolute bottom-4 left-4 bg-white/95 backdrop-blur p-4 rounded-xl shadow-lg max-w-sm border-l-4 border-teal-600 transition-all">
+                    <h3 class="font-bold text-teal-900 text-lg mb-1">1. Indigenous Landscape</h3>
+                    <p class="text-sm text-stone-600">Characterized by harmonious interaction with the physical geography. Structures use local materials (wood, hides, mud) and leave a light footprint.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: ARCHITECTURE & IDENTITY -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Traditional vs Postmodern -->
+            <section class="bg-white rounded-xl shadow-lg p-6 h-full">
+                <h2 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">2. Architectural Patterns</h2>
+                
+                <div class="space-y-4">
+                    <div class="group cursor-pointer p-4 rounded-lg border border-stone-200 hover:border-amber-400 bg-stone-50 hover:bg-amber-50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-amber-800">Traditional Architecture</h3>
+                            <span class="text-2xl">🛖</span>
+                        </div>
+                        <p class="text-xs text-stone-600">Uses local materials (stone, bamboo, adobe). Reflects the physical environment (e.g., steep roofs in snowy areas). Enhances "Sense of Place."</p>
+                    </div>
+
+                    <div class="group cursor-pointer p-4 rounded-lg border border-stone-200 hover:border-blue-400 bg-stone-50 hover:bg-blue-50 transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-blue-800">Postmodern Architecture</h3>
+                            <span class="text-2xl">🏙️</span>
+                        </div>
+                        <p class="text-xs text-stone-600">Focuses on unique forms, steel, and glass. Often ignores local culture ("Placelessness"). Prioritizes aesthetics and global business connectivity.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cultural & Gendered Spaces -->
+            <section class="bg-white rounded-xl shadow-lg p-6 h-full">
+                <h2 class="text-lg font-bold text-stone-800 mb-4 border-b pb-2">3. Identity in Space (PSO-3.C)</h2>
+                
+                <div class="space-y-4">
+                    <div class="bg-pink-50 p-3 rounded-lg border-l-4 border-pink-400">
+                        <h4 class="font-bold text-pink-900 text-sm uppercase">Gendered Spaces</h4>
+                        <p class="text-xs text-stone-600 mt-1">
+                            How society restricts space based on gender.
+                            <br><strong>Example:</strong> "Private" spheres (home) often associated with women in traditional societies, while "Public" spheres (markets, politics) are male-dominated.
+                        </p>
+                    </div>
+
+                    <div class="bg-purple-50 p-3 rounded-lg border-l-4 border-purple-400">
+                        <h4 class="font-bold text-purple-900 text-sm uppercase">Ethnic Neighborhoods</h4>
+                        <p class="text-xs text-stone-600 mt-1">
+                            Areas where a distinct culture retains its identity within a larger city.
+                            <br><strong>Example:</strong> Chinatown or Little Italy. These create a "Cultural Landscape" visible through signs, architecture, and food.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <script>
+        const layerData = {
+            'indigenous': {
+                title: "1. Indigenous Landscape",
+                desc: "Harmonious interaction with physical geography. Use of local materials (wood, hides) and communal land use patterns."
+            },
+            'colonial': {
+                title: "2. Colonial Landscape",
+                desc: "Imposition of European patterns. Look for the Grid System, Christian churches dominating the skyline, and separation of land for private ownership."
+            },
+            'industrial': {
+                title: "3. Industrial Landscape",
+                desc: "Function over form. Factories near water/rail, dense tenement housing for workers, and pollution. The landscape is modified for production."
+            },
+            'postmodern': {
+                title: "4. Postmodern Landscape",
+                desc: "The 'Service Economy'. Old factories are repurposed (gentrification) into lofts. Skyscrapers (glass/steel) dominate. Highways connect suburbs to the core."
+            }
+        };
+
+        function setTimeLayer(layerId) {
+            // 1. Visual Toggle
+            const layers = ['indigenous', 'colonial', 'industrial', 'postmodern'];
+            layers.forEach(l => {
+                const el = document.getElementById(`layer-${l}`);
+                const btn = document.getElementById(`btn-${l}`);
+                
+                if (l === layerId) {
+                    el.classList.remove('hidden-layer');
+                    el.classList.add('visible-layer');
+                    btn.classList.add('active');
+                } else {
+                    el.classList.add('hidden-layer');
+                    el.classList.remove('visible-layer');
+                    btn.classList.remove('active');
+                }
+            });
+
+            // 2. Update Info Box
+            const info = layerData[layerId];
+            const infoBox = document.getElementById('layer-info');
+            infoBox.innerHTML = `
+                <h3 class="font-bold text-teal-900 text-lg mb-1">${info.title}</h3>
+                <p class="text-sm text-stone-600">${info.desc}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
