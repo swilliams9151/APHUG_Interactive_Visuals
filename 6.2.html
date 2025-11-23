@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.2: Cities Across the World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* City Element Animation */
+        .city-elem { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); transform-origin: center; }
+        .hidden-elem { transform: scale(0); opacity: 0; }
+        
+        /* Button Active State */
+        .form-btn.active {
+            background-color: #f0fdf4;
+            border-color: #16a34a;
+            color: #15803d;
+            ring: 2px solid #16a34a;
+        }
+        
+        /* Highway Dash Animation */
+        .highway-line {
+            stroke-dasharray: 10;
+            animation: flow 2s linear infinite;
+        }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-cyan-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.2: Cities Across the World</h1>
+                <p class="text-cyan-200 text-sm mt-1">Megacities, Metacities, and Suburban Sprawl (PSO-6.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-cyan-800 px-3 py-1 rounded border border-cyan-700">
+                Urbanization Patterns
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: MEGACITIES & METACITIES (PSO-6.A.3) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col h-[500px]">
+            <div class="p-6 border-b border-slate-100 bg-cyan-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-cyan-900">1. The Rise of the Global South</h2>
+                    <p class="text-sm text-slate-600 mt-1">Compare the world's largest cities in 1950 vs. Today.</p>
+                </div>
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+                    <button onclick="setEra(1950)" id="btn-1950" class="px-4 py-2 text-xs font-bold rounded bg-cyan-600 text-white shadow transition">1950</button>
+                    <button onclick="setEra(2030)" id="btn-2030" class="px-4 py-2 text-xs font-bold rounded bg-white text-slate-600 hover:bg-slate-50 transition">Today (2030Proj)</button>
+                </div>
+            </div>
+
+            <div class="relative flex-1 bg-slate-100">
+                <div id="map"></div>
+                
+                <!-- Legend -->
+                <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur p-3 rounded shadow text-xs font-bold text-slate-600 z-[1000]">
+                    <div class="flex items-center mb-1">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-2 border border-white"></span> Core (MDC)
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-red-500 mr-2 border border-white"></span> Periphery/Semi (LDC)
+                    </div>
+                </div>
+
+                <div id="era-stats" class="absolute top-4 right-4 bg-white/90 backdrop-blur p-4 rounded shadow-lg text-slate-800 z-[1000] w-64 border-l-4 border-cyan-500">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: SPRAWL BUILDER (PSO-6.A.4) -->
+        <section class="bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 text-white">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The Sprawl Builder</h2>
+                    <p class="text-sm text-slate-400 mt-1">Urbanization isn't just growth; it's decentralization. Build the modern metropolis.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <!-- Controls -->
+                <div class="space-y-3">
+                    <button onclick="toggleForm('suburb')" id="btn-suburb" class="form-btn w-full text-left p-4 rounded-lg bg-slate-700 border border-slate-600 hover:bg-slate-600 transition flex items-center gap-3 group">
+                        <div class="text-2xl group-hover:scale-110 transition">🏡</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Suburbs</h3>
+                            <p class="text-[10px] text-slate-400">Residential areas surrounding the city.</p>
+                        </div>
+                    </button>
+
+                    <button onclick="toggleForm('edge')" id="btn-edge" class="form-btn w-full text-left p-4 rounded-lg bg-slate-700 border border-slate-600 hover:bg-slate-600 transition flex items-center gap-3 group">
+                        <div class="text-2xl group-hover:scale-110 transition">🏙️</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Edge City</h3>
+                            <p class="text-[10px] text-slate-400">Business node on the perimeter highway.</p>
+                        </div>
+                    </button>
+
+                    <button onclick="toggleForm('boom')" id="btn-boom" class="form-btn w-full text-left p-4 rounded-lg bg-slate-700 border border-slate-600 hover:bg-slate-600 transition flex items-center gap-3 group">
+                        <div class="text-2xl group-hover:scale-110 transition">📈</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Boomburb</h3>
+                            <p class="text-[10px] text-slate-400">Large, rapidly growing suburb (>100k pop).</p>
+                        </div>
+                    </button>
+
+                    <button onclick="toggleForm('exurb')" id="btn-exurb" class="form-btn w-full text-left p-4 rounded-lg bg-slate-700 border border-slate-600 hover:bg-slate-600 transition flex items-center gap-3 group">
+                        <div class="text-2xl group-hover:scale-110 transition">🌲</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Exurb</h3>
+                            <p class="text-[10px] text-slate-400">Prosperous area beyond the suburbs.</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="md:col-span-2 relative h-[400px] bg-slate-900 rounded-xl border border-slate-600 overflow-hidden flex items-center justify-center">
+                    
+                    <svg viewBox="0 0 600 400" class="w-full h-full">
+                        <!-- Highways (Ring Road) -->
+                        <circle cx="300" cy="200" r="120" fill="none" stroke="#475569" stroke-width="4" stroke-dasharray="10,5" />
+                        <line x1="300" y1="0" x2="300" y2="400" stroke="#475569" stroke-width="4" />
+                        <line x1="100" y1="200" x2="500" y2="200" stroke="#475569" stroke-width="4" />
+
+                        <!-- CBD (Center) -->
+                        <rect x="280" y="180" width="40" height="40" fill="#ef4444" />
+                        <text x="300" y="205" text-anchor="middle" fill="white" font-size="10" font-weight="bold">CBD</text>
+
+                        <!-- Suburbs (Ring) -->
+                        <g id="layer-suburb" class="city-elem hidden-elem">
+                            <circle cx="300" cy="200" r="80" fill="none" stroke="#10b981" stroke-width="20" opacity="0.3" />
+                            <text x="300" y="140" text-anchor="middle" fill="#10b981" font-size="10" font-bold>Residential Zone</text>
+                        </g>
+
+                        <!-- Edge City (Node on Ring Road) -->
+                        <g id="layer-edge" class="city-elem hidden-elem">
+                            <circle cx="420" cy="200" r="25" fill="#3b82f6" />
+                            <text x="420" y="205" text-anchor="middle" fill="white" font-size="20">🏙️</text>
+                            <text x="420" y="235" text-anchor="middle" fill="#3b82f6" font-size="10" font-bold>Edge City</text>
+                        </g>
+
+                        <!-- Boomburb (Large Suburb) -->
+                        <g id="layer-boom" class="city-elem hidden-elem">
+                            <rect x="150" y="250" width="60" height="40" fill="#f59e0b" rx="5" />
+                            <text x="180" y="275" text-anchor="middle" fill="white" font-size="10" font-bold>Boomburb</text>
+                        </g>
+
+                        <!-- Exurb (Far Out) -->
+                        <g id="layer-exurb" class="city-elem hidden-elem">
+                            <circle cx="100" cy="80" r="15" fill="#8b5cf6" />
+                            <text x="100" y="85" text-anchor="middle" fill="white" font-size="10">🌲</text>
+                            <text x="100" y="110" text-anchor="middle" fill="#8b5cf6" font-size="10" font-bold>Exurb</text>
+                        </g>
+
+                    </svg>
+
+                    <!-- Info Box -->
+                    <div id="sprawl-info" class="absolute bottom-4 right-4 bg-slate-800/90 p-3 rounded border border-slate-600 text-xs max-w-xs hidden">
+                        <!-- Dynamic Text -->
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: DEFINITION CHECK -->
+        <section class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl p-6 shadow-md border-l-4 border-red-500">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-3xl">🏢</span>
+                    <h3 class="text-lg font-bold text-slate-800">Megacity</h3>
+                </div>
+                <p class="text-sm text-slate-600">A city with more than <strong>10 million</strong> people.</p>
+                <p class="text-xs text-slate-400 mt-2">Ex: Paris, Lima, Bogota.</p>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 shadow-md border-l-4 border-purple-500">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-3xl">🌆</span>
+                    <h3 class="text-lg font-bold text-slate-800">Metacity</h3>
+                </div>
+                <p class="text-sm text-slate-600">A massive urban region with more than <strong>20 million</strong> people.</p>
+                <p class="text-xs text-slate-400 mt-2">Ex: Tokyo, Delhi, Shanghai.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- 1. MEGACITY MAP LOGIC ---
+        const cityData = {
+            1950: {
+                cities: [
+                    { name: "New York", coords: [40.7, -74.0], pop: "12M", type: "core" },
+                    { name: "Tokyo", coords: [35.6, 139.6], pop: "11M", type: "core" },
+                    { name: "London", coords: [51.5, -0.1], pop: "8M", type: "core" },
+                    { name: "Paris", coords: [48.8, 2.3], pop: "6M", type: "core" },
+                    { name: "Moscow", coords: [55.7, 37.6], pop: "5M", type: "semi" }
+                ],
+                text: "In 1950, the largest cities were mostly in the <strong>Global North (Core)</strong>. Urbanization was tied to industrialization."
+            },
+            2030: {
+                cities: [
+                    { name: "Tokyo", coords: [35.6, 139.6], pop: "37M", type: "core" },
+                    { name: "Delhi", coords: [28.6, 77.1], pop: "36M", type: "peri" },
+                    { name: "Shanghai", coords: [31.2, 121.4], pop: "29M", type: "semi" },
+                    { name: "Dhaka", coords: [23.8, 90.4], pop: "28M", type: "peri" },
+                    { name: "Sao Paulo", coords: [-23.5, -46.6], pop: "24M", type: "semi" },
+                    { name: "Cairo", coords: [30.0, 31.2], pop: "22M", type: "peri" },
+                    { name: "Lagos", coords: [6.5, 3.3], pop: "21M", type: "peri" }
+                ],
+                text: "Today, the largest cities are in the <strong>Global South (Periphery)</strong>. Urbanization is driven by population growth and rural flight, often outpacing infrastructure."
+            }
+        };
+
+        let map;
+        let currentMarkers = [];
+
+        window.onload = function() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            setEra(1950);
+        };
+
+        function setEra(year) {
+            // UI
+            document.getElementById('btn-1950').className = year === 1950 ? "px-4 py-2 text-xs font-bold rounded bg-cyan-600 text-white shadow transition" : "px-4 py-2 text-xs font-bold rounded bg-white text-slate-600 hover:bg-slate-50 transition";
+            document.getElementById('btn-2030').className = year === 2030 ? "px-4 py-2 text-xs font-bold rounded bg-cyan-600 text-white shadow transition" : "px-4 py-2 text-xs font-bold rounded bg-white text-slate-600 hover:bg-slate-50 transition";
+
+            // Clear
+            currentMarkers.forEach(m => map.removeLayer(m));
+            currentMarkers = [];
+
+            // Add Markers
+            const data = cityData[year];
+            data.cities.forEach(c => {
+                const color = c.type === 'core' ? '#3b82f6' : '#ef4444';
+                const marker = L.circleMarker(c.coords, {
+                    radius: 8 + (parseInt(c.pop) / 4), // Scale by pop
+                    color: "white",
+                    fillColor: color,
+                    fillOpacity: 0.8,
+                    weight: 2
+                }).bindTooltip(`<strong>${c.name}</strong><br>Pop: ${c.pop}`, { permanent: false, direction: "top" }).addTo(map);
+                currentMarkers.push(marker);
+            });
+
+            // Update Text
+            document.getElementById('era-stats').innerHTML = `
+                <h3 class="text-xl font-bold mb-2">${year} Snapshot</h3>
+                <p class="text-xs leading-relaxed">${data.text}</p>
+            `;
+        }
+
+        // --- 2. SPRAWL LOGIC ---
+        const formInfo = {
+            'suburb': { title: "Suburbs", desc: "Residential zones that emerged due to highways and cars. Lower density than CBD." },
+            'edge': { title: "Edge City", desc: "A 'Mini-Downtown' on the outskirts. Has office parks, malls, and jobs. People commute *to* here, not just away from it." },
+            'boom': { title: "Boomburb", desc: "A suburb that grew up. Population >100k. Looks like a city but lacks a traditional downtown." },
+            'exurb': { title: "Exurb", desc: "Semi-rural area beyond the suburbs. Wealthy commuters seeking space and nature, connected by tech." }
+        };
+
+        const activeForms = { suburb: false, edge: false, boom: false, exurb: false };
+
+        function toggleForm(id) {
+            activeForms[id] = !activeForms[id];
+            const el = document.getElementById(`layer-${id}`);
+            const btn = document.getElementById(`btn-${id}`);
+            const info = document.getElementById('sprawl-info');
+
+            if (activeForms[id]) {
+                el.classList.remove('hidden-elem');
+                btn.classList.add('active');
+                
+                // Show Info
+                info.innerHTML = `
+                    <strong class="text-cyan-400 uppercase">${formInfo[id].title}</strong>
+                    <p class="text-slate-300 mt-1">${formInfo[id].desc}</p>
+                `;
+                info.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden-elem');
+                btn.classList.remove('active');
+                info.classList.add('hidden');
+            }
+        }
+
+    </script>
+</body>
+</html>
