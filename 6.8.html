@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.8: Urban Sustainability</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Zone Transitions */
+        .zone-cell { transition: all 0.3s ease; cursor: pointer; }
+        .zone-cell:hover { transform: scale(1.05); z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* Train Animation */
+        @keyframes trainMove {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .train {
+            animation: trainMove 4s linear infinite;
+        }
+
+        /* Meter Animation */
+        .meter-fill { transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s; }
+        
+        /* Card Selection */
+        .policy-btn.active {
+            border-color: #22c55e; /* emerald-500 */
+            background-color: #f0fdf4; /* emerald-50 */
+            ring: 2px solid #22c55e;
+        }
+        .policy-btn { transition: all 0.2s; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-emerald-800 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.8: Urban Sustainability</h1>
+                <p class="text-emerald-200 text-sm mt-1">Smart Growth, New Urbanism, and Greenbelts (IMP-6.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-emerald-700 px-3 py-1 rounded border border-emerald-600">
+                Fighting Urban Sprawl
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: ZONING REFORM (IMP-6.C.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col md:flex-row">
+            
+            <!-- Controls -->
+            <div class="w-full md:w-1/3 p-6 bg-stone-50 border-r border-stone-200 flex flex-col gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-900">1. Fix the Zoning</h2>
+                    <p class="text-xs text-stone-500 mt-1">Current Status: <strong>Sprawl</strong>. Low density, segregated land use. Click blocks to re-zone.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="setTool('mixed')" id="btn-mixed" class="policy-btn active w-full text-left p-3 rounded-lg border border-stone-300 bg-white font-bold text-sm flex items-center gap-3">
+                        <span class="text-2xl">🏢</span>
+                        <div>
+                            <div class="text-purple-700">Mixed Use</div>
+                            <div class="text-[10px] text-stone-400 font-normal">Res + Comm together. Walkable.</div>
+                        </div>
+                    </button>
+                    <button onclick="setTool('green')" id="btn-green" class="policy-btn w-full text-left p-3 rounded-lg border border-stone-300 bg-white font-bold text-sm flex items-center gap-3">
+                        <span class="text-2xl">🌳</span>
+                        <div>
+                            <div class="text-emerald-700">Greenbelt / Park</div>
+                            <div class="text-[10px] text-stone-400 font-normal">Limits expansion. Cleaning air.</div>
+                        </div>
+                    </button>
+                    <button onclick="setTool('sprawl')" id="btn-sprawl" class="policy-btn w-full text-left p-3 rounded-lg border border-stone-300 bg-white font-bold text-sm flex items-center gap-3">
+                        <span class="text-2xl">🚗</span>
+                        <div>
+                            <div class="text-red-700">Single-Family (Sprawl)</div>
+                            <div class="text-[10px] text-stone-400 font-normal">Car dependent. Low density.</div>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="mt-auto">
+                    <div class="flex justify-between text-xs font-bold uppercase text-stone-400 mb-1">
+                        <span>Walkability Score</span>
+                        <span id="score-val" class="text-emerald-600">Low</span>
+                    </div>
+                    <div class="w-full h-4 bg-stone-200 rounded-full overflow-hidden border border-stone-300">
+                        <div id="score-bar" class="h-full bg-red-500 meter-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizer: The City Grid -->
+            <div class="w-full md:w-2/3 p-8 bg-slate-100 flex items-center justify-center">
+                <div id="city-grid" class="grid grid-cols-5 gap-2 w-80 h-80">
+                    <!-- Cells injected via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TRANSPORTATION (TOD) -->
+        <section class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8 text-white">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. Transit-Oriented Development (TOD)</h2>
+                    <p class="text-sm text-slate-400 mt-1">Designing density around public transport stations.</p>
+                </div>
+                <button onclick="toggleTOD()" id="btn-tod" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-xs font-bold shadow transition">
+                    Switch to TOD Mode
+                </button>
+            </div>
+
+            <div class="relative h-64 bg-slate-900 rounded-xl border border-slate-600 overflow-hidden">
+                
+                <!-- Scenario A: Car Dependent -->
+                <div id="view-car" class="absolute inset-0 transition-opacity duration-500">
+                    <!-- Huge Parking Lots -->
+                    <rect x="0" y="0" width="100%" height="100%" fill="#334155" />
+                    <div class="grid grid-cols-10 gap-1 p-4 opacity-20">
+                        <!-- Parking lines -->
+                        <div class="h-8 border-x border-white"></div><div class="h-8 border-x border-white"></div><div class="h-8 border-x border-white"></div>
+                        <!-- ... repeated via CSS or simple image ideally, keeping simple -->
+                    </div>
+                    <!-- Highway -->
+                    <div class="absolute top-1/2 w-full h-16 bg-slate-950 transform -translate-y-1/2 flex items-center justify-center">
+                        <div class="w-full border-t-2 border-dashed border-yellow-500"></div>
+                    </div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">Congestion</div>
+                </div>
+
+                <!-- Scenario B: TOD -->
+                <div id="view-tod" class="absolute inset-0 opacity-0 transition-opacity duration-500 bg-emerald-900/20">
+                    <!-- Background Housing Density -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-64 h-64 rounded-full bg-blue-500/10 border border-blue-500/30"></div>
+                        <div class="w-40 h-40 rounded-full bg-blue-500/20 border border-blue-500/50 absolute"></div>
+                    </div>
+
+                    <!-- Rail Line -->
+                    <div class="absolute top-1/2 w-full h-4 bg-slate-400 transform -translate-y-1/2 overflow-hidden">
+                        <div class="w-full h-full border-t border-b border-white/50"></div>
+                        <!-- Train -->
+                        <div class="absolute top-0 left-0 h-full w-24 bg-blue-500 train rounded-r"></div>
+                    </div>
+
+                    <!-- Station Node -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full border-4 border-blue-500 flex items-center justify-center text-2xl shadow-lg z-10">
+                        🚉
+                    </div>
+
+                    <!-- Buildings -->
+                    <div class="absolute top-16 left-1/2 transform -translate-x-1/2 text-4xl">🏢</div>
+                    <div class="absolute bottom-16 left-1/2 transform -translate-x-1/2 text-4xl">🏬</div>
+                    <div class="absolute top-1/2 left-32 transform -translate-y-1/2 text-4xl">🏥</div>
+                    <div class="absolute top-1/2 right-32 transform -translate-y-1/2 text-4xl">🏫</div>
+                </div>
+
+            </div>
+            
+            <div id="tod-desc" class="mt-4 text-xs text-slate-400 italic text-center">
+                Car Dependent: Land wasted on parking. Sprawl enabled by highways.
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE CRITIQUE (Gentrification) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-stone-800 mb-6 pl-4 border-l-4 border-red-500">3. The Double-Edged Sword (IMP-6.D.1)</h2>
+            
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                
+                <div class="flex-1 space-y-4">
+                    <h3 class="font-bold text-slate-700 text-sm uppercase">New Urbanism Paradox</h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        New Urbanism creates highly desirable, walkable neighborhoods. But high demand drives up property values.
+                        <br><br>
+                        This leads to <strong>De Facto Segregation</strong>: Only the wealthy can afford to live in the "sustainable" city, while service workers are pushed to the exurbs.
+                    </p>
+                </div>
+
+                <!-- The Meter -->
+                <div class="w-full md:w-1/3 bg-slate-100 p-6 rounded-xl border border-slate-200">
+                    <div class="flex justify-between text-xs font-bold mb-1 text-emerald-600">
+                        <span>Livability (Good)</span>
+                        <span id="live-val">Low</span>
+                    </div>
+                    <div class="w-full h-2 bg-white rounded-full mb-4 overflow-hidden">
+                        <div id="bar-live" class="h-full bg-emerald-500 transition-all duration-1000" style="width: 20%"></div>
+                    </div>
+
+                    <div class="flex justify-between text-xs font-bold mb-1 text-red-600">
+                        <span>Housing Cost (Bad)</span>
+                        <span id="cost-val">Affordable</span>
+                    </div>
+                    <div class="w-full h-2 bg-white rounded-full overflow-hidden">
+                        <div id="bar-cost" class="h-full bg-red-500 transition-all duration-1000" style="width: 20%"></div>
+                    </div>
+                    
+                    <div class="mt-4 text-[10px] text-center text-slate-400 italic bg-white p-2 rounded">
+                        As livability rises, affordability often falls (Gentrification).
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. ZONING LOGIC ---
+        const grid = document.getElementById('city-grid');
+        let activeTool = 'mixed';
+        let walkScore = 10;
+
+        // Init Grid (Default Sprawl)
+        // 25 Cells. 
+        // 0-4 Commercial Strip (Red)
+        // 5-24 Residential Sprawl (Yellow)
+        for(let i=0; i<25; i++) {
+            const cell = document.createElement('div');
+            cell.className = "zone-cell rounded shadow-sm flex items-center justify-center text-2xl";
+            
+            if (i < 5) {
+                cell.style.backgroundColor = "#fca5a5"; // Red-300 (Comm)
+                cell.innerHTML = "🚗"; // Car dependent
+                cell.dataset.type = "sprawl";
+            } else {
+                cell.style.backgroundColor = "#fef3c7"; // Amber-100 (Res)
+                cell.innerHTML = "🏠";
+                cell.dataset.type = "sprawl";
+            }
+            
+            cell.onclick = () => updateZone(cell);
+            grid.appendChild(cell);
+        }
+
+        function setTool(tool) {
+            activeTool = tool;
+            document.querySelectorAll('.policy-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${tool}`).classList.add('active');
+        }
+
+        function updateZone(cell) {
+            if (activeTool === 'mixed') {
+                cell.style.backgroundColor = "#d8b4fe"; // Purple
+                cell.innerHTML = "🏢";
+                cell.dataset.type = "mixed";
+            } else if (activeTool === 'green') {
+                cell.style.backgroundColor = "#86efac"; // Green
+                cell.innerHTML = "🌳";
+                cell.dataset.type = "green";
+            } else {
+                cell.style.backgroundColor = "#fca5a5"; // Red
+                cell.innerHTML = "🚗";
+                cell.dataset.type = "sprawl";
+            }
+            calcScore();
+        }
+
+        function calcScore() {
+            const cells = document.querySelectorAll('.zone-cell');
+            let mixed = 0, green = 0;
+            cells.forEach(c => {
+                if(c.dataset.type === 'mixed') mixed++;
+                if(c.dataset.type === 'green') green++;
+            });
+
+            // Score formula
+            let score = (mixed * 3) + (green * 2) + 10;
+            if(score > 100) score = 100;
+
+            // Update Meter
+            const bar = document.getElementById('score-bar');
+            const val = document.getElementById('score-val');
+            
+            bar.style.width = `${score}%`;
+            
+            // Color logic
+            if (score < 40) {
+                bar.className = "h-full bg-red-500 meter-fill";
+                val.innerText = "Car Dependent";
+                val.className = "text-red-600";
+            } else if (score < 70) {
+                bar.className = "h-full bg-yellow-500 meter-fill";
+                val.innerText = "Somewhat Walkable";
+                val.className = "text-yellow-600";
+            } else {
+                bar.className = "h-full bg-emerald-500 meter-fill";
+                val.innerText = "Walker's Paradise";
+                val.className = "text-emerald-600";
+            }
+
+            // Update Gentrification Meter (Linked to success)
+            updateGentrification(score);
+        }
+
+        // --- 2. TOD LOGIC ---
+        let isTOD = false;
+        function toggleTOD() {
+            isTOD = !isTOD;
+            const car = document.getElementById('view-car');
+            const tod = document.getElementById('view-tod');
+            const btn = document.getElementById('btn-tod');
+            const desc = document.getElementById('tod-desc');
+
+            if (isTOD) {
+                car.style.opacity = 0;
+                tod.style.opacity = 1;
+                btn.innerText = "Switch to Car Mode";
+                btn.className = "bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded text-xs font-bold shadow transition";
+                desc.innerHTML = "<strong>TOD (Transit Oriented Development):</strong> High density mixed-use centered on the station. Reduces carbon footprint.";
+            } else {
+                car.style.opacity = 1;
+                tod.style.opacity = 0;
+                btn.innerText = "Switch to TOD Mode";
+                btn.className = "bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-xs font-bold shadow transition";
+                desc.innerHTML = "Car Dependent: Land wasted on parking. Sprawl enabled by highways.";
+            }
+        }
+
+        // --- 3. GENTRIFICATION LOGIC ---
+        function updateGentrification(score) {
+            const barLive = document.getElementById('bar-live');
+            const barCost = document.getElementById('bar-cost');
+            const valLive = document.getElementById('live-val');
+            const valCost = document.getElementById('cost-val');
+
+            // Livability matches Walk Score
+            barLive.style.width = `${score}%`;
+            valLive.innerText = score > 70 ? "Excellent" : (score > 40 ? "Average" : "Poor");
+
+            // Cost lags slightly but follows
+            const cost = Math.max(20, score * 0.9); 
+            barCost.style.width = `${cost}%`;
+            
+            if (cost > 75) {
+                valCost.innerText = "Displacement Risk";
+                valCost.className = "text-red-600 font-bold animate-pulse";
+            } else if (cost > 50) {
+                valCost.innerText = "Rising";
+                valCost.className = "text-yellow-600 font-bold";
+            } else {
+                valCost.innerText = "Affordable";
+                valCost.className = "text-emerald-600 font-bold";
+            }
+        }
+
+    </script>
+</body>
+</html>
