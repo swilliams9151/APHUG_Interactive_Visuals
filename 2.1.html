@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.1: Population Distribution & Density</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Biome Card Hover */
+        .biome-card {
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .biome-card:hover {
+            transform: translateY(-4px);
+            border-color: #f59e0b; /* amber-500 */
+        }
+
+        /* Density Meter Animation */
+        .meter-bar {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-amber-800 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.1: Population Patterns</h1>
+                <p class="text-amber-200 text-sm mt-1">Distribution, Density, and Carrying Capacity (PSO-2)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-amber-700 px-3 py-1 rounded border border-amber-600">
+                Ecume vs. Non-Ecumene
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: FACTORS OF DISTRIBUTION (The Ecumene) -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-xl font-bold text-amber-900">1. Where do people live? (Factors)</h2>
+                <p class="text-sm text-slate-500 mt-1">Humans avoid the "Too's" (Too Hot, Too Cold, Too Wet, Too High). Select a biome to settle.</p>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-4 p-6">
+                <!-- Biome 1: River Valley -->
+                <button onclick="settle('river')" class="biome-card bg-emerald-50 border-2 border-emerald-100 p-4 rounded-xl text-center group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">🏞️</div>
+                    <h3 class="font-bold text-emerald-800 text-sm">River Valley</h3>
+                    <p class="text-xs text-emerald-600 mt-1">Low-lying, fertile soil, water access.</p>
+                </button>
+
+                <!-- Biome 2: Desert -->
+                <button onclick="settle('desert')" class="biome-card bg-orange-50 border-2 border-orange-100 p-4 rounded-xl text-center group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">🌵</div>
+                    <h3 class="font-bold text-orange-800 text-sm">Arid Desert</h3>
+                    <p class="text-xs text-orange-600 mt-1">Lack of water, extreme heat.</p>
+                </button>
+
+                <!-- Biome 3: Highlands -->
+                <button onclick="settle('mountain')" class="biome-card bg-stone-50 border-2 border-stone-200 p-4 rounded-xl text-center group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">🏔️</div>
+                    <h3 class="font-bold text-stone-800 text-sm">Highlands</h3>
+                    <p class="text-xs text-stone-600 mt-1">Steep, cold, thin soil.</p>
+                </button>
+
+                <!-- Biome 4: Coastal Plain -->
+                <button onclick="settle('coast')" class="biome-card bg-blue-50 border-2 border-blue-100 p-4 rounded-xl text-center group">
+                    <div class="text-4xl mb-2 group-hover:scale-110 transition">🌊</div>
+                    <h3 class="font-bold text-blue-800 text-sm">Coastal Plain</h3>
+                    <p class="text-xs text-blue-600 mt-1">Trade access, moderate climate.</p>
+                </button>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="settle-feedback" class="px-6 pb-6 text-center hidden">
+                <div id="feedback-box" class="p-4 rounded-lg border text-sm font-medium transition-all"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE DENSITY TRIO CALCULATOR -->
+        <section class="bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">2. Density Visualizer</h2>
+                    <p class="text-sm text-slate-500">Manipulate the variables to see how "Pressure on the Land" changes.</p>
+                </div>
+                <button onclick="loadPreset('egypt')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-xs font-bold shadow transition">
+                    Load "The Egypt Paradox"
+                </button>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                
+                <!-- Inputs -->
+                <div class="space-y-6 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                            <span>Total Population</span>
+                            <span id="val-pop" class="text-slate-800">1,000</span>
+                        </label>
+                        <input type="range" id="input-pop" min="100" max="5000" value="1000" oninput="calculate()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                            <span>Total Land Area (sq mi)</span>
+                            <span id="val-area" class="text-slate-800">100</span>
+                        </label>
+                        <input type="range" id="input-area" min="10" max="200" value="100" oninput="calculate()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                            <span>% Arable Land (Farmable)</span>
+                            <span id="val-arable" class="text-slate-800">50%</span>
+                        </label>
+                        <input type="range" id="input-arable" min="1" max="100" value="50" oninput="calculate()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-green-500">
+                        <p class="text-[10px] text-slate-400 mt-1">Drastically reducing this shows high Physiological Density.</p>
+                    </div>
+
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1">
+                            <span># of Farmers</span>
+                            <span id="val-farmers" class="text-slate-800">200</span>
+                        </label>
+                        <input type="range" id="input-farmers" min="0" max="1000" value="200" oninput="calculate()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                    </div>
+                </div>
+
+                <!-- Visuals -->
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <!-- Card 1: Arithmetic -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                        <h3 class="text-sm font-bold text-slate-800 mb-1">Arithmetic Density</h3>
+                        <p class="text-[10px] text-slate-400 mb-3">Total Pop / Total Land</p>
+                        <div class="text-3xl font-extrabold text-blue-600 mb-2" id="res-arithmetic">10</div>
+                        <div class="text-xs text-slate-500">people per sq mi</div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                            <div id="bar-arithmetic" class="h-full bg-blue-500 meter-bar" style="width: 10%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">"How crowded is the country overall?"</p>
+                    </div>
+
+                    <!-- Card 2: Physiological -->
+                    <div class="bg-white p-4 rounded-xl border-2 border-indigo-100 shadow-sm hover:shadow-md transition relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-1 rounded-bl">CRITICAL</div>
+                        <h3 class="text-sm font-bold text-indigo-900 mb-1">Physiological Density</h3>
+                        <p class="text-[10px] text-indigo-400 mb-3">Total Pop / Arable Land</p>
+                        <div class="text-3xl font-extrabold text-indigo-600 mb-2" id="res-physiological">20</div>
+                        <div class="text-xs text-slate-500">people per ARABLE sq mi</div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                            <div id="bar-physiological" class="h-full bg-indigo-500 meter-bar" style="width: 20%"></div>
+                        </div>
+                        <p class="text-[10px] text-indigo-400 mt-2">"How much pressure is on the food supply?"</p>
+                    </div>
+
+                    <!-- Card 3: Agricultural -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                        <h3 class="text-sm font-bold text-slate-800 mb-1">Agricultural Density</h3>
+                        <p class="text-[10px] text-slate-400 mb-3">Farmers / Arable Land</p>
+                        <div class="text-3xl font-extrabold text-emerald-600 mb-2" id="res-agricultural">4</div>
+                        <div class="text-xs text-slate-500">farmers per ARABLE sq mi</div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
+                            <div id="bar-agricultural" class="h-full bg-emerald-500 meter-bar" style="width: 5%"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">"Is the farming efficient (MDC) or manual (LDC)?"</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Visualizing the Difference -->
+        <section class="bg-slate-800 text-white rounded-2xl shadow-xl p-8">
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold mb-2">The "Egypt Paradox"</h2>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-4">
+                        Egypt has a low Arithmetic Density (98 people/km²) because most of the country is empty desert. 
+                        <br><br>
+                        However, almost everyone lives along the Nile River. This creates a massive Physiological Density (3,500+ people/km²).
+                    </p>
+                    <div class="bg-slate-700 p-3 rounded text-xs text-indigo-300 border-l-4 border-indigo-500">
+                        <strong>Takeaway:</strong> Arithmetic density can be misleading. Always check Physiological density to understand the real carrying capacity.
+                    </div>
+                </div>
+                
+                <!-- Visualizer SVG -->
+                <div class="w-64 h-64 bg-amber-100 rounded-full relative overflow-hidden shadow-inner border-4 border-slate-600 shrink-0">
+                    <!-- The "Country" (Circle) -->
+                    
+                    <!-- Arable Slice (The Nile) -->
+                    <div id="vis-arable" class="absolute top-0 bottom-0 left-1/2 transform -translate-x-1/2 bg-emerald-500 w-4 h-full transition-all duration-500 flex flex-col items-center justify-center overflow-hidden">
+                        <!-- Dots representing people -->
+                        <div id="vis-people" class="w-full flex flex-wrap justify-center gap-1 p-1 opacity-80">
+                            <!-- Dots injected via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="absolute bottom-2 w-full text-center text-[10px] text-amber-800 font-bold">Total Land Area</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. SETTLEMENT LOGIC ---
+        const biomes = {
+            'river': {
+                text: "Excellent Choice! This is the Ecumene. Fertile soil and water support high population density.",
+                color: "bg-emerald-100 text-emerald-800 border-emerald-300"
+            },
+            'coast': {
+                text: "Great Choice! Coastal regions allow for trade and usually have moderate climates.",
+                color: "bg-blue-100 text-blue-800 border-blue-300"
+            },
+            'desert': {
+                text: "Poor Choice. This is Non-Ecumene. Lack of water limits carrying capacity to small nomadic groups.",
+                color: "bg-orange-100 text-orange-800 border-orange-300"
+            },
+            'mountain': {
+                text: "Difficult Choice. High altitude means cold temps and poor soil. Only sparse populations exist here.",
+                color: "bg-stone-100 text-stone-800 border-stone-300"
+            }
+        };
+
+        function settle(type) {
+            const box = document.getElementById('settle-feedback');
+            const content = document.getElementById('feedback-box');
+            const data = biomes[type];
+
+            box.classList.remove('hidden');
+            content.className = `p-4 rounded-lg border text-sm font-medium transition-all ${data.color}`;
+            content.innerHTML = data.text;
+        }
+
+        // --- 2. DENSITY LOGIC ---
+        
+        function calculate() {
+            const pop = parseInt(document.getElementById('input-pop').value);
+            const area = parseInt(document.getElementById('input-area').value);
+            const arablePct = parseInt(document.getElementById('input-arable').value);
+            const farmers = parseInt(document.getElementById('input-farmers').value);
+
+            // Update Labels
+            document.getElementById('val-pop').innerText = pop.toLocaleString();
+            document.getElementById('val-area').innerText = area.toLocaleString();
+            document.getElementById('val-arable').innerText = arablePct + "%";
+            document.getElementById('val-farmers').innerText = farmers.toLocaleString();
+
+            // Calculations
+            const arableArea = area * (arablePct / 100);
+            
+            const arith = (pop / area).toFixed(1);
+            const phys = (pop / arableArea).toFixed(1);
+            const agri = (farmers / arableArea).toFixed(1);
+
+            // Update Results
+            updateCard('arithmetic', arith, 50); // Scale max ~50 for visual
+            updateCard('physiological', phys, 200); // Scale max ~200
+            updateCard('agricultural', agri, 50);
+
+            // Update Visualizer (Egypt Diagram)
+            updateVisualizer(arablePct, pop);
+        }
+
+        function updateCard(id, val, max) {
+            document.getElementById(`res-${id}`).innerText = val;
+            
+            let pct = (val / max) * 100;
+            if(pct > 100) pct = 100;
+            
+            const bar = document.getElementById(`bar-${id}`);
+            bar.style.width = pct + "%";
+            
+            // Color warning for Phys Density
+            if (id === 'physiological') {
+                if (pct > 80) bar.classList.replace('bg-indigo-500', 'bg-red-500');
+                else bar.classList.replace('bg-red-500', 'bg-indigo-500');
+            }
+        }
+
+        function updateVisualizer(arablePct, pop) {
+            const strip = document.getElementById('vis-arable');
+            const dots = document.getElementById('vis-people');
+            
+            // 1. Resize the green strip (Arable Land)
+            // Max width = 100%. If arable is 5%, width is 5%.
+            strip.style.width = Math.max(5, arablePct) + "%";
+
+            // 2. Add Dots (Population)
+            // Limit dots for performance. 1 dot = ~50 people
+            const dotCount = Math.min(100, Math.floor(pop / 50));
+            let html = "";
+            for(let i=0; i<dotCount; i++) {
+                html += `<div class="w-1 h-1 bg-white rounded-full"></div>`;
+            }
+            dots.innerHTML = html;
+        }
+
+        function loadPreset(type) {
+            if (type === 'egypt') {
+                document.getElementById('input-pop').value = 4000; // High pop
+                document.getElementById('input-area').value = 200; // Large area
+                document.getElementById('input-arable').value = 5; // TINY arable (Nile only)
+                document.getElementById('input-farmers').value = 800; // High subsistence farming
+                calculate();
+                
+                // Visual cues
+                settle('river'); // Trigger the river feedback
+            }
+        }
+
+        // Init
+        calculate();
+
+    </script>
+</body>
+</html>
