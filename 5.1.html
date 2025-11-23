@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.1: Introduction to Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Transitions */
+        .biome-view { transition: opacity 0.5s ease; }
+        .hidden-view { opacity: 0; pointer-events: none; position: absolute; }
+        
+        /* Farm Animation */
+        .farm-element { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Card Hover */
+        .practice-card {
+            transition: all 0.2s;
+        }
+        .practice-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Rain Animation */
+        @keyframes rain {
+            0% { transform: translateY(-10px); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(200px); opacity: 0; }
+        }
+        .rain-drop {
+            animation: rain 0.8s linear infinite;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-lime-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.1: Introduction to Agriculture</h1>
+                <p class="text-lime-200 text-sm mt-1">Climate, Land Use, and Intensive vs. Extensive Farming (PSO-5.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-lime-800 px-3 py-1 rounded border border-lime-700">
+                Physical Geography Links
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: CLIMATE & AGRICULTURE (PSO-5.A.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
+            <div class="p-6 border-b border-stone-100 bg-lime-50">
+                <h2 class="text-xl font-bold text-lime-900">1. Climate Determines Crop</h2>
+                <p class="text-sm text-stone-600 mt-1">Physical geography limits what can be grown. Select a climate zone.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 h-[400px]">
+                
+                <!-- Controls -->
+                <div class="p-6 bg-stone-50 border-r border-stone-200 flex flex-col gap-3">
+                    <button onclick="setBiome('tropical')" id="btn-tropical" class="w-full text-left p-4 rounded-lg bg-emerald-600 text-white shadow-lg font-bold transition transform scale-105 ring-2 ring-emerald-400">
+                        🌴 Tropical Climate
+                    </button>
+                    <button onclick="setBiome('dry')" id="btn-dry" class="w-full text-left p-4 rounded-lg bg-white hover:bg-orange-50 text-orange-800 border border-orange-200 font-bold transition">
+                        🌵 Dry / Arid Climate
+                    </button>
+                    <button onclick="setBiome('mediterranean')" id="btn-mediterranean" class="w-full text-left p-4 rounded-lg bg-white hover:bg-purple-50 text-purple-800 border border-purple-200 font-bold transition">
+                        🍇 Mediterranean
+                    </button>
+                    
+                    <div id="climate-info" class="mt-auto p-4 bg-white rounded border border-stone-200 text-xs text-stone-600 italic">
+                        Hot and humid year-round. Found near the Equator. Supports Plantation and Shifting Cultivation.
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="md:col-span-2 relative bg-sky-100 overflow-hidden">
+                    
+                    <!-- TROPICAL VIEW -->
+                    <div id="view-tropical" class="biome-view absolute inset-0 w-full h-full bg-emerald-900/20">
+                        <svg class="w-full h-full" viewBox="0 0 600 400">
+                            <rect width="600" height="400" fill="#064e3b" /> <!-- Dark Green Jungle -->
+                            <!-- Rain -->
+                            <g id="rain-layer" stroke="white" stroke-width="1" opacity="0.3">
+                                <line x1="50" y1="0" x2="50" y2="20" class="rain-drop" style="animation-delay:0s"/>
+                                <line x1="150" y1="0" x2="150" y2="20" class="rain-drop" style="animation-delay:0.2s"/>
+                                <line x1="250" y1="0" x2="250" y2="20" class="rain-drop" style="animation-delay:0.5s"/>
+                                <line x1="350" y1="0" x2="350" y2="20" class="rain-drop" style="animation-delay:0.1s"/>
+                                <line x1="450" y1="0" x2="450" y2="20" class="rain-drop" style="animation-delay:0.4s"/>
+                            </g>
+                            <!-- Crops -->
+                            <text x="100" y="300" font-size="60">🍌</text>
+                            <text x="300" y="350" font-size="60">☕</text>
+                            <text x="500" y="300" font-size="60">🍫</text>
+                            <text x="300" y="100" text-anchor="middle" fill="white" font-bold font-size="20" opacity="0.8">Equatorial Region</text>
+                        </svg>
+                    </div>
+
+                    <!-- DRY VIEW -->
+                    <div id="view-dry" class="biome-view hidden-view absolute inset-0 w-full h-full">
+                        <svg class="w-full h-full" viewBox="0 0 600 400">
+                            <rect width="600" height="400" fill="#fcd34d" /> <!-- Sand/Dry Grass -->
+                            <circle cx="500" cy="80" r="40" fill="#ef4444" opacity="0.8" /> <!-- Hot Sun -->
+                            <!-- Animals -->
+                            <text x="150" y="300" font-size="60">🐄</text>
+                            <text x="350" y="250" font-size="60">🐑</text>
+                            <text x="300" y="100" text-anchor="middle" fill="#92400e" font-bold font-size="20" opacity="0.8">Steppe / Desert</text>
+                        </svg>
+                    </div>
+
+                    <!-- MEDITERRANEAN VIEW -->
+                    <div id="view-mediterranean" class="biome-view hidden-view absolute inset-0 w-full h-full">
+                        <svg class="w-full h-full" viewBox="0 0 600 400">
+                            <rect width="600" height="400" fill="#bae6fd" /> <!-- Sky -->
+                            <path d="M 0 250 Q 300 200 600 250 L 600 400 L 0 400 Z" fill="#a3e635" /> <!-- Hills -->
+                            <path d="M 0 350 L 600 350 L 600 400 L 0 400 Z" fill="#3b82f6" /> <!-- Sea -->
+                            <!-- Crops -->
+                            <text x="200" y="280" font-size="50">🍇</text>
+                            <text x="400" y="260" font-size="50">🫒</text>
+                            <text x="300" y="100" text-anchor="middle" fill="#15803d" font-bold font-size="20" opacity="0.8">West Coast / Sea Breeze</text>
+                        </svg>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INTENSIVE VS EXTENSIVE (PSO-5.A.2 & 3) -->
+        <section class="bg-stone-800 rounded-2xl shadow-xl p-8 text-white overflow-hidden">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. Intensive vs. Extensive</h2>
+                    <p class="text-stone-400 text-sm mt-1">Drag the slider to change the farming input and land size.</p>
+                </div>
+                <div id="farming-label" class="px-4 py-2 rounded bg-orange-500 text-white font-bold text-sm uppercase tracking-wider shadow-lg">
+                    Neutral
+                </div>
+            </div>
+
+            <!-- Visualization Container -->
+            <div class="relative h-64 bg-stone-700 rounded-xl border border-stone-600 overflow-hidden flex items-end justify-center mb-8">
+                
+                <!-- Land Base (Scales Width) -->
+                <div id="land-plot" class="h-48 bg-stone-500 border-t-4 border-stone-400 relative transition-all duration-700 w-1/2 flex items-end justify-center overflow-hidden">
+                    
+                    <!-- Crops/Animals (Scales Density) -->
+                    <div id="crop-container" class="flex flex-wrap justify-center items-end gap-1 p-2 w-full">
+                        <!-- Injected JS -->
+                    </div>
+
+                    <!-- Workers (Scales Count) -->
+                    <div id="worker-container" class="absolute bottom-2 w-full flex justify-center gap-2">
+                        <!-- Injected JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Slider -->
+            <div class="relative px-10">
+                <div class="absolute top-1/2 left-0 w-full h-1 bg-stone-600 -z-10"></div>
+                <input type="range" id="intensity-slider" min="0" max="100" value="50" oninput="updateIntensity()" class="w-full h-4 bg-stone-600 rounded-lg appearance-none cursor-pointer accent-lime-500">
+                <div class="flex justify-between text-xs font-bold text-stone-400 mt-4 uppercase">
+                    <span>Extensive<br>(Low Input / Large Land)</span>
+                    <span>Intensive<br>(High Input / Small Land)</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PRACTICES GALLERY -->
+        <section>
+            <h2 class="text-2xl font-bold text-stone-800 mb-6 pl-4 border-l-4 border-lime-600">3. Agricultural Practices</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- Intensive Column -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-lime-700 uppercase tracking-wider text-xs border-b border-lime-200 pb-2">Intensive Practices (High $/Labor)</h3>
+                    
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-lime-500">
+                        <h4 class="font-bold text-stone-800">Market Gardening</h4>
+                        <p class="text-xs text-stone-500">Small scale production of fruits/vegetables/flowers as cash crops sold directly to local consumers.</p>
+                    </div>
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-lime-500">
+                        <h4 class="font-bold text-stone-800">Plantation Agriculture</h4>
+                        <p class="text-xs text-stone-500">Large commercial farm in a developing country that specializes in one or two crops (Coffee, Sugar) for export.</p>
+                    </div>
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-lime-500">
+                        <h4 class="font-bold text-stone-800">Mixed Crop/Livestock</h4>
+                        <p class="text-xs text-stone-500">Integration of crops and livestock. Most crops are fed to animals rather than consumed directly by humans.</p>
+                    </div>
+                </div>
+
+                <!-- Extensive Column -->
+                <div class="space-y-4">
+                    <h3 class="font-bold text-orange-700 uppercase tracking-wider text-xs border-b border-orange-200 pb-2">Extensive Practices (Large Land)</h3>
+                    
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                        <h4 class="font-bold text-stone-800">Shifting Cultivation</h4>
+                        <p class="text-xs text-stone-500">Slash-and-burn. Farmers clear land, use it for a few years until soil depletion, then move on.</p>
+                    </div>
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                        <h4 class="font-bold text-stone-800">Nomadic Herding</h4>
+                        <p class="text-xs text-stone-500">Livestock are herded to find fresh pastures in irregular patterns. Adapted to dry climates.</p>
+                    </div>
+                    <div class="practice-card bg-white p-4 rounded-lg shadow-sm border-l-4 border-orange-500">
+                        <h4 class="font-bold text-stone-800">Ranching</h4>
+                        <p class="text-xs text-stone-500">Commercial grazing of livestock over an extensive area. Adapted to semi-arid or dry land.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. CLIMATE LOGIC ---
+        const climates = {
+            'tropical': {
+                bg: 'bg-emerald-600',
+                text: 'text-emerald-800',
+                desc: "Hot and humid year-round. Found near the Equator. Supports <strong>Plantation</strong> (Coffee, Sugar) and <strong>Shifting Cultivation</strong>."
+            },
+            'dry': {
+                bg: 'bg-orange-500',
+                text: 'text-orange-800',
+                desc: "Arid or Semi-Arid. Lack of water makes crop farming hard. Supports <strong>Nomadic Herding</strong> (Subsistence) and <strong>Ranching</strong> (Commercial)."
+            },
+            'mediterranean': {
+                bg: 'bg-purple-500',
+                text: 'text-purple-800',
+                desc: "Hot, dry summers and mild, wet winters. Ideal for <strong>Horticulture</strong>: Olives, Grapes, Figs, and Citrus."
+            }
+        };
+
+        function setBiome(type) {
+            // Reset Buttons
+            document.getElementById('btn-tropical').className = "w-full text-left p-4 rounded-lg bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold transition";
+            document.getElementById('btn-dry').className = "w-full text-left p-4 rounded-lg bg-white hover:bg-orange-50 text-orange-800 border border-orange-200 font-bold transition";
+            document.getElementById('btn-mediterranean').className = "w-full text-left p-4 rounded-lg bg-white hover:bg-purple-50 text-purple-800 border border-purple-200 font-bold transition";
+            
+            // Set Active Button
+            const btn = document.getElementById(`btn-${type}`);
+            if(type === 'tropical') btn.className = "w-full text-left p-4 rounded-lg bg-emerald-600 text-white shadow-lg font-bold transition transform scale-105 ring-2 ring-emerald-400";
+            if(type === 'dry') btn.className = "w-full text-left p-4 rounded-lg bg-orange-500 text-white shadow-lg font-bold transition transform scale-105 ring-2 ring-orange-400";
+            if(type === 'mediterranean') btn.className = "w-full text-left p-4 rounded-lg bg-purple-500 text-white shadow-lg font-bold transition transform scale-105 ring-2 ring-purple-400";
+
+            // Show View
+            ['tropical', 'dry', 'mediterranean'].forEach(v => {
+                const el = document.getElementById(`view-${v}`);
+                if (v === type) {
+                    el.classList.remove('hidden-view');
+                } else {
+                    el.classList.add('hidden-view');
+                }
+            });
+
+            // Update Text
+            document.getElementById('climate-info').innerHTML = climates[type].desc;
+        }
+
+        // --- 2. INTENSITY LOGIC ---
+        function updateIntensity() {
+            const val = document.getElementById('intensity-slider').value;
+            const label = document.getElementById('farming-label');
+            const landPlot = document.getElementById('land-plot');
+            const cropCont = document.getElementById('crop-container');
+            const workCont = document.getElementById('worker-container');
+
+            // Map 0-100 to Logic
+            // 0 = Extensive (Wide land, few items)
+            // 100 = Intensive (Narrow land, crowded items)
+            
+            // Land Width: 100% at Extensive, 30% at Intensive
+            const width = 100 - (val * 0.7); 
+            landPlot.style.width = `${width}%`;
+
+            // Color & Label
+            if (val < 40) {
+                label.innerText = "Extensive Farming";
+                label.className = "px-4 py-2 rounded bg-orange-500 text-white font-bold text-sm uppercase tracking-wider shadow-lg transition-colors";
+                landPlot.className = "h-48 bg-amber-200 border-t-4 border-amber-300 relative transition-all duration-100 flex items-end justify-center overflow-hidden"; // Dry/Grassy
+                
+                // Few items (Cows)
+                cropCont.innerHTML = `
+                    <div class="text-4xl">🐄</div>
+                    <div class="text-4xl ml-12">🐄</div>
+                `;
+                // 1 Worker
+                workCont.innerHTML = `<div class="text-2xl">🤠</div>`;
+                
+            } else if (val > 60) {
+                label.innerText = "Intensive Farming";
+                label.className = "px-4 py-2 rounded bg-lime-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg transition-colors";
+                landPlot.className = "h-48 bg-emerald-700 border-t-4 border-emerald-500 relative transition-all duration-100 flex items-end justify-center overflow-hidden"; // Rich Soil
+
+                // Lots of items (Crops)
+                let crops = "";
+                for(let i=0; i<15; i++) crops += `<div class="text-2xl">🥬</div>`;
+                cropCont.innerHTML = crops;
+                
+                // Many Workers
+                workCont.innerHTML = `<div class="text-xl">👩‍🌾</div><div class="text-xl">👨‍🌾</div><div class="text-xl">🚜</div>`;
+                
+            } else {
+                label.innerText = "Mixed / Transition";
+                label.className = "px-4 py-2 rounded bg-stone-500 text-white font-bold text-sm uppercase tracking-wider shadow-lg transition-colors";
+                landPlot.className = "h-48 bg-lime-600 border-t-4 border-lime-400 relative transition-all duration-100 flex items-end justify-center overflow-hidden";
+
+                cropCont.innerHTML = `
+                    <div class="text-3xl">🌽</div>
+                    <div class="text-3xl">🌽</div>
+                    <div class="text-3xl">🐄</div>
+                    <div class="text-3xl">🌽</div>
+                `;
+                workCont.innerHTML = `<div class="text-xl">👨‍🌾</div>`;
+            }
+        }
+
+        // Init
+        updateIntensity();
+
+    </script>
+</body>
+</html>
