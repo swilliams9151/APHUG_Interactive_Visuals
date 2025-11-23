@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.12: Effects of Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animations for Flow Chart */
+        .flow-icon { transition: all 2s linear; }
+        
+        /* Enclave Grid */
+        .city-cell { transition: background-color 0.5s ease; }
+        
+        /* Tab Active State */
+        .tab-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #0f766e; /* teal-700 */
+            color: #0f766e;
+        }
+        .tab-btn {
+            border-bottom: 4px solid transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.12: Effects of Migration</h1>
+                <p class="text-teal-200 text-sm mt-1">Economic, Cultural, and Political Consequences (IMP-2.E)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-800 px-3 py-1 rounded border border-teal-700">
+                Brain Drain • Remittances • Enclaves
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-slate-300 mb-6">
+            <button onclick="setTab('economic')" id="tab-economic" class="tab-btn active px-6 py-3 font-bold text-slate-600 hover:bg-slate-50 transition w-1/3">
+                💰 Economic Effects
+            </button>
+            <button onclick="setTab('cultural')" id="tab-cultural" class="tab-btn px-6 py-3 font-bold text-slate-600 hover:bg-slate-50 transition w-1/3">
+                🕌 Cultural Effects
+            </button>
+            <button onclick="setTab('political')" id="tab-political" class="tab-btn px-6 py-3 font-bold text-slate-600 hover:bg-slate-50 transition w-1/3">
+                ⚖️ Political Effects
+            </button>
+        </div>
+
+        <!-- CONTENT SECTIONS -->
+        
+        <!-- 1. ECONOMIC EFFECTS (Brain Drain vs Remittances) -->
+        <section id="view-economic" class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">The Economic Exchange</h2>
+                    <button onclick="runEconomicSim()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded font-bold text-sm shadow transition">
+                        Start Simulation
+                    </button>
+                </div>
+
+                <div class="relative h-64 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 overflow-hidden flex justify-between px-16 items-center">
+                    
+                    <!-- Source Country -->
+                    <div class="text-center z-10">
+                        <div class="text-6xl mb-2">🏘️</div>
+                        <h3 class="font-bold text-slate-700">Source Country (LDC)</h3>
+                        <div class="text-xs text-red-500 font-bold mt-1">Loses Professionals</div>
+                        <div class="text-xs text-emerald-500 font-bold">Gains Money</div>
+                    </div>
+
+                    <!-- Destination Country -->
+                    <div class="text-center z-10">
+                        <div class="text-6xl mb-2">🏙️</div>
+                        <h3 class="font-bold text-slate-700">Destination Country (MDC)</h3>
+                        <div class="text-xs text-emerald-500 font-bold mt-1">Gains Talent</div>
+                        <div class="text-xs text-red-500 font-bold">Money Flows Out</div>
+                    </div>
+
+                    <!-- Animation Layer -->
+                    <div id="econ-anim-layer" class="absolute inset-0 pointer-events-none"></div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
+                    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                        <h4 class="font-bold text-red-800 text-sm uppercase mb-1">Concept: Brain Drain</h4>
+                        <p class="text-sm text-slate-600">The loss of highly educated and skilled workers to other countries. The source country invested in their education but sees no return.</p>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
+                        <h4 class="font-bold text-emerald-800 text-sm uppercase mb-1">Concept: Remittances</h4>
+                        <p class="text-sm text-slate-600">Money migrants send back to family and friends in their home countries. This often forms a huge part of the source country's economy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. CULTURAL EFFECTS (Ethnic Enclaves) -->
+        <section id="view-cultural" class="hidden grid md:grid-cols-2 gap-8">
+            
+            <!-- Controls -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">Cultural Landscape Builder</h2>
+                <p class="text-sm text-slate-500 mb-6">Migrants tend to move to areas where kin already live (Chain Migration). This creates distinct neighborhoods.</p>
+                
+                <div class="space-y-4 flex-1">
+                    <button onclick="addMigrantGroup()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2">
+                        <span>➕</span> Add Migrant Family
+                    </button>
+                    
+                    <div id="enclave-alert" class="hidden bg-purple-50 border border-purple-200 p-4 rounded-lg text-center">
+                        <div class="text-2xl mb-1">🏮</div>
+                        <h3 class="font-bold text-purple-800">Ethnic Enclave Formed!</h3>
+                        <p class="text-xs text-purple-600">The neighborhood now has specialized shops, religious buildings, and signs in the native language.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualizer -->
+            <div class="bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-700 flex flex-col items-center justify-center">
+                <div class="text-xs font-bold text-slate-400 uppercase mb-2 w-full text-left">City Grid</div>
+                <div id="city-grid" class="grid grid-cols-5 gap-2 w-64 h-64">
+                    <!-- Cells generated by JS -->
+                </div>
+                <div class="flex gap-4 mt-4 text-[10px] font-bold text-slate-400">
+                    <div class="flex items-center"><span class="w-3 h-3 bg-slate-700 mr-2 rounded-sm"></span> Local</div>
+                    <div class="flex items-center"><span class="w-3 h-3 bg-purple-500 mr-2 rounded-sm"></span> Migrant</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. POLITICAL EFFECTS (Reaction Scale) -->
+        <section id="view-political" class="hidden bg-white rounded-xl shadow-lg border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 text-center">The Political Reaction Scale</h2>
+            
+            <div class="relative pt-10 pb-4 px-4">
+                <!-- Slider -->
+                <input type="range" id="pol-slider" min="0" max="100" value="50" oninput="updatePolitical()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                <div class="flex justify-between text-xs font-bold text-slate-400 mt-2 uppercase">
+                    <span>Low Migration</span>
+                    <span>High Migration</span>
+                </div>
+
+                <!-- Reaction Bubble -->
+                <div id="pol-bubble" class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-bold shadow-md border border-blue-200 text-center w-64 transition-all duration-300">
+                    Labor Needed
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <div class="p-4 rounded-lg bg-slate-50 border border-slate-100">
+                    <h3 class="font-bold text-slate-700 text-sm mb-2">Open Policies</h3>
+                    <p class="text-xs text-slate-500">When labor is needed, governments encourage migration (e.g., Guest Worker programs in Germany 1960s). Reduces costs for businesses.</p>
+                </div>
+                <div class="p-4 rounded-lg bg-slate-50 border border-slate-100">
+                    <h3 class="font-bold text-slate-700 text-sm mb-2">Nativism / Restriction</h3>
+                    <p class="text-xs text-slate-500">Rapid influxes can trigger "Nativist" backlashes (fear of cultural loss). Leads to border walls, quotas, and anti-immigrant parties.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            // Buttons
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab-${id}`).classList.add('active');
+            
+            // Sections
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            
+            // Handling grouped sections for Economic
+            if (id === 'economic') {
+                document.getElementById('view-economic').classList.remove('hidden');
+            } else {
+                document.getElementById(`view-${id}`).classList.remove('hidden');
+            }
+        }
+
+        // --- 1. ECONOMIC SIM ---
+        function runEconomicSim() {
+            const layer = document.getElementById('econ-anim-layer');
+            
+            // 1. Create Professional (Brain Drain) - Left to Right
+            const brain = document.createElement('div');
+            brain.className = "absolute text-2xl flow-icon";
+            brain.innerText = "👨‍⚕️";
+            brain.style.left = "15%";
+            brain.style.top = "30%";
+            layer.appendChild(brain);
+
+            // 2. Create Money (Remittance) - Right to Left
+            const money = document.createElement('div');
+            money.className = "absolute text-2xl flow-icon";
+            money.innerText = "💸";
+            money.style.left = "80%";
+            money.style.top = "60%";
+            layer.appendChild(money);
+
+            // Animate
+            setTimeout(() => {
+                brain.style.left = "80%";
+                money.style.left = "15%";
+            }, 100);
+
+            // Cleanup
+            setTimeout(() => {
+                brain.remove();
+                money.remove();
+            }, 2100);
+        }
+
+        // --- 2. CULTURAL SIM ---
+        const grid = document.getElementById('city-grid');
+        // Init grid
+        for(let i=0; i<25; i++) {
+            const cell = document.createElement('div');
+            cell.className = "city-cell w-full h-full bg-slate-700 rounded-sm";
+            cell.dataset.idx = i;
+            grid.appendChild(cell);
+        }
+
+        let migrantsAdded = 0;
+        
+        function addMigrantGroup() {
+            const cells = document.querySelectorAll('.city-cell');
+            // Chain migration logic: Migrants cluster in bottom right corner (indices 24, 23, 19...)
+            // Simple spiral or block fill from bottom-right
+            const targetIndices = [24, 23, 19, 22, 18, 14, 21, 17, 13, 9]; 
+            
+            if (migrantsAdded < targetIndices.length) {
+                const idx = targetIndices[migrantsAdded];
+                const cell = cells[idx];
+                cell.style.backgroundColor = "#a855f7"; // Purple
+                cell.innerHTML = "<div class='w-full h-full flex items-center justify-center text-[10px]'>🏮</div>"; // Add cultural marker
+                migrantsAdded++;
+            }
+
+            if (migrantsAdded >= 4) {
+                document.getElementById('enclave-alert').classList.remove('hidden');
+                document.getElementById('enclave-alert').classList.add('fade-in');
+            }
+        }
+
+        // --- 3. POLITICAL SIM ---
+        function updatePolitical() {
+            const val = document.getElementById('pol-slider').value;
+            const bubble = document.getElementById('pol-bubble');
+            
+            // Color scale: Blue (Open) -> Yellow (Caution) -> Red (Restrictive)
+            if (val < 40) {
+                bubble.innerText = "Policy: Guest Workers Needed";
+                bubble.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-bold shadow-md border border-blue-200 text-center w-64 transition-all duration-300";
+            } else if (val < 70) {
+                bubble.innerText = "Policy: Selective / Quotas";
+                bubble.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 bg-yellow-100 text-yellow-800 px-6 py-3 rounded-full font-bold shadow-md border border-yellow-200 text-center w-64 transition-all duration-300";
+            } else {
+                bubble.innerText = "Policy: Nativism / Closed Borders";
+                bubble.className = "absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4 bg-red-100 text-red-800 px-6 py-3 rounded-full font-bold shadow-md border border-red-200 text-center w-64 transition-all duration-300";
+            }
+        }
+
+    </script>
+</body>
+</html>
