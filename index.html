@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 1.1: Introduction to Maps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Map Interactions */
+        .map-region { transition: fill 0.3s ease; }
+        .map-region:hover { filter: brightness(0.9); }
+        
+        /* Projection Animation */
+        .projection-shape { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Card Active State */
+        .map-btn.active {
+            background-color: #0f172a; /* slate-900 */
+            color: white;
+            border-color: #0f172a;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-800 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 1.1: Introduction to Maps</h1>
+                <p class="text-slate-400 text-sm mt-1">Types, Projections, and Scale (PSO-1.A, PSO-1.B)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-slate-700 px-3 py-1 rounded border border-slate-600">
+                The Geographer's Tools
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THEMATIC MAPS SHOWCASE -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">1. Types of Thematic Maps</h2>
+                    <p class="text-sm text-slate-500 mt-1">How do we visualize data? Select a type to transform the map.</p>
+                </div>
+                
+                <!-- Controls -->
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+                    <button onclick="setMapType('choropleth')" id="btn-choropleth" class="map-btn active px-3 py-2 text-xs font-bold rounded transition border border-transparent hover:bg-slate-100">Choropleth</button>
+                    <button onclick="setMapType('dot')" id="btn-dot" class="map-btn px-3 py-2 text-xs font-bold rounded transition border border-transparent hover:bg-slate-100">Dot Density</button>
+                    <button onclick="setMapType('symbol')" id="btn-symbol" class="map-btn px-3 py-2 text-xs font-bold rounded transition border border-transparent hover:bg-slate-100">Graduated Symbol</button>
+                    <button onclick="setMapType('isoline')" id="btn-isoline" class="map-btn px-3 py-2 text-xs font-bold rounded transition border border-transparent hover:bg-slate-100">Isoline</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3">
+                
+                <!-- Visualizer -->
+                <div class="md:col-span-2 relative h-[400px] bg-sky-50 flex items-center justify-center p-8">
+                    <svg id="thematic-map" viewBox="0 0 500 300" class="w-full h-full drop-shadow-lg">
+                        <!-- Base Regions (Fictional Country) -->
+                        <path id="reg-A" d="M 50 50 L 200 50 L 200 200 L 50 250 Z" fill="#e2e8f0" stroke="white" stroke-width="2" class="map-region"/>
+                        <path id="reg-B" d="M 200 50 L 450 50 L 450 150 L 200 200 Z" fill="#e2e8f0" stroke="white" stroke-width="2" class="map-region"/>
+                        <path id="reg-C" d="M 50 250 L 200 200 L 450 150 L 450 280 L 100 280 Z" fill="#e2e8f0" stroke="white" stroke-width="2" class="map-region"/>
+                        
+                        <!-- Dynamic Data Layer -->
+                        <g id="data-layer"></g>
+                    </svg>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="p-6 border-l border-slate-100 flex flex-col justify-center">
+                    <div id="map-info">
+                        <h3 class="text-2xl font-extrabold text-indigo-600 mb-2">Choropleth Map</h3>
+                        <p class="text-sm text-slate-600 mb-4 leading-relaxed">
+                            Uses <strong>colors or shading</strong> to represent data values in predefined areas (like states or counties).
+                        </p>
+                        <div class="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500 text-xs text-indigo-800">
+                            <strong>Best For:</strong> Comparing ratios (e.g., Population Density, Literacy Rate) across political boundaries.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: MAP PROJECTIONS (Distortion) -->
+        <section class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Projection Tool -->
+            <div class="bg-slate-800 text-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
+                <h2 class="text-xl font-bold mb-4 relative z-10">2. The Distortion Problem</h2>
+                
+                <div class="relative z-10">
+                    <div class="flex gap-4 mb-8">
+                        <button onclick="setProjection('mercator')" class="flex-1 bg-blue-600 hover:bg-blue-500 py-2 rounded font-bold text-sm transition">Mercator (Shape)</button>
+                        <button onclick="setProjection('peters')" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2 rounded font-bold text-sm transition">Gall-Peters (Size)</button>
+                    </div>
+
+                    <!-- Projection Visualization (Abstract) -->
+                    <div class="h-48 border-2 border-slate-600 rounded-lg relative bg-slate-700/50 flex items-center justify-center">
+                        <!-- Greenland -->
+                        <div id="shape-greenland" class="projection-shape absolute bg-white opacity-80 rounded shadow-lg flex items-center justify-center text-slate-900 font-bold text-[10px]">GL</div>
+                        <!-- Africa -->
+                        <div id="shape-africa" class="projection-shape absolute bg-white opacity-80 rounded shadow-lg flex items-center justify-center text-slate-900 font-bold text-[10px]">AF</div>
+                    </div>
+
+                    <p id="proj-desc" class="mt-6 text-sm text-slate-300 italic text-center">
+                        Select a projection to see how it distorts the world.
+                    </p>
+                </div>
+                
+                <!-- BG pattern -->
+                <div class="absolute top-0 right-0 text-9xl opacity-5 select-none pointer-events-none">🗺️</div>
+            </div>
+
+            <!-- Scale Tool -->
+            <div class="bg-white rounded-2xl shadow-xl p-8 border border-slate-200 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">3. Understanding Map Scale</h2>
+                
+                <div class="flex-1 flex flex-col justify-center items-center space-y-6">
+                    <div class="w-full">
+                        <input type="range" id="scale-slider" min="0" max="100" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateScale()">
+                        <div class="flex justify-between text-[10px] uppercase font-bold text-slate-400 mt-2">
+                            <span>Global (Small Scale)</span>
+                            <span>Local (Large Scale)</span>
+                        </div>
+                    </div>
+
+                    <!-- Scale Visual -->
+                    <div class="relative w-48 h-48 rounded-full border-4 border-indigo-500 overflow-hidden shadow-2xl bg-indigo-50">
+                        <div id="scale-view" class="absolute inset-0 flex items-center justify-center text-4xl transition-transform duration-200">
+                            🌍
+                        </div>
+                    </div>
+
+                    <div id="scale-text" class="text-center">
+                        <h3 class="text-lg font-bold text-indigo-900">Small Scale Map</h3>
+                        <p class="text-xs text-slate-500">Shows a LARGE area with SMALL detail (e.g., World Map).</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. THEMATIC MAP LOGIC ---
+        const mapTypes = {
+            'choropleth': {
+                title: "Choropleth Map",
+                desc: "Uses <strong>colors or shading</strong> to represent data values in predefined areas.",
+                tip: "<strong>Best For:</strong> Comparing ratios (e.g., Population Density) across political boundaries.",
+                render: (svg) => {
+                    // Shade regions
+                    document.getElementById('reg-A').setAttribute('fill', '#1e3a8a'); // Dark Blue (High)
+                    document.getElementById('reg-B').setAttribute('fill', '#93c5fd'); // Light Blue (Low)
+                    document.getElementById('reg-C').setAttribute('fill', '#3b82f6'); // Med Blue (Med)
+                }
+            },
+            'dot': {
+                title: "Dot Density Map",
+                desc: "Uses dots to show the presence of a feature. One dot equals a specific quantity.",
+                tip: "<strong>Best For:</strong> Showing <strong>Distribution</strong> and clustering (e.g., Where people actually live).",
+                render: (svg) => {
+                    resetBase();
+                    const g = document.getElementById('data-layer');
+                    // Region A (Dense)
+                    for(let i=0; i<30; i++) addDot(g, 60, 190, 50, 240);
+                    // Region B (Sparse)
+                    for(let i=0; i<10; i++) addDot(g, 210, 440, 60, 140);
+                    // Region C (Med)
+                    for(let i=0; i<20; i++) addDot(g, 100, 400, 200, 270);
+                }
+            },
+            'symbol': {
+                title: "Graduated Symbol Map",
+                desc: "Uses symbols (circles) of different sizes to represent numerical values.",
+                tip: "<strong>Best For:</strong> Comparing raw numbers (e.g., Total Population, Oil Production).",
+                render: (svg) => {
+                    resetBase();
+                    const g = document.getElementById('data-layer');
+                    // Circle A (Large)
+                    addCircle(g, 125, 150, 30, "#ef4444");
+                    // Circle B (Small)
+                    addCircle(g, 325, 100, 10, "#ef4444");
+                    // Circle C (Med)
+                    addCircle(g, 250, 240, 20, "#ef4444");
+                }
+            },
+            'isoline': {
+                title: "Isoline Map",
+                desc: "Connects points of equal value with lines (e.g., contour lines).",
+                tip: "<strong>Best For:</strong> Continuous data like <strong>Elevation</strong>, Temperature, or Air Pressure.",
+                render: (svg) => {
+                    resetBase();
+                    const g = document.getElementById('data-layer');
+                    // Draw lines crossing boundaries
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path.setAttribute("d", "M 0 100 Q 250 50 500 100");
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke", "#ef4444");
+                    path.setAttribute("stroke-width", "2");
+                    g.appendChild(path);
+                    
+                    const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    path2.setAttribute("d", "M 0 200 Q 250 150 500 200");
+                    path2.setAttribute("fill", "none");
+                    path2.setAttribute("stroke", "#ef4444");
+                    path2.setAttribute("stroke-width", "2");
+                    g.appendChild(path2);
+                }
+            }
+        };
+
+        function setMapType(type) {
+            // UI Update
+            document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+
+            const info = mapTypes[type];
+            const infoBox = document.getElementById('map-info');
+            infoBox.innerHTML = `
+                <h3 class="text-2xl font-extrabold text-indigo-600 mb-2">${info.title}</h3>
+                <p class="text-sm text-slate-600 mb-4 leading-relaxed">${info.desc}</p>
+                <div class="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500 text-xs text-indigo-800">
+                    ${info.tip}
+                </div>
+            `;
+
+            // Render
+            document.getElementById('data-layer').innerHTML = ''; // Clear
+            info.render();
+        }
+
+        function resetBase() {
+            document.querySelectorAll('.map-region').forEach(el => el.setAttribute('fill', '#e2e8f0'));
+        }
+
+        function addDot(g, minX, maxX, minY, maxY) {
+            const x = Math.random() * (maxX - minX) + minX;
+            const y = Math.random() * (maxY - minY) + minY;
+            const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            dot.setAttribute("cx", x); dot.setAttribute("cy", y); dot.setAttribute("r", 2);
+            dot.setAttribute("fill", "#0f172a");
+            g.appendChild(dot);
+        }
+
+        function addCircle(g, x, y, r, color) {
+            const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", r);
+            c.setAttribute("fill", color); c.setAttribute("opacity", "0.6");
+            c.setAttribute("stroke", "white");
+            g.appendChild(c);
+        }
+
+        // --- 2. PROJECTION LOGIC ---
+        function setProjection(type) {
+            const gl = document.getElementById('shape-greenland');
+            const af = document.getElementById('shape-africa');
+            const desc = document.getElementById('proj-desc');
+
+            if (type === 'mercator') {
+                // Mercator: Greenland looks huge (Distorted Size), Shapes accurate
+                gl.style.width = "100px";
+                gl.style.height = "80px";
+                gl.style.top = "20px";
+                gl.style.left = "50px";
+
+                af.style.width = "80px";
+                af.style.height = "90px";
+                af.style.top = "60px";
+                af.style.left = "180px";
+
+                desc.innerHTML = "<strong>Mercator Projection:</strong> Preserves SHAPE and DIRECTION (good for sailing). <span class='text-red-400'>Distorts SIZE</span> heavily at the poles (Greenland looks bigger than Africa!).";
+            } else {
+                // Gall-Peters: Greenland tiny (True Size), Africa Huge, Shapes stretched
+                gl.style.width = "40px";
+                gl.style.height = "30px";
+                gl.style.top = "30px";
+                gl.style.left = "80px";
+
+                af.style.width = "80px";
+                af.style.height = "120px"; // Stretched vertically
+                af.style.top = "40px";
+                af.style.left = "180px";
+
+                desc.innerHTML = "<strong>Gall-Peters Projection:</strong> Preserves AREA (Size is accurate). Africa is correctly shown as 14x larger than Greenland. <span class='text-red-400'>Distorts SHAPE</span> (looks stretched).";
+            }
+        }
+
+        // --- 3. SCALE LOGIC ---
+        function updateScale() {
+            const val = document.getElementById('scale-slider').value;
+            const view = document.getElementById('scale-view');
+            const text = document.getElementById('scale-text');
+
+            // Zoom Visual (Scale Transform)
+            // 0 = Scale 1 (World)
+            // 100 = Scale 5 (City)
+            const scale = 1 + (val / 20);
+            view.style.transform = `scale(${scale})`;
+            
+            // Change Icon based on zoom
+            if (val < 30) view.innerText = "🌍"; // World
+            else if (val < 70) view.innerText = "🇺🇸"; // Country
+            else view.innerText = "🏙️"; // City
+
+            // Text Logic
+            if (val < 50) {
+                text.innerHTML = `
+                    <h3 class="text-lg font-bold text-indigo-900">Small Scale Map</h3>
+                    <p class="text-xs text-slate-500">Shows a <strong>LARGE area</strong> with LITTLE detail.<br>(e.g., 1:100,000,000)</p>
+                `;
+            } else {
+                text.innerHTML = `
+                    <h3 class="text-lg font-bold text-emerald-700">Large Scale Map</h3>
+                    <p class="text-xs text-slate-500">Shows a <strong>SMALL area</strong> with LOTS of detail.<br>(e.g., 1:10,000)</p>
+                `;
+            }
+        }
+
+        // Init
+        setProjection('mercator');
+
+    </script>
+</body>
+</html>
