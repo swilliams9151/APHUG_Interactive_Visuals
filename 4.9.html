@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 4.9: Challenges to Sovereignty</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Card Hover Effects */
+        .item-card {
+            transition: all 0.2s ease;
+            border-left-width: 4px;
+        }
+        .item-card:hover {
+            transform: translateX(4px);
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .item-card.active {
+            background-color: #f1f5f9; /* slate-100 */
+            border-color: #0f172a; /* slate-900 */
+        }
+
+        /* Animation for Detail View */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg shrink-0 z-20">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold">Topic 4.9: Challenges to Sovereignty</h1>
+                <p class="text-slate-400 text-xs mt-1">How Devolution (from within) and Supranationalism (from above) weaken the State.</p>
+            </div>
+            <div class="text-xs bg-slate-800 px-3 py-1 rounded border border-slate-700">
+                <span class="text-emerald-400 font-bold">Technology</span> acts as an accelerator for both.
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full overflow-hidden">
+
+        <!-- LEFT: DEVOLUTION (From Within) -->
+        <section class="flex-1 flex flex-col border-r border-gray-200 bg-white overflow-hidden">
+            <div class="p-4 bg-red-50 border-b border-red-100">
+                <h2 class="text-xl font-bold text-red-700 flex items-center">
+                    <span class="text-2xl mr-2">↘️</span> Devolution
+                </h2>
+                <p class="text-xs text-red-600 mt-1">Fragmentation from within. Power moves from Central -> Regional.</p>
+            </div>
+
+            <div class="overflow-y-auto p-4 space-y-6 custom-scroll">
+                
+                <!-- Sub-Category: Autonomy -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Autonomous Regions (Still 1 State)</h3>
+                    <div class="space-y-2">
+                        <div onclick="showDetail('spain')" class="item-card cursor-pointer p-3 border-l-red-400 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Spain (Catalonia/Basque)</div>
+                            <div class="text-xs text-gray-500">Regional parliaments, language rights.</div>
+                        </div>
+                        <div onclick="showDetail('belgium')" class="item-card cursor-pointer p-3 border-l-red-400 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Belgium (Flanders/Wallonia)</div>
+                            <div class="text-xs text-gray-500">Federalized to manage language divide.</div>
+                        </div>
+                        <div onclick="showDetail('canada')" class="item-card cursor-pointer p-3 border-l-red-400 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Canada (Nunavut/Quebec)</div>
+                            <div class="text-xs text-gray-500">Indigenous rights and French linguistic protection.</div>
+                        </div>
+                        <div onclick="showDetail('nigeria')" class="item-card cursor-pointer p-3 border-l-red-400 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Nigeria</div>
+                            <div class="text-xs text-gray-500">Federal system managing religious/ethnic diversity.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Category: Disintegration -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Disintegration (New States)</h3>
+                    <div class="space-y-2">
+                        <div onclick="showDetail('sudan')" class="item-card cursor-pointer p-3 border-l-red-600 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">South Sudan (from Sudan)</div>
+                            <div class="text-xs text-gray-500">Independence in 2011 after civil war.</div>
+                        </div>
+                        <div onclick="showDetail('timor')" class="item-card cursor-pointer p-3 border-l-red-600 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">East Timor (from Indonesia)</div>
+                            <div class="text-xs text-gray-500">Independence in 2002 (religious/ethnic diff).</div>
+                        </div>
+                        <div onclick="showDetail('eritrea')" class="item-card cursor-pointer p-3 border-l-red-600 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Eritrea (from Ethiopia)</div>
+                            <div class="text-xs text-gray-500">Independence in 1993 after long war.</div>
+                        </div>
+                        <div onclick="showDetail('ussr')" class="item-card cursor-pointer p-3 border-l-red-600 bg-white shadow-sm rounded border border-gray-100">
+                            <div class="font-bold text-sm">Former Soviet Union</div>
+                            <div class="text-xs text-gray-500">Collapsed into 15 independent states in 1991.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CENTER: DETAIL VIEW -->
+        <section class="w-full md:w-1/3 bg-slate-50 p-6 flex flex-col justify-center border-r border-gray-200 z-10 shadow-inner">
+            <div id="detail-container" class="text-center">
+                <div class="text-6xl mb-4">⚖️</div>
+                <h2 class="text-xl font-bold text-gray-400">Select a Concept</h2>
+                <p class="text-sm text-gray-400 mt-2">Click an item on the left (Devolution) or right (Supranationalism) to analyze how it challenges state sovereignty.</p>
+            </div>
+        </section>
+
+        <!-- RIGHT: SUPRANATIONALISM (From Above) -->
+        <section class="flex-1 flex flex-col bg-white overflow-hidden">
+            <div class="p-4 bg-blue-50 border-b border-blue-100 text-right">
+                <h2 class="text-xl font-bold text-blue-700 flex items-center justify-end">
+                    Supranationalism <span class="text-2xl ml-2">↗️</span>
+                </h2>
+                <p class="text-xs text-blue-600 mt-1">Binding from above. Power moves from State -> Organization.</p>
+            </div>
+
+            <div class="overflow-y-auto p-4 space-y-6 custom-scroll">
+                
+                <!-- Sub-Category: Global/Military -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider text-right">Global & Military</h3>
+                    <div class="space-y-2">
+                        <div onclick="showDetail('un')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-400 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">United Nations (UN)</div>
+                            <div class="text-xs text-gray-500">193 members. Focus: Peacekeeping & Human Rights.</div>
+                        </div>
+                        <div onclick="showDetail('nato')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-400 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">NATO</div>
+                            <div class="text-xs text-gray-500">Military Alliance. "Attack on one is attack on all."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-Category: Regional/Economic -->
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider text-right">Regional Economic</h3>
+                    <div class="space-y-2">
+                        <div onclick="showDetail('eu')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-600 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">European Union (EU)</div>
+                            <div class="text-xs text-gray-500">The most integrated. Common currency (Euro) & laws.</div>
+                        </div>
+                        <div onclick="showDetail('asean')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-600 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">ASEAN</div>
+                            <div class="text-xs text-gray-500">Southeast Asia. Focus: Trade & Economic growth.</div>
+                        </div>
+                        <div onclick="showDetail('au')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-600 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">African Union (AU)</div>
+                            <div class="text-xs text-gray-500">Promotes unity and development in Africa.</div>
+                        </div>
+                        <div onclick="showDetail('arctic')" class="item-card cursor-pointer p-3 border-r-4 border-r-blue-600 border-l-0 bg-white shadow-sm rounded border border-gray-100 text-right">
+                            <div class="font-bold text-sm">Arctic Council</div>
+                            <div class="text-xs text-gray-500">Focus: Environment & indigenous rights in the Arctic.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const data = {
+            // DEVOLUTION
+            'spain': {
+                title: "Spain (Catalonia/Basque)",
+                icon: "🇪🇸",
+                type: "Devolution",
+                desc: "Spain has faced immense pressure, particularly from Catalonia. To prevent the country from breaking apart, the central government has devolved powers (education, police) to regional parliaments. However, Catalonia still held an unauthorized independence referendum in 2017.",
+                impact: "High Challenge: Sovereignty is shared, not absolute."
+            },
+            'belgium': {
+                title: "Belgium",
+                icon: "🇧🇪",
+                type: "Devolution",
+                desc: "Belgium is divided between Dutch-speaking Flanders (North) and French-speaking Wallonia (South). The central government acts as a facilitator, but most daily power lies with the regions.",
+                impact: "High Challenge: The state functions almost as two separate countries."
+            },
+            'canada': {
+                title: "Canada",
+                icon: "🇨🇦",
+                type: "Devolution",
+                desc: "Canada granted significant autonomy to Quebec (to protect French culture) and created Nunavut in 1999 to give indigenous Inuit people control over their land.",
+                impact: "Moderate Challenge: Power transfer was peaceful and legal."
+            },
+            'nigeria': {
+                title: "Nigeria",
+                icon: "🇳🇬",
+                type: "Devolution",
+                desc: "Divided largely between Muslim North and Christian South with hundreds of ethnic groups. It uses a federal system and moved its capital to Abuja (neutral territory) to maintain unity.",
+                impact: "High Challenge: Sharia law is allowed in Northern states, creating different legal systems within one country."
+            },
+            'sudan': {
+                title: "South Sudan",
+                icon: "🇸🇸",
+                type: "Disintegration",
+                desc: "After decades of civil war due to ethnic and religious differences, South Sudan voted to break away from Sudan in 2011.",
+                impact: "Total Loss: The original state lost territory and population permanently."
+            },
+            'timor': {
+                title: "East Timor",
+                icon: "🇹🇱",
+                type: "Disintegration",
+                desc: "A former Portuguese colony annexed by Indonesia. Distinct religion (Catholic) and language led to a violent struggle and eventual independence in 2002.",
+                impact: "Total Loss: Indonesia lost territory."
+            },
+            'eritrea': {
+                title: "Eritrea",
+                icon: "🇪🇷",
+                type: "Disintegration",
+                desc: "Fought a 30-year war of independence against Ethiopia. Gained independence in 1993, cutting Ethiopia off from the Red Sea.",
+                impact: "Total Loss: Ethiopia became a landlocked state."
+            },
+            'ussr': {
+                title: "Former Soviet Union",
+                icon: "☭",
+                type: "Disintegration",
+                desc: "The ultimate example. Economic collapse and rising ethno-nationalism caused the USSR to shatter into 15 separate sovereign states in 1991.",
+                impact: "Total Collapse: The original state ceased to exist."
+            },
+
+            // SUPRANATIONALISM
+            'un': {
+                title: "United Nations (UN)",
+                icon: "🇺🇳",
+                type: "Supranationalism",
+                desc: "The largest organization. While it cannot force laws on countries easily, its Security Council can authorize military action or sanctions against a sovereign state.",
+                impact: "Limits sovereignty regarding war and human rights."
+            },
+            'nato': {
+                title: "NATO",
+                icon: "🛡️",
+                type: "Supranationalism",
+                desc: "A military alliance. Article 5 states an attack on one is an attack on all. Member states lose the sovereign right to stay neutral if an ally is attacked.",
+                impact: "Limits sovereignty regarding military neutrality."
+            },
+            'eu': {
+                title: "European Union (EU)",
+                icon: "🇪🇺",
+                type: "Supranationalism",
+                desc: "The most powerful example. Member states have given up control over their currency (Eurozone), border controls (Schengen), and trade tariffs to Brussels.",
+                impact: "Highest Impact: States have surrendered significant economic sovereignty."
+            },
+            'asean': {
+                title: "ASEAN",
+                icon: "🌏",
+                type: "Supranationalism",
+                desc: "Focused on accelerating economic growth and social progress in Southeast Asia. It operates more on consensus than command, so sovereignty loss is lower than the EU.",
+                impact: "Moderate Impact: Focuses on trade harmonization."
+            },
+            'au': {
+                title: "African Union (AU)",
+                icon: "🌍",
+                type: "Supranationalism",
+                desc: "Modeled partly on the EU to promote unity and development. It can intervene in member states to stop genocide or war crimes.",
+                impact: "Increasing Impact: Challenges the idea of 'non-interference'."
+            },
+            'arctic': {
+                title: "Arctic Council",
+                icon: "❄️",
+                type: "Supranationalism",
+                desc: "Coordinates policy on Arctic issues (climate change, shipping routes). As ice melts, this body becomes critical for managing resource claims.",
+                impact: "Specific Impact: Regulates environmental sovereignty in the North."
+            }
+        };
+
+        function showDetail(key) {
+            const item = data[key];
+            const container = document.getElementById('detail-container');
+            
+            const colorClass = item.type === "Devolution" ? "text-red-600" : "text-blue-600";
+            const bgClass = item.type === "Devolution" ? "bg-red-50 border-red-200" : "bg-blue-50 border-blue-200";
+
+            container.innerHTML = `
+                <div class="fade-in text-left">
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-2 drop-shadow-md">${item.icon}</div>
+                        <h2 class="text-2xl font-extrabold text-slate-800">${item.title}</h2>
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase ${bgClass} ${colorClass}">
+                            ${item.type}
+                        </span>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm uppercase mb-1">What happened?</h4>
+                            <p class="text-gray-700 leading-relaxed">${item.desc}</p>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-100">
+                            <h4 class="font-bold text-gray-900 text-sm uppercase mb-1">Impact on Sovereignty</h4>
+                            <p class="font-semibold ${colorClass}">${item.impact}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
