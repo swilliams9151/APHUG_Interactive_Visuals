@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.2: Consequences of Population Distribution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Smooth transitions */
+        .transition-all-slow { transition: all 1s ease; }
+        
+        /* Water Animation */
+        @keyframes wave {
+            0% { transform: translateX(0) translateZ(0) scaleY(1) }
+            50% { transform: translateX(-25%) translateZ(0) scaleY(0.85) }
+            100% { transform: translateX(-50%) translateZ(0) scaleY(1) }
+        }
+        .water-wave {
+            background-repeat: repeat-x;
+            animation: wave 10s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+        }
+
+        /* Flip Cards */
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner {
+            position: relative; width: 100%; height: 100%;
+            text-align: center; transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+        .flip-front, .flip-back {
+            position: absolute; width: 100%; height: 100%;
+            -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            border-radius: 0.75rem; padding: 1.5rem; display: flex;
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .flip-back { transform: rotateY(180deg); background-color: #1e293b; color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-emerald-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.2: Consequences of Density</h1>
+                <p class="text-emerald-200 text-sm mt-1">Carrying Capacity & Service Provision (PSO-2.D)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-emerald-800 px-3 py-1 rounded border border-emerald-700">
+                Society vs. Environment
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-12">
+
+        <!-- SECTION 1: ENVIRONMENTAL CONSEQUENCES (Carrying Capacity) -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-emerald-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-900">1. Carrying Capacity Simulator</h2>
+                    <p class="text-sm text-slate-600 mt-1">What happens when population density exceeds the land's ability to support it?</p>
+                </div>
+                <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-emerald-100 text-center">
+                    <span class="block text-[10px] text-slate-400 uppercase font-bold">Status</span>
+                    <span id="env-status" class="text-emerald-600 font-bold text-sm">Sustainable</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3">
+                <!-- Controls -->
+                <div class="p-6 border-r border-slate-100 bg-white flex flex-col justify-center space-y-6">
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-2">
+                            Population Load
+                            <span id="pop-val">Low</span>
+                        </label>
+                        <input type="range" id="pop-slider" min="1" max="100" value="10" oninput="updateEnvironment()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                    </div>
+                    
+                    <div class="text-xs text-slate-500 space-y-2">
+                        <p><strong>Carrying Capacity:</strong> The maximum population size that the environment can sustain indefinitely.</p>
+                        <p class="mt-2 text-red-500 hidden" id="warning-msg">⚠️ Overpopulation detected! Resources depleting.</p>
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="md:col-span-2 relative h-64 bg-sky-200 overflow-hidden">
+                    <!-- Sky -->
+                    <div id="sky" class="absolute inset-0 bg-sky-200 transition-colors duration-1000"></div>
+                    
+                    <!-- Sun/Smog -->
+                    <div id="sun" class="absolute top-4 right-8 w-12 h-12 bg-yellow-400 rounded-full shadow-[0_0_20px_rgba(250,204,21,0.6)] transition-all duration-1000"></div>
+
+                    <!-- Land -->
+                    <div id="land" class="absolute bottom-0 w-full h-24 bg-emerald-600 transition-colors duration-1000 flex items-end justify-center"></div>
+
+                    <!-- Trees (Dynamic) -->
+                    <div id="trees-container" class="absolute bottom-20 w-full px-10 flex justify-between pointer-events-none">
+                        <!-- Injected JS -->
+                    </div>
+
+                    <!-- Buildings (Dynamic) -->
+                    <div id="buildings-container" class="absolute bottom-20 w-full px-10 flex justify-center items-end gap-1 pointer-events-none">
+                        <!-- Injected JS -->
+                    </div>
+
+                    <!-- Water -->
+                    <div id="water" class="absolute bottom-0 w-full h-8 bg-blue-500 opacity-80 transition-colors duration-1000"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: SOCIAL/ECONOMIC CONSEQUENCES (Service Provision) -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-indigo-50">
+                <h2 class="text-xl font-bold text-indigo-900">2. Service Provision: Urban vs. Rural</h2>
+                <p class="text-sm text-slate-600 mt-1">Compare placing a hospital in a high-density vs. low-density area. (PSO-2.D.1)</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 p-8">
+                
+                <!-- Urban Scenario -->
+                <div class="text-center group">
+                    <div class="relative w-full aspect-square bg-slate-100 rounded-xl overflow-hidden border-2 border-slate-200 mb-4 cursor-crosshair" onclick="placeHospital('urban')">
+                        <!-- Dots Grid (Dense) -->
+                        <div class="absolute inset-0 grid grid-cols-10 grid-rows-10 p-2 gap-1 opacity-50">
+                            <!-- Generated by JS -->
+                            <div id="urban-dots" class="contents"></div>
+                        </div>
+                        <!-- Hospital Marker (Hidden initially) -->
+                        <div id="urban-hospital" class="absolute w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg transform scale-0 transition-transform duration-300" style="top: 50%; left: 50%; margin-top:-1rem; margin-left:-1rem;">H</div>
+                        <!-- Radius -->
+                        <div id="urban-radius" class="absolute w-32 h-32 border-2 border-red-500 bg-red-500/20 rounded-full pointer-events-none transform scale-0 transition-transform duration-300" style="top: 50%; left: 50%; margin-top:-4rem; margin-left:-4rem;"></div>
+                    </div>
+                    <h3 class="font-bold text-indigo-900">High Density (Urban)</h3>
+                    <p id="urban-stat" class="text-xs text-slate-500 mt-1">Click map to place hospital</p>
+                </div>
+
+                <!-- Rural Scenario -->
+                <div class="text-center group">
+                    <div class="relative w-full aspect-square bg-amber-50 rounded-xl overflow-hidden border-2 border-amber-100 mb-4 cursor-crosshair" onclick="placeHospital('rural')">
+                        <!-- Dots Random (Sparse) -->
+                        <div id="rural-dots" class="absolute inset-0"></div>
+                        
+                        <!-- Hospital Marker -->
+                        <div id="rural-hospital" class="absolute w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg transform scale-0 transition-transform duration-300" style="top: 50%; left: 50%; margin-top:-1rem; margin-left:-1rem;">H</div>
+                        <!-- Radius -->
+                        <div id="rural-radius" class="absolute w-32 h-32 border-2 border-red-500 bg-red-500/20 rounded-full pointer-events-none transform scale-0 transition-transform duration-300" style="top: 50%; left: 50%; margin-top:-4rem; margin-left:-4rem;"></div>
+                    </div>
+                    <h3 class="font-bold text-amber-900">Low Density (Rural)</h3>
+                    <p id="rural-stat" class="text-xs text-slate-500 mt-1">Click map to place hospital</p>
+                </div>
+
+            </div>
+            
+            <div class="px-8 pb-8">
+                <div class="bg-slate-800 text-white p-4 rounded-lg text-sm flex gap-4 items-start">
+                    <span class="text-2xl">💡</span>
+                    <p><strong>Analysis:</strong> High density makes services (medical care, schools, transit) <em>cost-effective</em> because one facility serves thousands. Low density makes services <em>expensive</em> and hard to access.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: CONSEQUENCE CARDS -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-indigo-500">3. Specific Consequences</h2>
+            <div class="grid md:grid-cols-3 gap-6 h-48">
+                
+                <!-- Political Card -->
+                <div class="flip-card h-full cursor-pointer">
+                    <div class="flip-card-inner shadow-lg rounded-xl">
+                        <div class="flip-front bg-white border border-slate-200">
+                            <div class="text-4xl mb-2">🗳️</div>
+                            <h3 class="font-bold text-slate-800">Political</h3>
+                            <p class="text-xs text-slate-500 mt-1">Click to flip</p>
+                        </div>
+                        <div class="flip-back border border-slate-700">
+                            <h3 class="font-bold text-indigo-300 mb-2">Redistricting & Power</h3>
+                            <p class="text-sm leading-relaxed">Distribution determines voting districts. Urban areas gain political power as populations shift to cities, leaving rural areas with less representation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Economic Card -->
+                <div class="flip-card h-full cursor-pointer">
+                    <div class="flip-card-inner shadow-lg rounded-xl">
+                        <div class="flip-front bg-white border border-slate-200">
+                            <div class="text-4xl mb-2">💼</div>
+                            <h3 class="font-bold text-slate-800">Economic</h3>
+                            <p class="text-xs text-slate-500 mt-1">Click to flip</p>
+                        </div>
+                        <div class="flip-back border border-slate-700">
+                            <h3 class="font-bold text-emerald-300 mb-2">Markets & Labor</h3>
+                            <p class="text-sm leading-relaxed">Businesses cluster in high-density areas for customers and workers. Low-density areas suffer from "Brain Drain" and lack of investment.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Card -->
+                <div class="flip-card h-full cursor-pointer">
+                    <div class="flip-card-inner shadow-lg rounded-xl">
+                        <div class="flip-front bg-white border border-slate-200">
+                            <div class="text-4xl mb-2">🏥</div>
+                            <h3 class="font-bold text-slate-800">Social</h3>
+                            <p class="text-xs text-slate-500 mt-1">Click to flip</p>
+                        </div>
+                        <div class="flip-back border border-slate-700">
+                            <h3 class="font-bold text-red-300 mb-2">Services & Health</h3>
+                            <p class="text-sm leading-relaxed">High density strains infrastructure (sanitation/housing). Low density creates "medical deserts" where care is hours away.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. CARRYING CAPACITY LOGIC ---
+        function updateEnvironment() {
+            const pop = parseInt(document.getElementById('pop-slider').value);
+            const statusLabel = document.getElementById('env-status');
+            const warning = document.getElementById('warning-msg');
+            const sky = document.getElementById('sky');
+            const water = document.getElementById('water');
+            const land = document.getElementById('land');
+            const sun = document.getElementById('sun');
+            const treeContainer = document.getElementById('trees-container');
+            const bldgContainer = document.getElementById('buildings-container');
+
+            // 1. Trees vs Buildings
+            // Max capacity visual = 100
+            const treeCount = Math.max(0, 10 - Math.floor(pop / 10)); 
+            const bldgCount = Math.floor(pop / 5);
+
+            // Render Trees
+            let treeHTML = "";
+            for(let i=0; i<treeCount; i++) {
+                treeHTML += `<div class="text-4xl transition-all duration-500 transform hover:scale-110">🌲</div>`;
+            }
+            treeContainer.innerHTML = treeHTML;
+
+            // Render Buildings
+            let bldgHTML = "";
+            for(let i=0; i<bldgCount; i++) {
+                // Simple rects
+                const height = 20 + Math.random() * 40;
+                bldgHTML += `<div class="w-4 bg-slate-700 mx-1 transition-all duration-500" style="height: ${height}px;"></div>`;
+            }
+            bldgContainer.innerHTML = bldgHTML;
+
+            // 2. Environmental Health Logic
+            if (pop < 40) {
+                // Healthy
+                statusLabel.innerText = "Sustainable";
+                statusLabel.className = "text-emerald-600 font-bold text-sm";
+                sky.className = "absolute inset-0 bg-sky-200 transition-colors duration-1000";
+                water.className = "absolute bottom-0 w-full h-8 bg-blue-500 opacity-80 transition-colors duration-1000";
+                land.className = "absolute bottom-0 w-full h-24 bg-emerald-600 transition-colors duration-1000 flex items-end justify-center";
+                sun.style.backgroundColor = "#facc15"; // Yellow
+                warning.classList.add('hidden');
+            } else if (pop < 80) {
+                // Strained
+                statusLabel.innerText = "Strained";
+                statusLabel.className = "text-yellow-600 font-bold text-sm";
+                sky.className = "absolute inset-0 bg-yellow-100 transition-colors duration-1000"; // Smoggy
+                water.className = "absolute bottom-0 w-full h-8 bg-teal-700 opacity-80 transition-colors duration-1000"; // Murky
+                land.className = "absolute bottom-0 w-full h-24 bg-yellow-700 transition-colors duration-1000 flex items-end justify-center"; // Dying grass
+                sun.style.backgroundColor = "#fb923c"; // Orange sun
+                warning.classList.add('hidden');
+            } else {
+                // Collapse
+                statusLabel.innerText = "Collapse";
+                statusLabel.className = "text-red-600 font-bold text-sm";
+                sky.className = "absolute inset-0 bg-slate-400 transition-colors duration-1000"; // Grey sky
+                water.className = "absolute bottom-0 w-full h-8 bg-stone-800 opacity-80 transition-colors duration-1000"; // Sludge
+                land.className = "absolute bottom-0 w-full h-24 bg-stone-600 transition-colors duration-1000 flex items-end justify-center"; // Dead earth
+                sun.style.backgroundColor = "#ef4444"; // Red sun
+                warning.classList.remove('hidden');
+            }
+        }
+
+        // --- 2. SERVICE PROVISION LOGIC ---
+        
+        // Init dots
+        function initServiceMaps() {
+            // Urban: Grid
+            const uContainer = document.getElementById('urban-dots');
+            let uHtml = "";
+            for(let i=0; i<100; i++) {
+                uHtml += `<div class="w-2 h-2 bg-indigo-900 rounded-full opacity-50"></div>`;
+            }
+            uContainer.innerHTML = uHtml;
+
+            // Rural: Random
+            const rContainer = document.getElementById('rural-dots');
+            let rHtml = "";
+            for(let i=0; i<20; i++) { // Fewer people
+                const top = Math.random() * 90;
+                const left = Math.random() * 90;
+                rHtml += `<div class="absolute w-2 h-2 bg-amber-900 rounded-full opacity-60" style="top:${top}%; left:${left}%"></div>`;
+            }
+            rContainer.innerHTML = rHtml;
+        }
+
+        function placeHospital(type) {
+            const hospital = document.getElementById(`${type}-hospital`);
+            const radius = document.getElementById(`${type}-radius`);
+            const stat = document.getElementById(`${type}-stat`);
+
+            // Show elements
+            hospital.style.transform = "scale(1) translate(-50%, -50%)"; // Center fix logic handled in CSS top/left
+            // Actually transform scale(1) resets generic transform. We need to keep centering.
+            // The CSS inline styles handle position. We just toggle scale.
+            hospital.classList.remove('scale-0');
+            radius.classList.remove('scale-0');
+
+            // Fake Calc
+            if (type === 'urban') {
+                stat.innerHTML = "<span class='text-emerald-600 font-bold'>Efficiency High:</span> Served ~350 people within 5 miles.";
+            } else {
+                stat.innerHTML = "<span class='text-red-500 font-bold'>Access Low:</span> Served ~12 people. Others must travel 2+ hours.";
+            }
+        }
+
+        // Init
+        updateEnvironment();
+        initServiceMaps();
+
+    </script>
+</body>
+</html>
