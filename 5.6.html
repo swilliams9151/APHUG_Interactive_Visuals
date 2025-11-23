@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.7: Spatial Organization of Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Chain Animation */
+        .chain-link { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .chain-active { border-color: #3b82f6; background-color: #eff6ff; transform: scale(1.05); }
+        
+        /* Truck Animation */
+        @keyframes drive {
+            0% { left: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+        .truck-anim {
+            position: absolute;
+            animation: drive 3s linear infinite;
+        }
+
+        /* Bar Chart Animation */
+        .chart-bar { transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.7: Agribusiness</h1>
+                <p class="text-blue-200 text-sm mt-1">Corporate Farming, Economies of Scale, and Commodity Chains (PSO-5.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-blue-800 px-3 py-1 rounded border border-blue-700">
+                The Industrialization of Food
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: ECONOMIES OF SCALE (Why Family Farms Die) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">1. Economies of Scale Simulator</h2>
+                    <p class="text-sm text-slate-600 mt-1">See why "Getting Bigger" makes food cheaper but squeezes out small farmers.</p>
+                </div>
+                <button onclick="expandFarm()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg font-bold shadow transition transform active:scale-95 flex items-center gap-2">
+                    <span>🚜</span> Buy Machinery & Expand
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 p-8">
+                
+                <!-- Visualizer: The Farm -->
+                <div class="relative h-64 bg-emerald-50 rounded-xl border-2 border-emerald-100 overflow-hidden flex items-center justify-center">
+                    <!-- Fields -->
+                    <div id="farm-fields" class="grid grid-cols-4 gap-1 w-3/4 h-3/4 transition-all duration-700">
+                        <!-- Field 1 (Start) -->
+                        <div class="bg-emerald-400 rounded flex items-center justify-center text-2xl">🌽</div>
+                    </div>
+                    
+                    <!-- Overlay Stats -->
+                    <div class="absolute top-4 left-4 bg-white/90 p-2 rounded shadow text-xs">
+                        <div class="font-bold text-slate-500">Farm Size</div>
+                        <div id="stat-size" class="text-lg font-extrabold text-slate-800">10 Acres</div>
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-white/90 p-2 rounded shadow text-xs text-right">
+                        <div class="font-bold text-slate-500">Cost to Produce 1 Corn</div>
+                        <div id="stat-cost" class="text-lg font-extrabold text-red-500">$5.00</div>
+                    </div>
+                </div>
+
+                <!-- Analysis: The Math -->
+                <div class="flex flex-col justify-center space-y-6">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-700 mb-2 uppercase tracking-wider">Financial Breakdown</h3>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Fixed Costs (Tractor/Barn):</span>
+                            <span id="math-fixed" class="font-mono font-bold">$1,000</span>
+                        </div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Total Output:</span>
+                            <span id="math-output" class="font-mono font-bold">200 units</span>
+                        </div>
+                        <div class="w-full h-px bg-slate-300 my-2"></div>
+                        <div class="flex justify-between text-sm font-bold text-blue-700">
+                            <span>Cost Per Unit:</span>
+                            <span id="math-per-unit">$5.00</span>
+                        </div>
+                    </div>
+
+                    <div id="scale-feedback" class="text-xs text-slate-500 italic border-l-4 border-blue-400 pl-3">
+                        Small Farm: You can't afford big machines, so your labor costs are high. You must sell corn for $5 to break even.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE COMMODITY CHAIN -->
+        <section class="bg-slate-900 rounded-2xl shadow-xl border border-slate-700 p-8 text-white overflow-hidden relative">
+            
+            <div class="flex justify-between items-end mb-8 relative z-10">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The Global Commodity Chain</h2>
+                    <p class="text-sm text-blue-300 mt-1">From Field to Fork. Agribusiness integrates all these steps.</p>
+                </div>
+                <div class="text-xs bg-slate-800 px-3 py-1 rounded border border-slate-600">
+                    Vertical Integration
+                </div>
+            </div>
+
+            <!-- Chain Visualizer -->
+            <div class="relative flex justify-between items-center gap-2 z-10">
+                
+                <!-- Step 1: Inputs -->
+                <div onclick="showChainInfo('inputs')" class="chain-link w-1/5 bg-slate-800 border border-slate-600 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-700">
+                    <div class="text-3xl mb-2">🧬</div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400">1. Inputs</h3>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-slate-600">➔</div>
+
+                <!-- Step 2: Production -->
+                <div onclick="showChainInfo('production')" class="chain-link w-1/5 bg-slate-800 border border-slate-600 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-700">
+                    <div class="text-3xl mb-2">🚜</div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400">2. Production</h3>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-slate-600">➔</div>
+
+                <!-- Step 3: Processing -->
+                <div onclick="showChainInfo('processing')" class="chain-link w-1/5 bg-slate-800 border border-slate-600 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-700">
+                    <div class="text-3xl mb-2">🏭</div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400">3. Processing</h3>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-slate-600">➔</div>
+
+                <!-- Step 4: Distribution -->
+                <div onclick="showChainInfo('distribution')" class="chain-link w-1/5 bg-slate-800 border border-slate-600 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-700 relative overflow-hidden">
+                    <div class="text-3xl mb-2 relative z-10">🚚</div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400 relative z-10">4. Distribution</h3>
+                    <!-- Truck Animation -->
+                    <div class="truck-anim top-8 text-xs opacity-50">🚛</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-slate-600">➔</div>
+
+                <!-- Step 5: Consumption -->
+                <div onclick="showChainInfo('consumption')" class="chain-link w-1/5 bg-slate-800 border border-slate-600 p-4 rounded-lg text-center cursor-pointer hover:bg-slate-700">
+                    <div class="text-3xl mb-2">🍔</div>
+                    <h3 class="text-xs font-bold uppercase text-slate-400">5. Consumption</h3>
+                </div>
+
+            </div>
+
+            <!-- Info Box -->
+            <div id="chain-info" class="mt-8 bg-blue-900/50 border border-blue-500/30 p-4 rounded-xl text-center text-sm text-blue-100 h-24 flex items-center justify-center transition-all">
+                Click a link in the chain to see what happens there.
+            </div>
+
+        </section>
+
+        <!-- SECTION 3: AGRIBUSINESS IMPACTS -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-blue-600">3. The Impact of Corporate Farming</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-4xl mb-4">📉</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Decline of Family Farms</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Small farms cannot compete with the low prices of corporate farms (Economies of Scale). They create contracts with corporations (e.g., Tyson Chicken) or sell their land.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-4xl mb-4">❄️</div>
+                    <h3 class="font-bold text-slate-800 mb-2">The "Cool Chain"</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">Refrigeration allows perishable items to be grown globally. We get strawberries in winter because they are flown in from Chile, defying traditional Von Thünen rings.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="font-bold text-slate-800 mb-2">Interdependence</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">If a drought hits Brazil (Soybeans), meat prices rise in China (Pig feed). The global commodity chain connects everyone.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. ECONOMIES OF SCALE LOGIC ---
+        let farmLevel = 1;
+        
+        function expandFarm() {
+            if (farmLevel >= 4) {
+                // Reset
+                farmLevel = 0;
+                document.getElementById('farm-fields').innerHTML = '';
+            }
+            
+            farmLevel++;
+            
+            const fieldContainer = document.getElementById('farm-fields');
+            const sizeEl = document.getElementById('stat-size');
+            const costEl = document.getElementById('stat-cost');
+            const mFixed = document.getElementById('math-fixed');
+            const mOut = document.getElementById('math-output');
+            const mPer = document.getElementById('math-per-unit');
+            const feedback = document.getElementById('scale-feedback');
+
+            // Visual Update (Add Fields)
+            // Level 1: 1 Field. Level 2: 4 Fields. Level 3: 8 Fields. Level 4: 16 Fields.
+            const fieldCount = Math.pow(2, farmLevel-1);
+            let html = "";
+            for(let i=0; i<fieldCount; i++) html += `<div class="bg-emerald-400 rounded flex items-center justify-center text-xl scale-in">🌽</div>`;
+            fieldContainer.innerHTML = html;
+            
+            // Data Update
+            // Fixed cost goes UP (Machines), but Output goes UP FASTER.
+            // Level 1: Fixed $1000 / 200 units = $5.00
+            // Level 2: Fixed $1500 / 800 units = $1.87
+            // Level 3: Fixed $2500 / 3000 units = $0.83
+            // Level 4: Fixed $5000 / 10000 units = $0.50
+            
+            let fixed, output, perUnit, sizeText, msg;
+            
+            if (farmLevel === 1) {
+                fixed = 1000; output = 200; perUnit = 5.00; sizeText = "10 Acres (Family)";
+                msg = "Small Farm: You can't afford big machines. High labor costs. You must sell corn for <strong>$5.00</strong> to break even.";
+            } else if (farmLevel === 2) {
+                fixed = 1500; output = 800; perUnit = 1.88; sizeText = "50 Acres (Expanded)";
+                msg = "Expansion: You bought a tractor. Your fixed costs went up, but you produce so much more that per-unit cost dropped to <strong>$1.88</strong>.";
+            } else if (farmLevel === 3) {
+                fixed = 2500; output = 3000; perUnit = 0.83; sizeText = "500 Acres (Commercial)";
+                msg = "Commercial Scale: You bought a Combine Harvester. You can now undercut every small farmer by selling corn at <strong>$1.00</strong> and still make a profit.";
+            } else {
+                fixed = 5000; output = 10000; perUnit = 0.50; sizeText = "5,000 Acres (Agribusiness)";
+                msg = "Agribusiness Giant: Massive scale. You control the market. Small farms cannot compete with your <strong>$0.50</strong> cost.";
+            }
+
+            // Render
+            sizeEl.innerText = sizeText;
+            costEl.innerText = `$${perUnit.toFixed(2)}`;
+            if(farmLevel > 2) costEl.className = "text-lg font-extrabold text-emerald-500";
+            else costEl.className = "text-lg font-extrabold text-red-500";
+
+            mFixed.innerText = `$${fixed.toLocaleString()}`;
+            mOut.innerText = `${output.toLocaleString()} units`;
+            mPer.innerText = `$${perUnit.toFixed(2)}`;
+            feedback.innerHTML = msg;
+        }
+
+
+        // --- 2. COMMODITY CHAIN LOGIC ---
+        const chainInfo = {
+            'inputs': {
+                title: "Step 1: Agribusiness Inputs",
+                text: "Before planting, farmers buy seeds, fertilizers, and machinery from massive corporations (e.g., John Deere, Bayer/Monsanto). The farm is a customer."
+            },
+            'production': {
+                title: "Step 2: Production (The Farm)",
+                text: "The actual growing. Often done by farmers under contract to the corporations. They take the risk (weather), while the corporation sets the price."
+            },
+            'processing': {
+                title: "Step 3: Processing (Factories)",
+                text: "Raw corn becomes High Fructose Corn Syrup, Doritos, or Ethanol. Value is added here. Factories are often located near farms to reduce weight (Bulk-Reducing)."
+            },
+            'distribution': {
+                title: "Step 4: Distribution & Cool Chain",
+                text: "Trucks, trains, and ships move products globally. The 'Cool Chain' (refrigeration) prevents spoilage, allowing Chilean grapes to be sold in the USA."
+            },
+            'consumption': {
+                title: "Step 5: Consumption (Retail)",
+                text: "Grocery stores and restaurants. This is where the consumer finally interacts with the product, often unaware of the 4 steps prior."
+            }
+        };
+
+        function showChainInfo(step) {
+            const data = chainInfo[step];
+            const box = document.getElementById('chain-info');
+            
+            box.innerHTML = `
+                <div class="fade-in">
+                    <strong class="text-blue-300 uppercase text-xs tracking-wider block mb-1">${data.title}</strong>
+                    ${data.text}
+                </div>
+            `;
+        }
+
+    </script>
+</body>
+</html>
