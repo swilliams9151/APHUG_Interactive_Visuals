@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 1.3: The Power of Geographic Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Tab Transitions */
+        .tab-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .hidden-tab {
+            display: none;
+            opacity: 0;
+        }
+        .visible-tab {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Map Zone Hover */
+        .zone { transition: fill 0.3s, stroke-width 0.3s; cursor: pointer; }
+        .zone:hover { fill-opacity: 0.8; stroke: #fff; stroke-width: 4; }
+
+        /* Fire Animation */
+        @keyframes burn {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .fire { animation: burn 1s infinite; transform-origin: center; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-cyan-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 1.3: The Power of Geographic Data</h1>
+                <p class="text-cyan-200 text-sm mt-1">Decision Making with Census Data & Satellite Imagery (IMP-1.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-cyan-800 px-3 py-1 rounded border border-cyan-700">
+                Data → Decision → Effect
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Navigation -->
+        <div class="flex justify-center space-x-4 mb-4">
+            <button onclick="setTab('gov')" id="btn-gov" class="px-6 py-3 rounded-lg font-bold bg-cyan-600 text-white shadow-lg transition transform hover:scale-105 ring-2 ring-cyan-400">
+                🏛️ Government (Census)
+            </button>
+            <button onclick="setTab('biz')" id="btn-biz" class="px-6 py-3 rounded-lg font-bold bg-slate-700 text-slate-400 hover:bg-slate-600 transition">
+                💼 Business (Marketing)
+            </button>
+            <button onclick="setTab('org')" id="btn-org" class="px-6 py-3 rounded-lg font-bold bg-slate-700 text-slate-400 hover:bg-slate-600 transition">
+                🚒 Organizational (Disaster)
+            </button>
+        </div>
+
+        <!-- SCENARIO 1: GOVERNMENT (The Census Effect) -->
+        <section id="tab-gov" class="visible-tab bg-white text-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-cyan-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-cyan-900">Scenario: The Census Count</h2>
+                    <p class="text-sm text-slate-600 mt-1">Census data determines federal funding. Click a neighborhood to "Count" it.</p>
+                </div>
+                <div class="bg-white px-4 py-2 rounded shadow text-xs font-bold text-slate-500">
+                    Budget: <span id="budget-display" class="text-emerald-600 text-lg">$0M</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2">
+                <!-- Interactive Map -->
+                <div class="relative bg-slate-200 h-80 flex items-center justify-center p-4">
+                    <svg viewBox="0 0 400 300" class="w-full h-full drop-shadow-md">
+                        <!-- Neighborhood A -->
+                        <rect id="zone-a" onclick="countZone('a')" x="20" y="20" width="170" height="120" fill="#94a3b8" class="zone" />
+                        <text x="105" y="80" text-anchor="middle" fill="white" font-weight="bold" pointer-events="none">Northside</text>
+                        <text id="status-a" x="105" y="100" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Uncounted</text>
+
+                        <!-- Neighborhood B -->
+                        <rect id="zone-b" onclick="countZone('b')" x="210" y="20" width="170" height="120" fill="#94a3b8" class="zone" />
+                        <text x="295" y="80" text-anchor="middle" fill="white" font-weight="bold" pointer-events="none">Eastside</text>
+                        <text id="status-b" x="295" y="100" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Uncounted</text>
+
+                        <!-- Neighborhood C -->
+                        <rect id="zone-c" onclick="countZone('c')" x="20" y="160" width="360" height="120" fill="#94a3b8" class="zone" />
+                        <text x="200" y="220" text-anchor="middle" fill="white" font-weight="bold" pointer-events="none">Southside (Dense)</text>
+                        <text id="status-c" x="200" y="240" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Uncounted</text>
+                    </svg>
+                </div>
+
+                <!-- Consequences Panel -->
+                <div class="p-8 flex flex-col justify-center space-y-4">
+                    <h3 class="font-bold text-lg text-slate-800 border-b pb-2">5-Year Projection</h3>
+                    <div id="gov-outcome" class="text-sm text-slate-600 italic bg-slate-50 p-4 rounded border border-slate-200">
+                        Waiting for census data... click regions to collect data.
+                    </div>
+                    
+                    <div class="bg-cyan-100 p-4 rounded-lg border-l-4 border-cyan-500">
+                        <h4 class="font-bold text-cyan-900 text-xs uppercase mb-1">AP Concept: Allocation</h4>
+                        <p class="text-xs text-cyan-800">
+                            Census data is used to distribute billions in federal funds for schools, roads, and hospitals. <strong>Undercounting = Underfunding.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENARIO 2: BUSINESS (Location Intelligence) -->
+        <section id="tab-biz" class="hidden-tab bg-white text-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-indigo-50">
+                <h2 class="text-xl font-bold text-indigo-900">Scenario: Site Selection</h2>
+                <p class="text-sm text-slate-600 mt-1">You are launching a luxury brand. Use demographic data layers to pick the profitable location.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2">
+                
+                <!-- Data Layers Map -->
+                <div class="relative bg-slate-900 h-80 p-4">
+                    <div class="absolute top-4 left-4 z-10 bg-white/90 p-2 rounded shadow text-xs space-y-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" onclick="toggleBizLayer('income')" id="chk-income"> 
+                            <span class="font-bold text-green-700">Income > $100k</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" onclick="toggleBizLayer('age')" id="chk-age"> 
+                            <span class="font-bold text-blue-700">Age 25-40 (Target)</span>
+                        </label>
+                    </div>
+
+                    <svg viewBox="0 0 400 300" class="w-full h-full">
+                        <!-- Locations to choose -->
+                        <circle id="loc-1" cx="100" cy="100" r="15" fill="white" stroke="#cbd5e1" stroke-width="3" class="cursor-pointer hover:scale-125 transition" onclick="pickBizLoc(1)"/>
+                        <text x="100" y="135" text-anchor="middle" fill="white" font-size="10" font-bold>Site A</text>
+
+                        <circle id="loc-2" cx="300" cy="100" r="15" fill="white" stroke="#cbd5e1" stroke-width="3" class="cursor-pointer hover:scale-125 transition" onclick="pickBizLoc(2)"/>
+                        <text x="300" y="135" text-anchor="middle" fill="white" font-size="10" font-bold>Site B</text>
+
+                        <circle id="loc-3" cx="200" cy="250" r="15" fill="white" stroke="#cbd5e1" stroke-width="3" class="cursor-pointer hover:scale-125 transition" onclick="pickBizLoc(3)"/>
+                        <text x="200" y="285" text-anchor="middle" fill="white" font-size="10" font-bold>Site C</text>
+
+                        <!-- Layers (Hidden by default) -->
+                        <!-- Income Layer (Hotspot over Site C) -->
+                        <circle id="layer-income" cx="200" cy="250" r="60" fill="#22c55e" opacity="0" class="pointer-events-none transition-opacity duration-500" />
+                        
+                        <!-- Age Layer (Hotspot over Site C and A) -->
+                        <circle id="layer-age-1" cx="200" cy="250" r="50" fill="#3b82f6" opacity="0" class="pointer-events-none transition-opacity duration-500" />
+                        <circle id="layer-age-2" cx="100" cy="100" r="40" fill="#3b82f6" opacity="0" class="pointer-events-none transition-opacity duration-500" />
+                    </svg>
+                </div>
+
+                <!-- Outcome Panel -->
+                <div class="p-8 flex flex-col justify-center">
+                    <div id="biz-result" class="text-center">
+                        <div class="text-4xl mb-2">🏢</div>
+                        <h3 class="font-bold text-lg text-slate-800 mb-2">Make a Decision</h3>
+                        <p class="text-sm text-slate-500">Turn on the data layers to see where your target customers live.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SCENARIO 3: ORGANIZATIONAL (Disaster Response) -->
+        <section id="tab-org" class="hidden-tab bg-white text-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+            <div class="p-6 border-b border-slate-100 bg-red-50">
+                <h2 class="text-xl font-bold text-red-900">Scenario: Wildfire Response</h2>
+                <p class="text-sm text-slate-600 mt-1">Use Satellite Imagery (Remote Sensing) to determine evacuation zones.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2">
+                <!-- Satellite View -->
+                <div class="relative bg-stone-800 h-80 overflow-hidden">
+                    <!-- Map Base -->
+                    <svg viewBox="0 0 400 300" class="w-full h-full opacity-60">
+                        <path d="M 0 0 L 400 0 L 400 300 L 0 300 Z" fill="#064e3b" /> <!-- Forest -->
+                        <path d="M 200 0 L 250 300" stroke="#78716c" stroke-width="10" /> <!-- Highway -->
+                        <rect x="50" y="100" width="80" height="80" fill="#e5e7eb" /> <!-- Town A -->
+                        <rect x="280" y="50" width="60" height="60" fill="#e5e7eb" /> <!-- Town B -->
+                    </svg>
+                    
+                    <!-- Fire Overlay (Visible) -->
+                    <div class="absolute bottom-10 left-10 text-6xl fire">🔥</div>
+                    <div class="absolute bottom-20 left-20 text-4xl fire" style="animation-delay: 0.5s">🔥</div>
+
+                    <!-- Wind Data Overlay (Hidden initially) -->
+                    <div id="wind-layer" class="absolute inset-0 hidden pointer-events-none">
+                        <div class="absolute top-1/2 left-1/2 text-white text-4xl font-bold opacity-50 transform -translate-x-1/2 -translate-y-1/2 rotate-45">
+                            💨 WIND SW
+                        </div>
+                        <!-- Dynamic arrow showing fire path toward Town B -->
+                        <svg viewBox="0 0 400 300" class="w-full h-full">
+                            <line x1="100" y1="250" x2="280" y2="100" stroke="red" stroke-width="4" stroke-dasharray="10" opacity="0.7" />
+                        </svg>
+                    </div>
+
+                    <div class="absolute bottom-4 right-4 flex gap-2">
+                        <button onclick="toggleWind()" class="bg-white/90 hover:bg-white text-slate-800 px-3 py-1 rounded text-xs font-bold shadow">
+                            🛰️ Toggle Satellite Wind Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Decision Panel -->
+                <div class="p-8 flex flex-col justify-center space-y-4">
+                    <h3 class="font-bold text-lg text-slate-800">Who do you evacuate?</h3>
+                    <div class="grid grid-cols-1 gap-3">
+                        <button onclick="evacuate('A')" class="p-4 border border-slate-200 rounded hover:bg-slate-50 text-left">
+                            <strong>Town A (West)</strong>
+                            <div id="res-A" class="text-xs mt-1 text-slate-500">Status: Unknown</div>
+                        </button>
+                        <button onclick="evacuate('B')" class="p-4 border border-slate-200 rounded hover:bg-slate-50 text-left">
+                            <strong>Town B (Northeast)</strong>
+                            <div id="res-B" class="text-xs mt-1 text-slate-500">Status: Unknown</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            // Hide all tabs
+            document.querySelectorAll('section').forEach(el => {
+                el.classList.remove('visible-tab');
+                el.classList.add('hidden-tab');
+            });
+            
+            // Show selected
+            document.getElementById(`tab-${id}`).classList.remove('hidden-tab');
+            document.getElementById(`tab-${id}`).classList.add('visible-tab');
+
+            // Reset buttons
+            document.querySelectorAll('button').forEach(b => {
+                if(b.id.startsWith('btn-')) {
+                    b.classList.remove('bg-cyan-600', 'text-white', 'ring-2');
+                    b.classList.add('bg-slate-700', 'text-slate-400');
+                }
+            });
+            
+            // Highlight active button
+            const btn = document.getElementById(`btn-${id}`);
+            btn.classList.remove('bg-slate-700', 'text-slate-400');
+            btn.classList.add('bg-cyan-600', 'text-white', 'ring-2');
+        }
+
+        // --- GOV LOGIC ---
+        let budget = 0;
+        let counted = {a: false, b: false, c: false};
+
+        function countZone(id) {
+            if (counted[id]) return;
+            
+            counted[id] = true;
+            const zone = document.getElementById(`zone-${id}`);
+            const status = document.getElementById(`status-${id}`);
+            
+            zone.setAttribute('fill', '#06b6d4'); // Cyan
+            status.textContent = "Counted!";
+            
+            // Update Budget (Simulated logic)
+            if (id === 'c') budget += 10; // Dense area = more funds
+            else budget += 2;
+            
+            document.getElementById('budget-display').innerText = `$${budget}M`;
+            checkGovOutcome();
+        }
+
+        function checkGovOutcome() {
+            const outcome = document.getElementById('gov-outcome');
+            if (counted.c && counted.a && counted.b) {
+                outcome.innerHTML = `<strong class="text-emerald-600">Success!</strong> Full count achieved. The dense Southside received $10M for a new hospital. Northside and Eastside got road repairs.`;
+                outcome.className = "text-sm text-slate-600 bg-emerald-50 p-4 rounded border border-emerald-200";
+            } else if (counted.a && counted.b && !counted.c) {
+                outcome.innerHTML = `<strong class="text-red-600">Crisis!</strong> You missed the dense Southside. Even though you counted 2 regions, you missed 80% of the population. The Southside fire station will close due to lack of funds.`;
+                outcome.className = "text-sm text-slate-600 bg-red-50 p-4 rounded border border-red-200";
+            }
+        }
+
+        // --- BIZ LOGIC ---
+        function toggleBizLayer(type) {
+            const layer = document.getElementById(`layer-${type}`);
+            const layer2 = document.getElementById(`layer-${type}-1`); // For Age
+            const layer3 = document.getElementById(`layer-${type}-2`); // For Age
+            
+            const checked = document.getElementById(`chk-${type}`).checked;
+            const opacity = checked ? 0.5 : 0;
+            
+            if(layer) layer.setAttribute('opacity', opacity);
+            if(layer2) layer2.setAttribute('opacity', opacity);
+            if(layer3) layer3.setAttribute('opacity', opacity);
+        }
+
+        function pickBizLoc(id) {
+            const res = document.getElementById('biz-result');
+            if (id === 3) {
+                res.innerHTML = `
+                    <div class="text-4xl mb-2">💰</div>
+                    <h3 class="font-bold text-lg text-emerald-600 mb-2">Excellent Choice!</h3>
+                    <p class="text-sm text-slate-600">Site C is the only location where <strong>High Income</strong> and <strong>Target Age</strong> overlap. This is Location Intelligence.</p>
+                `;
+            } else {
+                res.innerHTML = `
+                    <div class="text-4xl mb-2">📉</div>
+                    <h3 class="font-bold text-lg text-red-600 mb-2">Bad Investment</h3>
+                    <p class="text-sm text-slate-600">The data shows this area doesn't match your demographic target. You would lose money here.</p>
+                `;
+            }
+        }
+
+        // --- ORG LOGIC ---
+        let windVisible = false;
+        function toggleWind() {
+            windVisible = !windVisible;
+            const layer = document.getElementById('wind-layer');
+            if (windVisible) layer.classList.remove('hidden');
+            else layer.classList.add('hidden');
+        }
+
+        function evacuate(town) {
+            const resA = document.getElementById('res-A');
+            const resB = document.getElementById('res-B');
+            
+            if (!windVisible) {
+                alert("Check the Satellite Data first! You are guessing blindly.");
+                return;
+            }
+
+            if (town === 'B') {
+                resB.innerHTML = `<span class="text-emerald-600 font-bold">Correct!</span> Satellite wind data shows the fire moving Northeast toward Town B. Evacuation saved lives.`;
+                resA.innerHTML = `Status: Safe (No eval needed)`;
+            } else {
+                resA.innerHTML = `<span class="text-red-600 font-bold">Unnecessary Panic.</span> The wind is blowing the other way. You wasted resources evacuating the wrong town.`;
+                resB.innerHTML = `<span class="text-red-600 font-bold">DANGER!</span> Fire approaching un-evacuated town.`;
+            }
+        }
+
+        // Init Tab
+        setTab('gov');
+
+    </script>
+</body>
+</html>
