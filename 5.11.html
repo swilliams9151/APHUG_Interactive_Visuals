@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.11: Challenges of Contemporary Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animation for Fish/Crops */
+        .grow-anim { animation: grow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes grow { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* Fish Swim */
+        @keyframes swim {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        .fish { animation: swim 2s infinite ease-in-out; }
+
+        /* Tab Active State */
+        .nav-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #0f766e; /* teal-700 */
+            color: #0f766e;
+        }
+        .nav-btn { border-bottom: 4px solid transparent; }
+
+        /* Map Overlay Transitions */
+        .overlay { transition: opacity 0.5s ease; }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.11: Challenges of Agriculture</h1>
+                <p class="text-teal-200 text-sm mt-1">Biotech, Food Security, and Consumer Movements (IMP-5.B)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-800 px-3 py-1 rounded border border-teal-700">
+                The "Hidden Costs" of Food
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Navigation -->
+        <div class="flex border-b border-slate-300 mb-6">
+            <button onclick="setTab('biotech')" id="tab-biotech" class="nav-btn active px-6 py-3 font-bold text-slate-500 hover:bg-white transition w-1/3">
+                🧬 Innovation & Debate
+            </button>
+            <button onclick="setTab('access')" id="tab-access" class="nav-btn px-6 py-3 font-bold text-slate-500 hover:bg-white transition w-1/3">
+                🛒 Food Access
+            </button>
+            <button onclick="setTab('movements')" id="tab-movements" class="nav-btn px-6 py-3 font-bold text-slate-500 hover:bg-white transition w-1/3">
+                🥗 Food Movements
+            </button>
+        </div>
+
+        <!-- SECTION 1: BIOTECH DEBATE (GMOs & Aquaculture) -->
+        <section id="view-biotech" class="space-y-6">
+            
+            <div class="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
+                <div class="p-6 border-b border-stone-100 bg-teal-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-teal-900">1. The Biotech Dilemma (IMP-5.B.1)</h2>
+                        <p class="text-sm text-stone-600 mt-1">High Yields vs. Environmental Risks. Choose a sector to manage.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="setBioMode('gmo')" id="btn-gmo" class="px-3 py-1 text-xs font-bold rounded bg-emerald-600 text-white">GMO Crops</button>
+                        <button onclick="setBioMode('aqua')" id="btn-aqua" class="px-3 py-1 text-xs font-bold rounded bg-stone-200 text-stone-600 hover:bg-blue-100">Aquaculture</button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 p-8">
+                    
+                    <!-- Controls -->
+                    <div class="flex flex-col gap-4 justify-center">
+                        <div id="bio-desc" class="text-sm text-stone-600 italic bg-stone-50 p-4 rounded border border-stone-200">
+                            Genetically Modified Organisms (GMOs) are engineered to resist pesticides or drought.
+                        </div>
+                        
+                        <button onclick="intensify()" class="w-full py-3 bg-teal-600 hover:bg-teal-500 text-white font-bold rounded shadow transition transform active:scale-95">
+                            💉 Apply Technology
+                        </button>
+
+                        <div class="space-y-2 mt-4">
+                            <div class="flex justify-between text-xs font-bold uppercase text-stone-400">
+                                <span>Yield (Profit)</span>
+                                <span id="val-yield" class="text-emerald-600">Normal</span>
+                            </div>
+                            <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                                <div id="bar-yield" class="h-full bg-emerald-500 transition-all duration-500" style="width: 20%"></div>
+                            </div>
+
+                            <div class="flex justify-between text-xs font-bold uppercase text-stone-400 mt-2">
+                                <span>Sustainability</span>
+                                <span id="val-sus" class="text-emerald-600">High</span>
+                            </div>
+                            <div class="w-full h-2 bg-stone-200 rounded-full overflow-hidden">
+                                <div id="bar-sus" class="h-full bg-emerald-500 transition-all duration-500" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualizer -->
+                    <div class="relative h-64 bg-stone-100 rounded-xl border-2 border-stone-300 overflow-hidden flex items-center justify-center" id="bio-canvas">
+                        <!-- GMO Mode -->
+                        <div id="vis-gmo" class="w-full h-full relative">
+                            <div class="absolute bottom-0 w-full h-1/3 bg-amber-100 border-t-4 border-amber-200"></div> <!-- Soil -->
+                            <div id="crop-container" class="absolute bottom-4 w-full flex justify-center gap-2 items-end px-8">
+                                <div class="text-4xl">🌽</div><div class="text-4xl">🌽</div><div class="text-4xl">🌽</div>
+                            </div>
+                            <!-- Pests -->
+                            <div id="pest-container" class="absolute top-10 left-0 w-full flex justify-center gap-8 opacity-0 transition-opacity duration-500">
+                                <div class="text-2xl">🦗</div><div class="text-2xl">🦗</div>
+                            </div>
+                        </div>
+
+                        <!-- Aqua Mode -->
+                        <div id="vis-aqua" class="hidden w-full h-full relative bg-blue-900/80">
+                            <div id="fish-container" class="w-full h-full p-8 flex flex-wrap justify-center content-center gap-4">
+                                <div class="text-3xl fish">🐟</div><div class="text-3xl fish">🐟</div>
+                            </div>
+                            <div id="waste-layer" class="absolute bottom-0 w-full h-1/3 bg-green-900/50 opacity-0 transition-opacity duration-500 flex items-end justify-center text-xs text-green-200 font-bold pb-2">
+                                TOXIC WASTE ACCUMULATION
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: FOOD DESERTS (IMP-5.B.3) -->
+        <section id="view-access" class="hidden bg-white rounded-2xl shadow-xl border border-stone-200 p-8">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-stone-800">2. Identifying Food Deserts</h2>
+                    <p class="text-sm text-stone-500 mt-1">A Food Desert is an urban area with limited access to affordable, nutritious food.</p>
+                </div>
+                <div class="flex gap-2">
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 px-3 py-1 rounded hover:bg-slate-200">
+                        <input type="checkbox" id="chk-income" onclick="toggleMapLayer('income')">
+                        <span class="text-xs font-bold text-slate-600">Show Income</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-slate-100 px-3 py-1 rounded hover:bg-slate-200">
+                        <input type="checkbox" id="chk-store" onclick="toggleMapLayer('store')">
+                        <span class="text-xs font-bold text-slate-600">Show Grocery Stores</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- City Map -->
+                <div class="relative h-64 bg-slate-800 rounded-xl overflow-hidden border-2 border-slate-600">
+                    
+                    <!-- Grid Neighborhoods -->
+                    <div class="grid grid-cols-2 h-full">
+                        <div class="bg-slate-700 border-r border-b border-slate-600 relative"> <!-- NW -->
+                            <div id="overlay-income-nw" class="absolute inset-0 bg-emerald-500 opacity-0 overlay flex items-center justify-center font-bold text-white">High Income</div>
+                            <div id="overlay-store-nw" class="absolute top-2 right-2 text-2xl opacity-0 overlay">🥦</div>
+                        </div>
+                        <div class="bg-slate-700 border-b border-slate-600 relative"> <!-- NE -->
+                            <div id="overlay-income-ne" class="absolute inset-0 bg-emerald-500 opacity-0 overlay flex items-center justify-center font-bold text-white">High Income</div>
+                            <div id="overlay-store-ne" class="absolute top-2 right-2 text-2xl opacity-0 overlay">🥦</div>
+                        </div>
+                        <div class="bg-slate-700 border-r border-slate-600 relative cursor-pointer hover:border-red-500 hover:border-4 transition-all" onclick="identifyDesert(this)"> <!-- SW -->
+                            <div id="overlay-income-sw" class="absolute inset-0 bg-red-500 opacity-0 overlay flex items-center justify-center font-bold text-white">Low Income</div>
+                            <!-- No Store Here -->
+                            <div class="absolute bottom-2 left-2 text-[10px] text-slate-400">Zone C</div>
+                        </div>
+                        <div class="bg-slate-700 relative"> <!-- SE -->
+                            <div id="overlay-income-se" class="absolute inset-0 bg-yellow-500 opacity-0 overlay flex items-center justify-center font-bold text-white">Mid Income</div>
+                            <div id="overlay-store-se" class="absolute top-2 right-2 text-2xl opacity-0 overlay">🥦</div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Analysis -->
+                <div class="flex flex-col justify-center">
+                    <div id="desert-feedback" class="p-6 rounded-xl bg-stone-50 border border-stone-200 text-center">
+                        <h3 class="font-bold text-stone-800 mb-2">Where is the Food Desert?</h3>
+                        <p class="text-xs text-stone-500 mb-4">Turn on the layers. Look for a <span class="text-red-500 font-bold">Low Income</span> area with <span class="text-red-500 font-bold">NO Grocery Store</span>.</p>
+                        <div class="text-4xl opacity-20">❓</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: FOOD MOVEMENTS (IMP-5.B.2) -->
+        <section id="view-movements" class="hidden">
+            <div class="bg-teal-900 rounded-2xl shadow-xl p-8 text-white mb-8">
+                <h2 class="text-xl font-bold mb-6">3. The Conscious Consumer (Trade-offs)</h2>
+                
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Organic -->
+                    <div class="bg-white/10 p-5 rounded-xl border border-teal-700 hover:bg-white/20 transition cursor-pointer group">
+                        <div class="text-4xl mb-3">🥗</div>
+                        <h3 class="font-bold text-emerald-300 mb-2">Organic Farming</h3>
+                        <p class="text-xs text-teal-100 leading-relaxed">
+                            No synthetic chemicals/GMOs. 
+                            <br><span class="text-emerald-400 font-bold">Pros:</span> Healthier soil, less pollution.
+                            <br><span class="text-red-300 font-bold">Cons:</span> Lower yields, higher price (Elitist?).
+                        </p>
+                    </div>
+
+                    <!-- Fair Trade -->
+                    <div class="bg-white/10 p-5 rounded-xl border border-teal-700 hover:bg-white/20 transition cursor-pointer group">
+                        <div class="text-4xl mb-3">☕</div>
+                        <h3 class="font-bold text-amber-300 mb-2">Fair Trade</h3>
+                        <p class="text-xs text-teal-100 leading-relaxed">
+                            Ensures farmers in LDCs get a living wage.
+                            <br><span class="text-emerald-400 font-bold">Pros:</span> Reduces poverty in Periphery.
+                            <br><span class="text-red-300 font-bold">Cons:</span> Very expensive for consumer.
+                        </p>
+                    </div>
+
+                    <!-- Eat Local / CSA -->
+                    <div class="bg-white/10 p-5 rounded-xl border border-teal-700 hover:bg-white/20 transition cursor-pointer group">
+                        <div class="text-4xl mb-3">🚜</div>
+                        <h3 class="font-bold text-blue-300 mb-2">Eat Local (CSA)</h3>
+                        <p class="text-xs text-teal-100 leading-relaxed">
+                            Community Supported Ag. Buying direct from nearby farms.
+                            <br><span class="text-emerald-400 font-bold">Pros:</span> Fresh, supports local economy, low "Food Miles".
+                            <br><span class="text-red-300 font-bold">Cons:</span> Limited variety (seasonal).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['biotech', 'access', 'movements'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('active');
+        }
+
+        // --- 1. BIOTECH LOGIC ---
+        let bioMode = 'gmo';
+        let bioLevel = 0; // 0 = organic, 1 = intensified
+
+        function setBioMode(mode) {
+            bioMode = mode;
+            bioLevel = 0;
+            
+            // Button UI
+            const btnGmo = document.getElementById('btn-gmo');
+            const btnAqua = document.getElementById('btn-aqua');
+            const desc = document.getElementById('bio-desc');
+            const visGmo = document.getElementById('vis-gmo');
+            const visAqua = document.getElementById('vis-aqua');
+
+            if (mode === 'gmo') {
+                btnGmo.className = "px-3 py-1 text-xs font-bold rounded bg-emerald-600 text-white";
+                btnAqua.className = "px-3 py-1 text-xs font-bold rounded bg-stone-200 text-stone-600 hover:bg-blue-100";
+                desc.innerText = "Genetically Modified Organisms (GMOs) are engineered to resist pesticides or drought.";
+                visGmo.classList.remove('hidden');
+                visAqua.classList.add('hidden');
+            } else {
+                btnAqua.className = "px-3 py-1 text-xs font-bold rounded bg-blue-600 text-white";
+                btnGmo.className = "px-3 py-1 text-xs font-bold rounded bg-stone-200 text-stone-600 hover:bg-emerald-100";
+                desc.innerText = "Aquaculture (Blue Revolution) is farming fish in controlled tanks or nets.";
+                visGmo.classList.add('hidden');
+                visAqua.classList.remove('hidden');
+            }
+            resetMeters();
+        }
+
+        function intensify() {
+            if (bioLevel === 1) {
+                // Reset
+                bioLevel = 0;
+                resetMeters();
+                return;
+            }
+            
+            bioLevel = 1;
+            
+            // Update Meters
+            document.getElementById('bar-yield').style.width = "95%";
+            document.getElementById('val-yield').innerText = "Massive Surplus";
+            document.getElementById('bar-sus').style.width = "20%";
+            document.getElementById('bar-sus').className = "h-full bg-red-500 transition-all duration-500";
+            document.getElementById('val-sus').innerText = "Critical";
+            document.getElementById('val-sus').className = "text-red-600";
+
+            // Visuals
+            if (bioMode === 'gmo') {
+                const cont = document.getElementById('crop-container');
+                cont.innerHTML = ""; 
+                // Monoculture explosion
+                for(let i=0; i<8; i++) cont.innerHTML += `<div class="text-5xl grow-anim">🌽</div>`;
+                
+                // Superweeds appear
+                document.getElementById('pest-container').innerHTML = `<div class="text-xs font-bold text-red-600 bg-white/80 p-1 rounded">⚠️ Superweeds Resistant!</div>`;
+                document.getElementById('pest-container').style.opacity = 1;
+            } else {
+                const cont = document.getElementById('fish-container');
+                cont.innerHTML = "";
+                // Overcrowding
+                for(let i=0; i<12; i++) cont.innerHTML += `<div class="text-3xl fish">🐟</div>`;
+                document.getElementById('waste-layer').style.opacity = 1;
+            }
+        }
+
+        function resetMeters() {
+            document.getElementById('bar-yield').style.width = "20%";
+            document.getElementById('val-yield').innerText = "Normal";
+            document.getElementById('bar-sus').style.width = "90%";
+            document.getElementById('bar-sus').className = "h-full bg-emerald-500 transition-all duration-500";
+            document.getElementById('val-sus').innerText = "High";
+            document.getElementById('val-sus').className = "text-emerald-600";
+            
+            // Reset Visuals
+            if (bioMode === 'gmo') {
+                document.getElementById('crop-container').innerHTML = `<div class="text-4xl">🌽</div><div class="text-4xl">🌽</div><div class="text-4xl">🌽</div>`;
+                document.getElementById('pest-container').style.opacity = 0;
+            } else {
+                document.getElementById('fish-container').innerHTML = `<div class="text-3xl fish">🐟</div><div class="text-3xl fish">🐟</div>`;
+                document.getElementById('waste-layer').style.opacity = 0;
+            }
+        }
+
+        // --- 2. FOOD DESERT LOGIC ---
+        let layers = { income: false, store: false };
+
+        function toggleMapLayer(layer) {
+            layers[layer] = !layers[layer];
+            
+            const suffixes = ['nw', 'ne', 'sw', 'se'];
+            suffixes.forEach(s => {
+                const el = document.getElementById(`overlay-${layer}-${s}`);
+                // Skip if element doesn't exist (e.g. sw has no store)
+                if (el) el.style.opacity = layers[layer] ? (layer === 'income' ? 0.8 : 1) : 0;
+            });
+        }
+
+        function identifyDesert(el) {
+            const fb = document.getElementById('desert-feedback');
+            
+            if (!layers.income || !layers.store) {
+                fb.innerHTML = `<span class="text-red-600 font-bold">Turn on the Data Layers first!</span> <br>You can't plan without GIS data.`;
+                return;
+            }
+
+            // Correct Answer: SW (Low Income + No Store)
+            fb.innerHTML = `
+                <div class="text-4xl mb-2">✅</div>
+                <h3 class="font-bold text-emerald-700">Correct! Zone C is a Food Desert.</h3>
+                <p class="text-xs text-emerald-600 mt-2">Residents here have low mobility and no access to fresh food, leading to reliance on fast food and higher obesity rates.</p>
+            `;
+            fb.className = "p-6 rounded-xl bg-emerald-50 border border-emerald-200 text-center";
+        }
+
+    </script>
+</body>
+</html>
