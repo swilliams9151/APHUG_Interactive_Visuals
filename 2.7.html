@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.7: Population Policies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Bar Transitions */
+        .pyr-bar {
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy effect */
+        }
+
+        /* Card Animations */
+        .policy-card {
+            transition: all 0.2s ease;
+        }
+        .policy-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .policy-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Crisis Pulse */
+        .crisis-pulse {
+            animation: pulse-border 2s infinite;
+        }
+        @keyframes pulse-border {
+            0% { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { border-color: rgba(239, 68, 68, 0); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { border-color: rgba(239, 68, 68, 0); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-purple-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.7: Population Policies</h1>
+                <p class="text-purple-200 text-sm mt-1">Pronatalist, Antinatalist, and Immigration Strategies (SPS-2.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-purple-800 px-3 py-1 rounded border border-purple-700">
+                Government Intervention
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: THE CRISIS SIMULATOR -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left: Crisis & Policy Selection -->
+            <section class="lg:col-span-1 flex flex-col gap-6">
+                
+                <!-- Crisis Monitor -->
+                <div id="crisis-box" class="bg-white p-6 rounded-xl shadow-lg border-l-8 border-red-500 text-slate-800 crisis-pulse">
+                    <div class="flex justify-between items-start mb-2">
+                        <h2 class="text-lg font-extrabold text-red-600 uppercase tracking-wider">Current Crisis</h2>
+                        <span class="text-2xl">🚨</span>
+                    </div>
+                    <h3 id="crisis-title" class="text-xl font-bold text-slate-900 mb-2">Aging Population</h3>
+                    <p id="crisis-desc" class="text-sm text-slate-600 leading-relaxed">
+                        The workforce is shrinking. Pension systems are collapsing. You need more people, fast.
+                    </p>
+                </div>
+
+                <!-- Policy Controls -->
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 space-y-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Select a Policy Response</h3>
+                    
+                    <!-- Pronatalist -->
+                    <button onclick="applyPolicy('pro')" class="policy-card w-full text-left p-4 rounded-lg bg-emerald-900/30 border border-emerald-500/50 hover:bg-emerald-900/50 group">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-emerald-500 rounded-full text-white">👶</div>
+                            <div>
+                                <div class="font-bold text-emerald-400">Pronatalist</div>
+                                <div class="text-[10px] text-emerald-200/70">"Do it for Denmark!"</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Antinatalist -->
+                    <button onclick="applyPolicy('anti')" class="policy-card w-full text-left p-4 rounded-lg bg-red-900/30 border border-red-500/50 hover:bg-red-900/50 group">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-red-500 rounded-full text-white">🛑</div>
+                            <div>
+                                <div class="font-bold text-red-400">Antinatalist</div>
+                                <div class="text-[10px] text-red-200/70">"One Child Policy"</div>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- Immigration -->
+                    <button onclick="applyPolicy('immigration')" class="policy-card w-full text-left p-4 rounded-lg bg-blue-900/30 border border-blue-500/50 hover:bg-blue-900/50 group">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-500 rounded-full text-white">✈️</div>
+                            <div>
+                                <div class="font-bold text-blue-400">Pro-Immigration</div>
+                                <div class="text-[10px] text-blue-200/70">Guest Workers</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Next Scenario Button -->
+                <button onclick="nextScenario()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition shadow border border-slate-600">
+                    Next Crisis ➔
+                </button>
+
+            </section>
+
+            <!-- Center/Right: Visualization & Outcomes -->
+            <section class="lg:col-span-2 bg-white p-8 rounded-xl shadow-xl border border-slate-200 flex flex-col">
+                
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Demographic Impact</h2>
+                    <div class="text-xs font-mono text-slate-400">Projection: 20 Years Later</div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 flex-1">
+                    
+                    <!-- Visualizer: Population Pyramid -->
+                    <div class="relative bg-slate-50 rounded-xl border border-slate-200 p-4 flex flex-col justify-end h-64">
+                        <!-- Labels -->
+                        <div class="absolute top-2 left-2 text-[10px] font-bold text-slate-400">Elderly (65+)</div>
+                        <div class="absolute top-1/2 left-2 text-[10px] font-bold text-slate-400 transform -translate-y-1/2">Working (15-64)</div>
+                        <div class="absolute bottom-2 left-2 text-[10px] font-bold text-slate-400">Youth (0-14)</div>
+
+                        <!-- Pyramid Bars (Simplified 3-tier) -->
+                        <div class="flex flex-col gap-1 h-full justify-center">
+                            
+                            <!-- Elderly -->
+                            <div class="flex justify-center w-full h-1/4 items-center gap-1">
+                                <div id="bar-elderly-m" class="h-4 bg-purple-300 rounded-l pyr-bar" style="width: 20%"></div>
+                                <div id="bar-elderly-f" class="h-4 bg-purple-400 rounded-r pyr-bar" style="width: 22%"></div>
+                            </div>
+
+                            <!-- Working Age -->
+                            <div class="flex justify-center w-full h-1/2 items-center gap-1">
+                                <div id="bar-work-m" class="h-24 bg-blue-400 rounded-l pyr-bar" style="width: 40%"></div>
+                                <div id="bar-work-f" class="h-24 bg-blue-500 rounded-r pyr-bar" style="width: 40%"></div>
+                            </div>
+
+                            <!-- Youth -->
+                            <div class="flex justify-center w-full h-1/4 items-center gap-1">
+                                <div id="bar-youth-m" class="h-4 bg-emerald-400 rounded-l pyr-bar" style="width: 15%"></div>
+                                <div id="bar-youth-f" class="h-4 bg-emerald-500 rounded-r pyr-bar" style="width: 15%"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Outcome Text -->
+                    <div class="flex flex-col justify-center">
+                        <h3 id="outcome-title" class="font-bold text-lg text-slate-800 mb-2">Status Quo</h3>
+                        <p id="outcome-desc" class="text-sm text-slate-600 leading-relaxed mb-4">
+                            The population is stable but aging. No major policies have been enacted yet.
+                        </p>
+                        
+                        <div id="consequence-box" class="hidden bg-amber-50 border-l-4 border-amber-500 p-3 rounded">
+                            <span class="block text-[10px] font-bold text-amber-600 uppercase mb-1">Unintended Consequence</span>
+                            <p id="consequence-text" class="text-xs text-amber-800 italic">
+                                --
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        <!-- SECTION 2: REAL WORLD EXAMPLES -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-100 mb-6 pl-4 border-l-4 border-purple-500">Case Studies</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-emerald-400">France / Sweden</h3>
+                        <span class="text-xs bg-emerald-900 text-emerald-200 px-2 py-1 rounded">Pronatalist</span>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        <strong>Methods:</strong> Generous paid maternity/paternity leave, government-subsidized daycare, tax breaks for large families.
+                        <br><br><strong>Goal:</strong> Maintain replacement level fertility (2.1).
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-red-400">China</h3>
+                        <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Antinatalist (Hist.)</span>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        <strong>Methods:</strong> "One Child Policy" (1979-2015). Fines, forced abortions/sterilizations.
+                        <br><br><strong>Consequence:</strong> Massive gender imbalance (114 boys : 100 girls), rapidly aging population today.
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="font-bold text-blue-400">UAE / Qatar</h3>
+                        <span class="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded">Immigration</span>
+                    </div>
+                    <p class="text-sm text-slate-400">
+                        <strong>Methods:</strong> Guest Worker programs (Kafala system).
+                        <br><br><strong>Effect:</strong> Population pyramid is deeply distorted, with a massive bulge of working-age men (70%+ of population is foreign).
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const scenarios = [
+            {
+                title: "Aging Population (Stage 5)",
+                desc: "Birth rates have fallen below death rates. The workforce is shrinking, and there aren't enough taxpayers to support the elderly.",
+                color: "border-red-500",
+                baseState: { y: 10, w: 40, e: 45 }, // Percentages for widths
+                solutions: {
+                    'pro': {
+                        title: "Baby Boom (Long Term)",
+                        desc: "You enacted 'Baby Bonuses' and free childcare. Birth rates rise!",
+                        consequence: "High Youth Dependency: It will take 20 years for these babies to become workers. Expensive now.",
+                        state: { y: 40, w: 35, e: 45 } // Widened base
+                    },
+                    'anti': {
+                        title: "Demographic Suicide",
+                        desc: "You discouraged births in an already shrinking country. The population collapse accelerates.",
+                        consequence: "Economic Stagnation: No new workers to replace retirees.",
+                        state: { y: 5, w: 30, e: 65 } // Tiny base
+                    },
+                    'immigration': {
+                        title: "Workforce Injection (Short Term)",
+                        desc: "You invited skilled guest workers. The tax base stabilizes immediately.",
+                        consequence: "Cultural Friction: Rapid influx of migrants may cause political tension if not managed well.",
+                        state: { y: 10, w: 60, e: 40 } // Widened middle
+                    }
+                }
+            },
+            {
+                title: "Population Explosion (Stage 2)",
+                desc: "Death rates fell, but birth rates remain high. The population is doubling every 20 years. Infrastructure cannot keep up.",
+                color: "border-orange-500",
+                baseState: { y: 60, w: 30, e: 10 },
+                solutions: {
+                    'pro': {
+                        title: "Overcrowding Disaster",
+                        desc: "You encouraged even more births. Slums expand, and unemployment skyrockets.",
+                        consequence: "Resource Depletion: Exceeded carrying capacity.",
+                        state: { y: 80, w: 15, e: 5 }
+                    },
+                    'anti': {
+                        title: "Slowing the Growth",
+                        desc: "You promoted family planning and women's education. The birth rate begins to stabilize.",
+                        consequence: "Gender Imbalance: Strict policies might lead to sex-selective practices (preference for boys).",
+                        state: { y: 40, w: 40, e: 20 }
+                    },
+                    'immigration': {
+                        title: "Brain Drain",
+                        desc: "Encouraging people to leave (Emigration) relieves some pressure, but you lose your smartest workers.",
+                        consequence: "Loss of Human Capital.",
+                        state: { y: 60, w: 20, e: 10 }
+                    }
+                }
+            }
+        ];
+
+        let currentIdx = 0;
+
+        function nextScenario() {
+            currentIdx = (currentIdx + 1) % scenarios.length;
+            const scen = scenarios[currentIdx];
+            
+            // Update Text
+            document.getElementById('crisis-title').innerText = scen.title;
+            document.getElementById('crisis-desc').innerText = scen.desc;
+            document.getElementById('crisis-box').className = `bg-white p-6 rounded-xl shadow-lg border-l-8 ${scen.color} text-slate-800 crisis-pulse`;
+
+            // Reset Visuals
+            updatePyramid(scen.baseState);
+            document.getElementById('outcome-title').innerText = "Awaiting Decision...";
+            document.getElementById('outcome-desc').innerText = "Select a policy on the left to see the result.";
+            document.getElementById('consequence-box').classList.add('hidden');
+        }
+
+        function applyPolicy(type) {
+            const scen = scenarios[currentIdx];
+            const result = scen.solutions[type];
+
+            // Update Pyramid
+            updatePyramid(result.state);
+
+            // Update Text
+            document.getElementById('outcome-title').innerText = result.title;
+            document.getElementById('outcome-desc').innerText = result.desc;
+            
+            // Show Consequence
+            const consBox = document.getElementById('consequence-box');
+            const consText = document.getElementById('consequence-text');
+            consBox.classList.remove('hidden');
+            consText.innerText = result.consequence;
+        }
+
+        function updatePyramid(state) {
+            // state = { y: %, w: %, e: % } (Widths relative to container)
+            // Apply widths to bars
+            document.getElementById('bar-youth-m').style.width = `${state.y / 2}%`;
+            document.getElementById('bar-youth-f').style.width = `${state.y / 2}%`;
+            
+            document.getElementById('bar-work-m').style.width = `${state.w / 2}%`;
+            document.getElementById('bar-work-f').style.width = `${state.w / 2}%`; // Can offset for immigration logic later
+            
+            document.getElementById('bar-elderly-m').style.width = `${state.e / 2}%`;
+            document.getElementById('bar-elderly-f').style.width = `${state.e / 2}%`;
+        }
+
+        // Init
+        // Set default pyramid state
+        updatePyramid(scenarios[0].baseState);
+
+    </script>
+</body>
+</html>
