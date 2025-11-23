@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 4.4: Types of Political Boundaries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { z-index: 0; height: 100%; width: 100%; }
+        
+        /* Custom Popup Styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem;
+            padding: 0;
+            overflow: hidden;
+        }
+        .leaflet-popup-content {
+            margin: 0;
+            width: 300px !important;
+        }
+        
+        /* Sidebar Card Hover */
+        .type-card:hover {
+            border-color: #3b82f6; /* blue-500 */
+            background-color: #eff6ff; /* blue-50 */
+        }
+        .type-card.active {
+            border-color: #2563eb; /* blue-600 */
+            background-color: #dbeafe; /* blue-100 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Scrollbar for sidebar */
+        aside::-webkit-scrollbar {
+            width: 8px;
+        }
+        aside::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Sidebar: Definitions -->
+    <aside class="w-full md:w-1/3 bg-white shadow-xl z-10 flex flex-col h-1/3 md:h-full border-r border-gray-200 overflow-hidden">
+        <div class="p-6 border-b border-gray-200 bg-slate-50 shrink-0">
+            <h1 class="text-2xl font-extrabold text-slate-800">Boundary Types</h1>
+            <p class="text-indigo-600 font-bold text-sm">Topic 4.4: Political Boundaries</p>
+            <p class="text-xs text-gray-500 mt-2">
+                Select an example to fly to its location on the map.
+            </p>
+        </div>
+
+        <div id="sidebar-content" class="flex-1 overflow-y-auto p-4 space-y-3">
+            
+            <!-- ANTECEDENT -->
+            <div class="text-xs font-bold text-gray-400 uppercase mt-2 mb-1 pl-1">Antecedent (Physical)</div>
+            <div onclick="flyToBoundary('antecedent_pyrenees')" id="card-antecedent_pyrenees" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🌲 Pyrenees Mtns</h3>
+                    <span class="text-xs text-gray-500">Spain/France</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('antecedent_andes')" id="card-antecedent_andes" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🌲 Andes Mtns</h3>
+                    <span class="text-xs text-gray-500">Chile/Argentina</span>
+                </div>
+            </div>
+
+            <!-- SUPERIMPOSED -->
+            <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-1 pl-1">Superimposed (Forced)</div>
+            <div onclick="flyToBoundary('superimposed_africa')" id="card-superimposed_africa" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">✏️ Berlin Conference</h3>
+                    <span class="text-xs text-gray-500">Africa</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('superimposed_durand')" id="card-superimposed_durand" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">✏️ Durand Line</h3>
+                    <span class="text-xs text-gray-500">Afghan/Pakistan</span>
+                </div>
+            </div>
+
+            <!-- CONSEQUENT -->
+            <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-1 pl-1">Consequent (Cultural)</div>
+            <div onclick="flyToBoundary('consequent_india')" id="card-consequent_india" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🕉️ Partition of India</h3>
+                    <span class="text-xs text-gray-500">India/Pakistan</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('consequent_cyprus')" id="card-consequent_cyprus" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🕊️ The Green Line</h3>
+                    <span class="text-xs text-gray-500">Cyprus</span>
+                </div>
+            </div>
+
+            <!-- GEOMETRIC -->
+            <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-1 pl-1">Geometric (Straight)</div>
+            <div onclick="flyToBoundary('geometric_uscan')" id="card-geometric_uscan" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">📐 49th Parallel</h3>
+                    <span class="text-xs text-gray-500">US/Canada</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('geometric_libya')" id="card-geometric_libya" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">📐 25th Meridian</h3>
+                    <span class="text-xs text-gray-500">Libya/Egypt</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('geometric_korea')" id="card-geometric_korea" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">📐 38th Parallel (DMZ)</h3>
+                    <span class="text-xs text-gray-500">N/S Korea</span>
+                </div>
+            </div>
+
+            <!-- RELIC -->
+            <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-1 pl-1">Relic (Historical)</div>
+            <div onclick="flyToBoundary('relic_berlin')" id="card-relic_berlin" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🏰 Berlin Wall</h3>
+                    <span class="text-xs text-gray-500">Germany</span>
+                </div>
+            </div>
+            <div onclick="flyToBoundary('relic_hadrian')" id="card-relic_hadrian" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="font-bold text-gray-800 text-sm">🏰 Hadrian's Wall</h3>
+                    <span class="text-xs text-gray-500">UK</span>
+                </div>
+            </div>
+            
+             <!-- SUBSEQUENT -->
+             <div class="text-xs font-bold text-gray-400 uppercase mt-4 mb-1 pl-1">Subsequent (Evolved)</div>
+             <div onclick="flyToBoundary('subsequent_vietnam')" id="card-subsequent_vietnam" class="type-card cursor-pointer bg-white border border-gray-200 rounded-lg p-3 transition-all duration-200">
+                 <div class="flex items-center justify-between mb-1">
+                     <h3 class="font-bold text-gray-800 text-sm">🏘️ Vietnam/China</h3>
+                     <span class="text-xs text-gray-500">Asia</span>
+                 </div>
+             </div>
+
+        </div>
+    </aside>
+
+    <!-- Map Container -->
+    <main class="flex-1 relative h-2/3 md:h-full">
+        <div id="map"></div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        let map;
+        let boundaries = {};
+
+        window.onload = function() {
+            // 1. Initialize Map
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                maxZoom: 19
+            }).addTo(map);
+
+            // 2. Define Boundary Data
+            
+            // --- ANTECEDENT ---
+            // Pyrenees
+            const pyreneesLine = [[43.3, -1.7], [43.0, -1.0], [42.7, 0.0], [42.5, 1.5], [42.4, 3.1]];
+            addBoundary('antecedent_pyrenees', pyreneesLine, '#16a34a', "The Pyrenees Mountains", 
+                "A classic physical boundary separating Spain and France, existing before modern nations formed.");
+            
+            // Andes
+            const andesLine = [[-30.0, -70.0], [-33.0, -70.2], [-35.0, -70.5], [-40.0, -71.5], [-45.0, -72.0]];
+            addBoundary('antecedent_andes', andesLine, '#16a34a', "The Andes Mountains", 
+                "Separating Chile and Argentina. This massive mountain range is a clear physical barrier that defined settlement patterns.");
+
+            // --- GEOMETRIC ---
+            // US/Canada
+            const usCanadaLine = [[49.0, -123.0], [49.0, -110.0], [49.0, -100.0], [49.0, -95.0]];
+            addBoundary('geometric_uscan', usCanadaLine, '#4b5563', "49th Parallel (US/Canada)", 
+                "Drawn along a line of latitude. It is the longest unfortified border in the world.");
+
+            // Libya/Egypt
+            const libyaEgyptLine = [[31.5, 25.0], [25.0, 25.0], [22.0, 25.0]];
+            addBoundary('geometric_libya', libyaEgyptLine, '#4b5563', "25th Meridian East", 
+                "A perfectly straight line through the Sahara Desert separating Libya and Egypt. Classic geometric boundary.");
+            
+            // 38th Parallel (Also Superimposed)
+            const koreaLine = [[38.0, 125.0], [38.0, 127.0], [38.0, 129.0]];
+            addBoundary('geometric_korea', koreaLine, '#4b5563', "38th Parallel (DMZ)", 
+                "Initially a geometric line drawn by the US and USSR to divide Korea. It later became the DMZ.");
+
+            // --- SUPERIMPOSED ---
+            // Egypt/Sudan (General Africa)
+            const egyptSudanLine = [[22.0, 25.0], [22.0, 31.0], [22.0, 34.0]];
+            addBoundary('superimposed_africa', egyptSudanLine, '#dc2626', "Berlin Conference (Africa)", 
+                "Colonial powers drew straight lines across Africa, ignoring tribal and cultural boundaries.");
+            
+            // Durand Line
+            const durandLine = [[36.0, 71.0], [34.0, 70.0], [32.0, 69.0], [30.0, 66.0]];
+            addBoundary('superimposed_durand', durandLine, '#dc2626', "The Durand Line", 
+                "Drawn by the British between Afghanistan and Pakistan (then India). It splits the Pashtun ethnic group in half.");
+
+            // --- CONSEQUENT ---
+            // India/Pakistan
+            const indiaPakLine = [[23.0, 68.0], [25.0, 70.0], [28.0, 71.0], [31.0, 74.0], [33.0, 75.0]];
+            addBoundary('consequent_india', indiaPakLine, '#9333ea', "Partition of India (Radcliffe Line)", 
+                "Drawn specifically to separate religious groups: Muslims in Pakistan and Hindus in India.");
+            
+            // Cyprus Green Line
+            const cyprusLine = [[35.1, 32.8], [35.2, 33.4], [35.1, 33.9]];
+            addBoundary('consequent_cyprus', cyprusLine, '#9333ea', "Cyprus Green Line", 
+                "A buffer zone established by the UN to separate Greek Cypriots in the south and Turkish Cypriots in the north.");
+
+            // --- RELIC ---
+            // Berlin Wall
+            const berlinLine = [[52.56, 13.35], [52.52, 13.38], [52.50, 13.40]];
+            addBoundary('relic_berlin', berlinLine, '#ea580c', "The Berlin Wall", 
+                "No longer exists politically, but the economic and cultural division between East and West Berlin remains visible.");
+
+            // Hadrian's Wall
+            const hadriansLine = [[54.95, -1.6], [55.0, -2.0], [54.9, -2.6]];
+            addBoundary('relic_hadrian', hadriansLine, '#ea580c', "Hadrian's Wall", 
+                "Built by the Romans to separate their province of Britannia from the 'barbarians' to the north. It is a historic relic boundary.");
+
+            // --- SUBSEQUENT ---
+            // Vietnam/China
+            const vietnamChinaLine = [[21.5, 102.0], [22.5, 104.0], [23.0, 106.0], [21.5, 108.0]];
+            addBoundary('subsequent_vietnam', vietnamChinaLine, '#2563eb', "Vietnam/China Border", 
+                "Evolved over centuries of adjustment, warfare, and treaties.");
+
+        };
+
+        function addBoundary(id, coords, color, title, desc) {
+            // Draw the line
+            const polyline = L.polyline(coords, {
+                color: color,
+                weight: 5,
+                opacity: 0.8,
+                className: 'hover:stroke-[8px] transition-all'
+            }).addTo(map);
+
+            // Add a marker in the middle for easy clicking
+            const centerIndex = Math.floor(coords.length / 2);
+            const center = coords[centerIndex];
+            const marker = L.circleMarker(center, {
+                radius: 8,
+                fillColor: color,
+                color: "#fff",
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map);
+
+            // Popup Content
+            const popupContent = `
+                <div class="bg-white">
+                    <div class="bg-${color}-100 p-3 border-b border-gray-200" style="background-color: ${color}20">
+                        <h3 class="font-bold text-gray-800">${title}</h3>
+                    </div>
+                    <div class="p-3">
+                        <p class="text-sm text-gray-600 leading-relaxed">${desc}</p>
+                    </div>
+                </div>
+            `;
+            
+            const popup = L.popup({ closeButton: false }).setContent(popupContent);
+            polyline.bindPopup(popup);
+            marker.bindPopup(popup);
+
+            // Store for external control
+            boundaries[id] = { line: polyline, marker: marker, center: center };
+
+            // Interactive events
+            polyline.on('mouseover', function() { this.setStyle({ weight: 8 }); });
+            polyline.on('mouseout', function() { this.setStyle({ weight: 5 }); });
+        }
+
+        // Global function to fly to boundaries
+        window.flyToBoundary = function(type) {
+            // Highlight sidebar card
+            document.querySelectorAll('.type-card').forEach(el => el.classList.remove('active'));
+            document.getElementById(`card-${type}`).classList.add('active');
+
+            // Fly map
+            const target = boundaries[type];
+            if (target) {
+                map.flyTo(target.center, 6, { duration: 1.5 }); // Increased zoom slightly for better view
+                setTimeout(() => {
+                    target.marker.openPopup();
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
