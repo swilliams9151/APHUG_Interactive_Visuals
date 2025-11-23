@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.9: Global System of Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Trade Line Animation */
+        .trade-path {
+            stroke-dasharray: 10;
+            animation: flow 1s linear infinite;
+        }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+
+        /* Card Hover */
+        .comm-btn {
+            transition: all 0.2s;
+        }
+        .comm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .comm-btn.active {
+            background-color: #f0fdf4; /* emerald-50 */
+            border-color: #10b981; /* emerald-500 */
+            color: #064e3b; /* emerald-900 */
+            ring: 2px solid #10b981;
+        }
+
+        /* Meter Transition */
+        .meter-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s; }
+        
+        /* Crash Shake Animation */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-emerald-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.9: Global System of Agriculture</h1>
+                <p class="text-emerald-200 text-sm mt-1">Interdependence, Commodity Chains, and Dependence (PSO-5.E)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-emerald-800 px-3 py-1 rounded border border-emerald-700">
+                Core vs. Periphery
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: GLOBAL SUPPLY CHAIN MAP (PSO-5.E.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden flex flex-col md:flex-row h-[500px]">
+            
+            <!-- Controls -->
+            <div class="w-full md:w-1/3 p-6 bg-stone-50 border-r border-stone-200 flex flex-col gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-900">1. Global Food Web</h2>
+                    <p class="text-xs text-stone-500 mt-1">Track luxury crops from LDC producers to MDC consumers.</p>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="setCommodity('coffee')" id="btn-coffee" class="comm-btn active w-full text-left p-4 rounded-lg border border-stone-300 bg-white font-bold text-sm flex items-center gap-3">
+                        <span class="text-2xl">☕</span>
+                        <div>
+                            <div>Coffee</div>
+                            <div class="text-[10px] text-stone-400 font-normal">Equator -> North America/Europe</div>
+                        </div>
+                    </button>
+                    <button onclick="setCommodity('cocoa')" id="btn-cocoa" class="comm-btn w-full text-left p-4 rounded-lg border border-stone-300 bg-white font-bold text-sm flex items-center gap-3">
+                        <span class="text-2xl">🍫</span>
+                        <div>
+                            <div>Cocoa (Chocolate)</div>
+                            <div class="text-[10px] text-stone-400 font-normal">West Africa -> Europe</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Value Chain Analysis -->
+                <div class="mt-auto bg-white p-4 rounded-lg shadow-sm border border-stone-200">
+                    <h3 class="text-xs font-bold text-stone-400 uppercase mb-2">The Value Chain</h3>
+                    <div class="flex items-end gap-1 h-24">
+                        <div class="w-1/4 bg-emerald-200 rounded-t relative group">
+                            <div class="absolute bottom-0 w-full text-center text-[10px] font-bold mb-1 text-emerald-800">5%</div>
+                            <div class="absolute -top-6 left-0 w-full text-center text-[10px] opacity-0 group-hover:opacity-100 bg-stone-800 text-white rounded px-1">Farmer</div>
+                        </div>
+                        <div class="w-1/4 bg-emerald-400 rounded-t relative group" style="height: 20%">
+                            <div class="absolute bottom-0 w-full text-center text-[10px] font-bold mb-1 text-emerald-900">15%</div>
+                            <div class="absolute -top-6 left-0 w-full text-center text-[10px] opacity-0 group-hover:opacity-100 bg-stone-800 text-white rounded px-1">Trader</div>
+                        </div>
+                        <div class="w-1/4 bg-emerald-600 rounded-t relative group" style="height: 40%">
+                            <div class="absolute bottom-0 w-full text-center text-[10px] font-bold mb-1 text-white">30%</div>
+                            <div class="absolute -top-6 left-0 w-full text-center text-[10px] opacity-0 group-hover:opacity-100 bg-stone-800 text-white rounded px-1">Roaster</div>
+                        </div>
+                        <div class="w-1/4 bg-emerald-800 rounded-t relative group" style="height: 100%">
+                            <div class="absolute bottom-0 w-full text-center text-[10px] font-bold mb-1 text-white">50%</div>
+                            <div class="absolute -top-6 left-0 w-full text-center text-[10px] opacity-0 group-hover:opacity-100 bg-stone-800 text-white rounded px-1">Retailer</div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-stone-400 text-center mt-1">Who keeps the profit?</p>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="relative w-full md:w-2/3 h-full bg-slate-900">
+                <div id="map"></div>
+                
+                <!-- Map Overlay -->
+                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded shadow text-xs w-48 z-[1000]">
+                    <div class="flex items-center mb-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 mr-2"></span> Producer (LDC)
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span> Consumer (MDC)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: COMMODITY DEPENDENCE SIMULATOR (PSO-5.E.2) -->
+        <section class="bg-stone-800 rounded-2xl shadow-xl p-8 text-stone-200 border border-stone-700">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The Trap of Commodity Dependence</h2>
+                    <p class="text-sm text-stone-400 mt-1">
+                        When a country relies on <strong>one</strong> export (monoculture). Manage "Bean Republic's" economy.
+                    </p>
+                </div>
+                <div id="economy-status" class="px-4 py-2 rounded bg-emerald-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg">
+                    Economy: Healthy
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                
+                <!-- Controls -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2 text-xs font-bold uppercase text-stone-500">
+                            <span>Diversified Economy</span>
+                            <span>High Dependence</span>
+                        </div>
+                        <input type="range" id="dep-slider" min="0" max="100" value="80" oninput="updateDependency()" class="w-full h-3 bg-stone-600 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        <p class="text-xs text-stone-400 mt-2">
+                            Current Dependence: <span id="dep-val" class="text-amber-400 font-bold">80%</span> of GDP comes from Coffee.
+                        </p>
+                    </div>
+
+                    <button onclick="triggerCrash()" class="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-extrabold rounded-lg shadow-lg transition transform active:scale-95 flex justify-center items-center gap-2">
+                        <span>📉</span> Trigger Global Price Crash
+                    </button>
+                    
+                    <p class="text-xs text-stone-500 italic">
+                        *Real Scenario: In 2001, coffee prices fell 50%. Countries like Ethiopia faced devastation.
+                    </p>
+                </div>
+
+                <!-- Visualizer: The Economy Bar -->
+                <div id="economy-visual" class="bg-stone-700 p-6 rounded-xl border border-stone-600 flex flex-col justify-center items-center relative overflow-hidden">
+                    
+                    <!-- GDP Building -->
+                    <div class="relative w-32 bg-stone-500 rounded-b-lg transition-all duration-500 flex flex-col justify-end overflow-hidden" id="gdp-building" style="height: 200px;">
+                        <!-- Foundation (Other) -->
+                        <div class="w-full bg-blue-500/50 flex items-center justify-center text-[10px] font-bold text-white transition-all duration-500" id="segment-other" style="height: 20%">Other</div>
+                        <!-- Top (Commodity) -->
+                        <div class="w-full bg-amber-500 flex items-center justify-center text-xs font-bold text-amber-900 transition-all duration-500" id="segment-coffee" style="height: 80%">Coffee</div>
+                    </div>
+                    <div class="w-48 h-2 bg-stone-500 mt-1 rounded-full"></div> <!-- Ground -->
+
+                    <!-- Crash Overlay -->
+                    <div id="crash-overlay" class="absolute inset-0 bg-red-500/20 hidden flex items-center justify-center">
+                        <span class="text-4xl font-extrabold text-white drop-shadow-md -rotate-12 border-4 border-white px-4 py-2 rounded">COLLAPSE</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: SCALE ANALYSIS (Global to Local) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 p-8">
+            <h2 class="text-xl font-bold text-stone-800 mb-6 pl-4 border-l-4 border-blue-600">3. Scale Analysis: "The Avocado Effect"</h2>
+            
+            <div class="grid md:grid-cols-3 gap-4 items-center">
+                
+                <!-- Global Scale -->
+                <div class="text-center p-4">
+                    <div class="text-4xl mb-2">🌍</div>
+                    <h3 class="font-bold text-blue-900">Global Scale</h3>
+                    <p class="text-xs text-slate-500 mt-1">Rising demand for avocados in USA & Europe ("Superfood" trend).</p>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-center text-slate-300 text-2xl">➔</div>
+
+                <!-- National Scale -->
+                <div class="text-center p-4">
+                    <div class="text-4xl mb-2">🇲🇽</div>
+                    <h3 class="font-bold text-blue-900">National Scale (Mexico)</h3>
+                    <p class="text-xs text-slate-500 mt-1">Export revenues soar. Government encourages expansion of orchards.</p>
+                </div>
+
+                <!-- Arrow -->
+                <div class="text-center text-slate-300 text-2xl">➔</div> <!-- This arrow placement in grid might need adjustment visually -->
+
+            </div>
+            
+            <!-- Local Scale (The Impact) -->
+            <div class="mt-4 bg-red-50 border border-red-100 p-4 rounded-xl flex items-start gap-4">
+                <div class="text-3xl">🪓</div>
+                <div>
+                    <h3 class="font-bold text-red-800 text-sm uppercase">Local Scale Impact (Michoacán)</h3>
+                    <p class="text-sm text-red-700 leading-relaxed">
+                        Farmers illegally burn pine forests to plant avocado trees. Local water sources dry up due to irrigation demands. Drug cartels seize control of farms.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- 1. SUPPLY CHAIN MAP LOGIC ---
+        let map;
+        let currentLayer = null;
+
+        const commodities = {
+            'coffee': {
+                producers: [[-10, -55], [5, -75], [12, 108], [8, 38]], // Brazil, Colombia, Vietnam, Ethiopia
+                consumers: [[40, -100], [48, 2], [35, 139]], // USA, Europe, Japan
+                color: "#b45309", // Amber-700
+                producerName: "Producer (LDC)",
+                consumerName: "Consumer (MDC)"
+            },
+            'cocoa': {
+                producers: [[7, -5], [5, 0], [-2, 120]], // Cote d'Ivoire, Ghana, Indonesia
+                consumers: [[50, 10], [40, -100]], // Europe (Swiss/Belgian), USA
+                color: "#5b21b6", // Violet-800 (Chocolate-ish)
+                producerName: "Producer (LDC)",
+                consumerName: "Consumer (MDC)"
+            }
+        };
+
+        window.onload = function() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            setCommodity('coffee');
+        };
+
+        function setCommodity(type) {
+            // Update Buttons
+            document.querySelectorAll('.comm-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+
+            // Clear Map
+            if (currentLayer) map.removeLayer(currentLayer);
+            const layerGroup = L.layerGroup();
+            const data = commodities[type];
+
+            // Draw Producers
+            data.producers.forEach(coord => {
+                L.circleMarker(coord, {
+                    radius: 8,
+                    color: "white",
+                    fillColor: "#10b981", // Green
+                    fillOpacity: 0.9,
+                    weight: 2
+                }).addTo(layerGroup);
+            });
+
+            // Draw Consumers
+            data.consumers.forEach(coord => {
+                L.circleMarker(coord, {
+                    radius: 8,
+                    color: "white",
+                    fillColor: "#3b82f6", // Blue
+                    fillOpacity: 0.9,
+                    weight: 2
+                }).addTo(layerGroup);
+            });
+
+            // Draw Flows
+            data.producers.forEach(p => {
+                data.consumers.forEach(c => {
+                    // Simple curve logic
+                    const latlngs = [p, c];
+                    const polyline = L.polyline(latlngs, {
+                        color: data.color,
+                        weight: 2,
+                        opacity: 0.6,
+                        dashArray: '5, 10',
+                        className: 'trade-path'
+                    }).addTo(layerGroup);
+                });
+            });
+
+            layerGroup.addTo(map);
+            currentLayer = layerGroup;
+        }
+
+
+        // --- 2. DEPENDENCY SIM LOGIC ---
+        function updateDependency() {
+            const val = parseInt(document.getElementById('dep-slider').value);
+            document.getElementById('dep-val').innerText = val + "%";
+
+            // Update Building
+            const coffeeHeight = val * 2; // 200px total height * percentage
+            const otherHeight = 200 - coffeeHeight;
+            
+            const segCoffee = document.getElementById('segment-coffee');
+            const segOther = document.getElementById('segment-other');
+            
+            segCoffee.style.height = val + "%";
+            segOther.style.height = (100 - val) + "%";
+
+            // Update Text visibility based on size
+            if (val < 15) segCoffee.innerText = ""; else segCoffee.innerText = "Coffee";
+            if (val > 85) segOther.innerText = ""; else segOther.innerText = "Other";
+
+            // Reset status
+            resetStatus();
+        }
+
+        function resetStatus() {
+            document.getElementById('economy-status').innerText = "Economy: Stable";
+            document.getElementById('economy-status').className = "px-4 py-2 rounded bg-emerald-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg";
+            document.getElementById('crash-overlay').classList.add('hidden');
+            document.getElementById('economy-visual').classList.remove('shake');
+            
+            // Reset heights to match slider
+            const val = parseInt(document.getElementById('dep-slider').value);
+            document.getElementById('segment-coffee').style.height = val + "%";
+        }
+
+        function triggerCrash() {
+            const val = parseInt(document.getElementById('dep-slider').value);
+            const visual = document.getElementById('economy-visual');
+            const segCoffee = document.getElementById('segment-coffee');
+            const status = document.getElementById('economy-status');
+            const overlay = document.getElementById('crash-overlay');
+
+            // 1. Shake Animation
+            visual.classList.add('shake');
+            
+            setTimeout(() => {
+                // 2. Collapse Coffee Sector (Simulate price drop)
+                // Price drops 50%, so revenue drops 50%
+                // New height = old height / 2
+                const newHeight = val / 2; 
+                segCoffee.style.height = newHeight + "%";
+
+                // 3. Outcome Logic
+                // If dependency was high (e.g. 80%), dropping to 40% leaves a HUGE gap in GDP -> Collapse.
+                // If dependency was low (e.g. 20%), dropping to 10% is manageable.
+                
+                if (val > 50) {
+                    // Disaster
+                    status.innerText = "Economy: CRASHED";
+                    status.className = "px-4 py-2 rounded bg-red-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg animate-pulse";
+                    overlay.classList.remove('hidden');
+                } else {
+                    // Survival
+                    status.innerText = "Economy: Survived";
+                    status.className = "px-4 py-2 rounded bg-yellow-500 text-white font-bold text-sm uppercase tracking-wider shadow-lg";
+                }
+                
+                visual.classList.remove('shake');
+            }, 500);
+        }
+
+        // Init
+        updateDependency();
+
+    </script>
+</body>
+</html>
