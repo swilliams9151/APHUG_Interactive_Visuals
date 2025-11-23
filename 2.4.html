@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.4: Population Dynamics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            width: 100%; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background 0.2s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { background: #4338ca; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        /* Scenario Card Hover */
+        .scenario-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .scenario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #6366f1; /* indigo-500 */
+        }
+        .scenario-card.active {
+            background-color: #eef2ff;
+            border-color: #4f46e5;
+        }
+
+        /* Meter Animation */
+        .meter-fill { transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.4: Population Dynamics</h1>
+                <p class="text-blue-200 text-sm mt-1">Fertility, Mortality, and the Rule of 70 (IMP-2.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-blue-800 px-3 py-1 rounded border border-blue-700">
+                RNI = (CBR - CDR) / 10
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: DEMOGRAPHIC DASHBOARD -->
+        <div class="grid lg:grid-cols-2 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">1. The Rates (Inputs)</h2>
+                    <button onclick="resetSim()" class="text-xs text-blue-600 hover:underline font-bold">Reset to Average</button>
+                </div>
+
+                <!-- CBR Control -->
+                <div class="mb-8">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-bold text-emerald-600 uppercase tracking-wider">Crude Birth Rate (CBR)</label>
+                        <span id="val-cbr" class="text-emerald-700 font-mono font-bold bg-emerald-50 px-2 rounded">20</span>
+                    </div>
+                    <input type="range" id="input-cbr" min="0" max="50" value="20" oninput="calculate()" class="mb-1">
+                    <p class="text-[10px] text-slate-400">Births per 1,000 people per year</p>
+                </div>
+
+                <!-- CDR Control -->
+                <div class="mb-8">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-bold text-red-600 uppercase tracking-wider">Crude Death Rate (CDR)</label>
+                        <span id="val-cdr" class="text-red-700 font-mono font-bold bg-red-50 px-2 rounded">8</span>
+                    </div>
+                    <input type="range" id="input-cdr" min="0" max="30" value="8" oninput="calculate()" class="mb-1 accent-red-500">
+                    <p class="text-[10px] text-slate-400">Deaths per 1,000 people per year</p>
+                </div>
+
+                <!-- Result Box -->
+                <div class="bg-slate-900 text-white p-6 rounded-xl shadow-inner mt-4">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase font-bold mb-1">Natural Increase (NIR)</div>
+                            <div id="res-rni" class="text-3xl font-extrabold text-blue-400">1.2%</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase font-bold mb-1">Doubling Time</div>
+                            <div id="res-double" class="text-3xl font-extrabold text-amber-400">58 Years</div>
+                            <div class="text-[10px] text-slate-500">Rule of 70</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visualizer -->
+            <section class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 flex flex-col">
+                <h2 class="text-xl font-bold text-slate-800 mb-4">2. Future Projection</h2>
+                
+                <div class="flex-1 flex items-end justify-center relative bg-blue-50 rounded-xl overflow-hidden mb-4 p-4">
+                    <!-- Background Grid -->
+                    <div class="absolute inset-0 opacity-10" style="background-image: linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px); background-size: 20px 20px;"></div>
+                    
+                    <!-- Comparison Bars -->
+                    <div class="w-full max-w-md flex justify-around items-end h-64 relative z-10">
+                        <!-- Today -->
+                        <div class="w-24 flex flex-col items-center group">
+                            <div class="text-xs font-bold text-slate-500 mb-2 opacity-0 group-hover:opacity-100 transition">Current</div>
+                            <div class="w-full bg-slate-400 rounded-t-lg shadow-md" style="height: 100px;"></div>
+                            <div class="mt-2 font-bold text-sm text-slate-600">Today</div>
+                        </div>
+
+                        <!-- Future -->
+                        <div class="w-24 flex flex-col items-center group">
+                            <div id="future-label" class="text-xs font-bold text-blue-600 mb-2 transition opacity-100">Population</div>
+                            <div id="bar-future" class="w-full bg-blue-600 rounded-t-lg shadow-xl transition-all duration-700 relative overflow-hidden" style="height: 150px;">
+                                <div class="absolute inset-0 bg-white opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiIG9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]"></div>
+                            </div>
+                            <div class="mt-2 font-bold text-sm text-blue-700">In 50 Years</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="growth-desc" class="text-sm text-slate-600 text-center italic bg-slate-50 p-3 rounded border border-slate-100">
+                    Projected moderate growth based on current rates.
+                </div>
+            </section>
+        </div>
+
+        <!-- SECTION 2: FACTORS (IMP-2.A.3) -->
+        <section>
+            <h2 class="text-2xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-indigo-500">3. What drives the numbers? (Scenarios)</h2>
+            <p class="text-sm text-slate-500 mb-4 ml-4">Click a factor to see how it influences demographic rates.</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Scenario 1: Education -->
+                <button onclick="runScenario('education')" id="card-education" class="scenario-card bg-white p-4 rounded-xl border border-slate-200 text-left">
+                    <div class="text-2xl mb-2">📚</div>
+                    <h3 class="font-bold text-slate-800 text-sm">Women's Education</h3>
+                    <p class="text-xs text-slate-500 mt-1">Increased schooling leads to later marriage and family planning.</p>
+                    <div class="mt-3 text-[10px] font-bold text-red-500 bg-red-50 inline-block px-2 py-1 rounded">↓ Lowers CBR</div>
+                </button>
+
+                <!-- Scenario 2: Medical Rev -->
+                <button onclick="runScenario('medical')" id="card-medical" class="scenario-card bg-white p-4 rounded-xl border border-slate-200 text-left">
+                    <div class="text-2xl mb-2">💉</div>
+                    <h3 class="font-bold text-slate-800 text-sm">Medical Revolution</h3>
+                    <p class="text-xs text-slate-500 mt-1">Antibiotics and vaccines reach developing nations (Stage 2).</p>
+                    <div class="mt-3 text-[10px] font-bold text-blue-500 bg-blue-50 inline-block px-2 py-1 rounded">↓ Lowers CDR</div>
+                </button>
+
+                <!-- Scenario 3: Urbanization -->
+                <button onclick="runScenario('urban')" id="card-urban" class="scenario-card bg-white p-4 rounded-xl border border-slate-200 text-left">
+                    <div class="text-2xl mb-2">🏙️</div>
+                    <h3 class="font-bold text-slate-800 text-sm">Urbanization</h3>
+                    <p class="text-xs text-slate-500 mt-1">Moving to cities makes children an economic cost, not an asset.</p>
+                    <div class="mt-3 text-[10px] font-bold text-red-500 bg-red-50 inline-block px-2 py-1 rounded">↓ Lowers CBR</div>
+                </button>
+
+                <!-- Scenario 4: War/Conflict -->
+                <button onclick="runScenario('war')" id="card-war" class="scenario-card bg-white p-4 rounded-xl border border-slate-200 text-left">
+                    <div class="text-2xl mb-2">⚔️</div>
+                    <h3 class="font-bold text-slate-800 text-sm">War & Conflict</h3>
+                    <p class="text-xs text-slate-500 mt-1">Disruption of food supplies and direct casualties.</p>
+                    <div class="mt-3 text-[10px] font-bold text-purple-500 bg-purple-50 inline-block px-2 py-1 rounded">↑ Raises CDR</div>
+                </button>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Initial "Average" State (Approx World)
+        // CBR 17, CDR 7 -> NIR 1.0
+        
+        function calculate() {
+            const cbr = parseInt(document.getElementById('input-cbr').value);
+            const cdr = parseInt(document.getElementById('input-cdr').value);
+
+            // Update Labels
+            document.getElementById('val-cbr').innerText = cbr;
+            document.getElementById('val-cdr').innerText = cdr;
+
+            // Calculate NIR (RNI)
+            // Formula: (CBR - CDR) / 10 = Percentage
+            let nir = ((cbr - cdr) / 10).toFixed(1);
+            
+            // Calculate Doubling Time
+            // Rule of 70: 70 / NIR
+            let doubleTime;
+            if (nir <= 0) {
+                doubleTime = "N/A"; // No doubling if negative or zero growth
+            } else {
+                doubleTime = Math.round(70 / nir) + " Years";
+            }
+
+            // Update Results UI
+            const nirEl = document.getElementById('res-rni');
+            nirEl.innerText = nir + "%";
+            if (nir < 0) nirEl.className = "text-3xl font-extrabold text-red-400"; // Negative growth
+            else if (nir > 2) nirEl.className = "text-3xl font-extrabold text-emerald-400"; // Fast growth
+            else nirEl.className = "text-3xl font-extrabold text-blue-400"; // Stable
+
+            document.getElementById('res-double').innerText = doubleTime;
+
+            updateVisualizer(nir);
+        }
+
+        function updateVisualizer(nir) {
+            const bar = document.getElementById('bar-future');
+            const label = document.getElementById('future-label');
+            const desc = document.getElementById('growth-desc');
+            
+            // Base height is 100px (Today).
+            // Projection logic for visual only: 
+            // Growth Factor for 50 years. Formula: P = P0 * e^(rt)
+            // r = nir/100, t=50.
+            // Simplified visual scale: 100px + (nir * 30).
+            
+            let height;
+            if (nir < 0) {
+                height = Math.max(10, 100 + (nir * 20)); // Shrink
+                bar.className = "w-full bg-red-500 rounded-t-lg shadow-xl transition-all duration-700 relative overflow-hidden";
+                label.className = "text-xs font-bold text-red-600 mb-2 transition opacity-100";
+                desc.innerHTML = "<strong>Population Decline:</strong> The population will shrink. Future labor shortages likely.";
+            } else if (nir == 0) {
+                height = 100;
+                bar.className = "w-full bg-slate-500 rounded-t-lg shadow-xl transition-all duration-700 relative overflow-hidden";
+                label.className = "text-xs font-bold text-slate-600 mb-2 transition opacity-100";
+                desc.innerHTML = "<strong>Zero Population Growth (ZPG):</strong> The population is stable. Replacement level.";
+            } else {
+                height = Math.min(300, 100 + (nir * 40)); // Grow
+                
+                if (nir > 2.0) {
+                    bar.className = "w-full bg-emerald-500 rounded-t-lg shadow-xl transition-all duration-700 relative overflow-hidden";
+                    label.className = "text-xs font-bold text-emerald-600 mb-2 transition opacity-100";
+                    desc.innerHTML = "<strong>Population Explosion:</strong> Rapid growth creates pressure on infrastructure and jobs.";
+                } else {
+                    bar.className = "w-full bg-blue-600 rounded-t-lg shadow-xl transition-all duration-700 relative overflow-hidden";
+                    label.className = "text-xs font-bold text-blue-600 mb-2 transition opacity-100";
+                    desc.innerHTML = "<strong>Steady Growth:</strong> Manageable increase allowing for economic planning.";
+                }
+            }
+
+            bar.style.height = `${height}px`;
+        }
+
+        const scenarios = {
+            'education': { cbr: 12, cdr: 8 }, // Low birth (Stage 4ish)
+            'medical': { cbr: 40, cdr: 12 },  // High birth, dropping death (Stage 2)
+            'urban': { cbr: 18, cdr: 7 },     // Moderate/Low (Stage 3/4)
+            'war': { cbr: 25, cdr: 20 }       // High death spike
+        };
+
+        function runScenario(key) {
+            // Reset UI
+            document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(`card-${key}`).classList.add('active');
+
+            const data = scenarios[key];
+            
+            // Animate inputs to new values
+            document.getElementById('input-cbr').value = data.cbr;
+            document.getElementById('input-cdr').value = data.cdr;
+            
+            calculate();
+        }
+
+        function resetSim() {
+            document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('input-cbr').value = 20;
+            document.getElementById('input-cdr').value = 8;
+            calculate();
+        }
+
+        // Init
+        calculate();
+
+    </script>
+</body>
+</html>
