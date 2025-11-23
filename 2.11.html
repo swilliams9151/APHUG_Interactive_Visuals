@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 2.11: Forced & Voluntary Migration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Dot Animations */
+        .dot { transition: all 0.5s ease; }
+        
+        /* Card Hover */
+        .type-btn {
+            transition: all 0.2s;
+        }
+        .type-btn:hover {
+            transform: translateX(4px);
+            background-color: #f1f5f9;
+        }
+        .type-btn.active {
+            background-color: #e2e8f0;
+            border-left-width: 4px;
+            border-color: #0f172a;
+        }
+
+        /* Definition Box Animation */
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 2.11: Types of Migration</h1>
+                <p class="text-teal-200 text-sm mt-1">Forced vs. Voluntary Movements (IMP-2.D)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-800 px-3 py-1 rounded border border-teal-700">
+                Step • Chain • Transhumance • Refugee
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: PATTERN VISUALIZER -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 uppercase tracking-wider border-b pb-2">1. Voluntary Patterns</h2>
+                
+                <div class="space-y-2 flex-1">
+                    <button onclick="playSimulation('step')" id="btn-step" class="type-btn w-full text-left p-3 rounded border border-slate-100 text-sm font-bold text-slate-700">
+                        🪜 Step Migration
+                    </button>
+                    <button onclick="playSimulation('chain')" id="btn-chain" class="type-btn w-full text-left p-3 rounded border border-slate-100 text-sm font-bold text-slate-700">
+                        🔗 Chain Migration
+                    </button>
+                    <button onclick="playSimulation('transhumance')" id="btn-transhumance" class="type-btn w-full text-left p-3 rounded border border-slate-100 text-sm font-bold text-slate-700">
+                        🐏 Transhumance
+                    </button>
+                    <button onclick="playSimulation('rural_urban')" id="btn-rural_urban" class="type-btn w-full text-left p-3 rounded border border-slate-100 text-sm font-bold text-slate-700">
+                        🏙️ Rural-to-Urban
+                    </button>
+                    <button onclick="playSimulation('guest')" id="btn-guest" class="type-btn w-full text-left p-3 rounded border border-slate-100 text-sm font-bold text-slate-700">
+                        👷 Guest Worker
+                    </button>
+                </div>
+
+                <div id="def-box" class="mt-6 p-4 bg-slate-100 rounded-lg text-xs text-slate-600 italic border-l-4 border-teal-500">
+                    Select a pattern to see how it moves.
+                </div>
+            </section>
+
+            <!-- Visualizer -->
+            <section class="lg:col-span-2 bg-slate-900 rounded-xl shadow-lg border border-slate-700 relative overflow-hidden flex flex-col">
+                <!-- Map Canvas -->
+                <div class="relative flex-1 h-[350px] w-full">
+                    <svg id="map-svg" viewBox="0 0 600 350" class="w-full h-full">
+                        <!-- Background Landmasses -->
+                        <path d="M 50 300 L 150 100 L 250 300 Z" fill="#334155" opacity="0.5" /> <!-- Rural/Mountain -->
+                        <circle cx="450" cy="150" r="60" fill="#334155" opacity="0.5" /> <!-- Urban/Destination -->
+                        
+                        <!-- Locations -->
+                        <text x="150" y="280" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">RURAL / ORIGIN</text>
+                        <text x="450" y="230" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="bold">URBAN / DESTINATION</text>
+
+                        <!-- Dynamic Layer -->
+                        <g id="sim-layer"></g>
+                    </svg>
+                </div>
+                
+                <!-- Play Controls -->
+                <div class="bg-slate-800 p-3 flex justify-between items-center px-6 border-t border-slate-700">
+                    <span class="text-xs text-slate-400 font-mono uppercase">Simulation View</span>
+                    <button onclick="replay()" class="text-xs bg-teal-600 hover:bg-teal-500 text-white px-3 py-1 rounded font-bold transition">
+                        Replay ↺
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- SECTION 2: FORCED MIGRATION TRIBUNAL (The Nuance) -->
+        <section class="bg-white rounded-xl shadow-md border border-red-100 overflow-hidden">
+            <div class="bg-red-50 p-4 border-b border-red-100">
+                <h2 class="text-xl font-bold text-red-900 flex items-center">
+                    <span class="text-2xl mr-3">⚠️</span> Forced Migration: Know the Difference
+                </h2>
+                <p class="text-sm text-red-800 mt-1">Refugees, IDPs, and Asylum Seekers often flee the same conflict, but their legal status differs based on <strong>Boundaries</strong>.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-red-100">
+                
+                <!-- Refugee -->
+                <div class="p-6 hover:bg-red-50/50 transition">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-slate-800">Refugee</h3>
+                        <span class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-1 rounded">Crossed Border</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Someone who has been forced to migrate to avoid potential threat to life, and <strong>has crossed an international border</strong>.
+                    </p>
+                    <div class="mt-4 h-1 bg-slate-200 rounded overflow-hidden">
+                        <div class="h-full bg-red-500 w-full"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1 text-right">Protected by UN</p>
+                </div>
+
+                <!-- IDP -->
+                <div class="p-6 hover:bg-red-50/50 transition">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-slate-800">IDP</h3>
+                        <span class="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-1 rounded">Internal</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        <strong>Internally Displaced Person.</strong> Forced to move for similar political reasons as a refugee but has <strong>NOT</strong> crossed an international border.
+                    </p>
+                    <div class="mt-4 h-1 bg-slate-200 rounded overflow-hidden">
+                        <div class="h-full bg-orange-500 w-1/2"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1 text-right">Stuck in Country</p>
+                </div>
+
+                <!-- Asylum Seeker -->
+                <div class="p-6 hover:bg-red-50/50 transition">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-slate-800">Asylum Seeker</h3>
+                        <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded">Applicant</span>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        Someone who has migrated to another country in the hope of being recognized as a refugee, but the <strong>legal status is not yet granted</strong>.
+                    </p>
+                    <div class="mt-4 h-1 bg-slate-200 rounded overflow-hidden">
+                        <div class="h-full bg-blue-500 w-1/4"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1 text-right">Waiting for Approval</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: SORTING CHALLENGE -->
+        <section class="bg-slate-800 rounded-xl p-6 text-white shadow-lg">
+            <h2 class="text-lg font-bold mb-4">3. Rapid Fire: Forced or Voluntary?</h2>
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+                <div id="scenario-text" class="flex-1 text-center text-xl font-serif italic bg-slate-700 p-6 rounded-lg border border-slate-600 w-full">
+                    "Family moves to be with cousins in Chicago."
+                </div>
+                <div class="flex gap-4">
+                    <button onclick="guess('forced')" class="px-6 py-3 bg-red-600 hover:bg-red-500 rounded-lg font-bold shadow-lg transition transform hover:scale-105">Forced</button>
+                    <button onclick="guess('voluntary')" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold shadow-lg transition transform hover:scale-105">Voluntary</button>
+                </div>
+            </div>
+            <div id="feedback" class="text-center text-sm mt-4 font-bold h-5 text-emerald-400"></div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- VISUALIZATION LOGIC ---
+        const svg = document.getElementById('sim-layer');
+        let currentMode = null;
+        let timeouts = [];
+
+        const definitions = {
+            'step': "Migration occurs in stages. Example: Farm -> Small Town -> Big City. Migrants stop at intervening opportunities along the way.",
+            'chain': "Migration of people to a specific location because relatives or members of the same nationality previously migrated there.",
+            'transhumance': "Seasonal migration of livestock between mountains and lowland pastures. It is cyclical, not permanent relocation.",
+            'rural_urban': "The most common global migration pattern today. Moving from countryside to cities for economic opportunity (Industrialization).",
+            'guest': "Temporary migration for work. Workers migrate to a host country (e.g., Qatar, Germany) with the intent to return home eventually."
+        };
+
+        function playSimulation(mode) {
+            currentMode = mode;
+            
+            // UI Update
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${mode}`).classList.add('active');
+            
+            const defBox = document.getElementById('def-box');
+            defBox.innerHTML = definitions[mode];
+            defBox.classList.remove('fade-in'); // Reset animation
+            void defBox.offsetWidth; // Trigger reflow
+            defBox.classList.add('fade-in');
+
+            // Clear SVG & Timeouts
+            svg.innerHTML = '';
+            timeouts.forEach(t => clearTimeout(t));
+            timeouts = [];
+
+            // Run Logic
+            if (mode === 'step') runStep();
+            else if (mode === 'chain') runChain();
+            else if (mode === 'transhumance') runTranshumance();
+            else if (mode === 'rural_urban') runRuralUrban();
+            else if (mode === 'guest') runGuest();
+        }
+
+        function replay() {
+            if(currentMode) playSimulation(currentMode);
+        }
+
+        // --- ANIMATION FUNCTIONS ---
+
+        function createDot(x, y, color) {
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", 6);
+            circle.setAttribute("fill", color);
+            circle.setAttribute("class", "dot");
+            svg.appendChild(circle);
+            return circle;
+        }
+
+        function runStep() {
+            // Farm (100,250) -> Town (300, 200) -> City (450, 150)
+            
+            // Draw Stops
+            const town = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            town.setAttribute("x", 290); town.setAttribute("y", 190); town.setAttribute("width", 20); town.setAttribute("height", 20); town.setAttribute("fill", "#64748b");
+            svg.appendChild(town);
+            
+            const dot = createDot(100, 250, "#f59e0b"); // Orange
+            
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 300); dot.setAttribute("cy", 200); }, 500));
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 450); dot.setAttribute("cy", 150); }, 1500));
+        }
+
+        function runChain() {
+            // Dot 1 goes A -> B. Then Dot 2, 3 follow.
+            
+            // Leader
+            const dot1 = createDot(100, 250, "#10b981"); // Emerald
+            timeouts.push(setTimeout(() => { dot1.setAttribute("cx", 450); dot1.setAttribute("cy", 150); }, 500));
+            
+            // Followers
+            timeouts.push(setTimeout(() => {
+                const dot2 = createDot(100, 250, "#34d399");
+                timeouts.push(setTimeout(() => { dot2.setAttribute("cx", 450); dot2.setAttribute("cy", 150); }, 500));
+            }, 1000));
+
+            timeouts.push(setTimeout(() => {
+                const dot3 = createDot(100, 250, "#6ee7b7");
+                timeouts.push(setTimeout(() => { dot3.setAttribute("cx", 450); dot3.setAttribute("cy", 150); }, 500));
+            }, 2000));
+        }
+
+        function runTranshumance() {
+            // Up mountain (Summer) -> Down mountain (Winter)
+            const dot = createDot(100, 300, "#ef4444"); // Red (Sheep?)
+            
+            // Move Up
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 150); dot.setAttribute("cy", 100); }, 500));
+            // Move Down
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 100); dot.setAttribute("cy", 300); }, 2000));
+            // Move Up Again
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 150); dot.setAttribute("cy", 100); }, 3500));
+        }
+
+        function runRuralUrban() {
+            // Many dots converging on city
+            for(let i=0; i<5; i++) {
+                const startY = 200 + Math.random() * 100;
+                const startX = 50 + Math.random() * 100;
+                const dot = createDot(startX, startY, "#3b82f6"); // Blue
+                
+                timeouts.push(setTimeout(() => {
+                    dot.setAttribute("cx", 450 + (Math.random()-0.5)*20);
+                    dot.setAttribute("cy", 150 + (Math.random()-0.5)*20);
+                }, i * 300));
+            }
+        }
+
+        function runGuest() {
+            // Move A -> B (Work), Wait, Maybe Return
+            const dot = createDot(100, 250, "#8b5cf6"); // Purple
+            
+            // Go to work
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 450); dot.setAttribute("cy", 150); }, 500));
+            
+            // Return home (Circular migration)
+            timeouts.push(setTimeout(() => { dot.setAttribute("cx", 100); dot.setAttribute("cy", 250); }, 2500));
+        }
+
+
+        // --- 3. GAME LOGIC ---
+        const qs = [
+            { t: "Family moves to be with cousins in Chicago.", a: "voluntary" },
+            { t: "Villagers flee rising floodwaters in Bangladesh.", a: "forced" },
+            { t: "Engineer moves to Dubai for a 2-year contract.", a: "voluntary" },
+            { t: "Minority group flees ethnic cleansing.", a: "forced" },
+            { t: "Shepherd moves sheep to high pastures for summer.", a: "voluntary" },
+            { t: "Government forces relocation for a dam project.", a: "forced" }
+        ];
+        let qIdx = 0;
+
+        function guess(ans) {
+            const q = qs[qIdx];
+            const fb = document.getElementById('feedback');
+            
+            if (ans === q.a) {
+                fb.innerText = "Correct!";
+                fb.className = "text-center text-sm mt-4 font-bold h-5 text-emerald-400 animate-pulse";
+            } else {
+                fb.innerText = "Incorrect.";
+                fb.className = "text-center text-sm mt-4 font-bold h-5 text-red-400";
+            }
+
+            qIdx = (qIdx + 1) % qs.length;
+            setTimeout(() => {
+                document.getElementById('scenario-text').innerText = `"${qs[qIdx].t}"`;
+                fb.innerText = "";
+            }, 1000);
+        }
+
+    </script>
+</body>
+</html>
