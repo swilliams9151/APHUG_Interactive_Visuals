@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.10: Consequences of Agriculture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Animations */
+        .fade-enter { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* Fire */
+        @keyframes burn { 0% { opacity: 0.5; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.5; transform: scale(0.8); } }
+        .fire-anim { animation: burn 0.5s infinite; }
+
+        /* Water Flow */
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+        .water-line { stroke-dasharray: 5; animation: flow 1s linear infinite; }
+        
+        /* Button Active */
+        .practice-btn.active { background-color: #1e293b; color: white; border-color: #1e293b; }
+        .practice-btn { transition: all 0.2s; }
+    </style>
+</head>
+<body class="bg-amber-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-amber-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.10: Consequences of Agriculture</h1>
+                <p class="text-amber-200 text-sm mt-1">Environmental & Societal Impacts (IMP-5.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-amber-800 px-3 py-1 rounded border border-amber-700">
+                Alteration of the Landscape
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: LANDSCAPE TRANSFORMATION LAB -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
+            <div class="p-6 border-b border-stone-100 bg-amber-100/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-amber-900">1. Altering the Landscape (IMP-5.A.2)</h2>
+                    <p class="text-sm text-stone-600 mt-1">Apply a practice to see how it physically changes the environment.</p>
+                </div>
+                
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-stone-200">
+                    <button onclick="setPractice('slash')" id="btn-slash" class="practice-btn active px-4 py-2 text-xs font-bold rounded border border-transparent">Slash & Burn</button>
+                    <button onclick="setPractice('terrace')" id="btn-terrace" class="practice-btn px-4 py-2 text-xs font-bold rounded border border-transparent">Terracing</button>
+                    <button onclick="setPractice('irrigation')" id="btn-irrigation" class="practice-btn px-4 py-2 text-xs font-bold rounded border border-transparent">Irrigation</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 h-[450px]">
+                
+                <!-- Visualizer -->
+                <div class="md:col-span-2 relative bg-sky-100 overflow-hidden flex items-center justify-center">
+                    <svg id="landscape-svg" viewBox="0 0 600 400" class="w-full h-full">
+                        <!-- Base layers injected via JS -->
+                    </svg>
+                    
+                    <!-- Overlay Warning -->
+                    <div id="env-warning" class="absolute top-4 right-4 bg-red-100/90 backdrop-blur p-3 rounded border-l-4 border-red-500 text-xs max-w-xs hidden shadow-lg">
+                        <strong class="text-red-800 block mb-1">⚠️ Environmental Consequence</strong>
+                        <span id="warning-text" class="text-red-700">Description</span>
+                    </div>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="p-6 bg-stone-50 border-l border-stone-200 flex flex-col justify-center">
+                    <div id="practice-info">
+                        <!-- Content injected via JS -->
+                    </div>
+                    <button onclick="runSimulation()" id="action-btn" class="mt-6 w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded shadow transition transform active:scale-95">
+                        Start Transformation
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: DESERTIFICATION DOOM LOOP -->
+        <section class="bg-stone-800 rounded-2xl shadow-xl p-8 text-white border border-stone-700">
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The Desertification Trap (Overgrazing)</h2>
+                    <p class="text-sm text-stone-400 mt-1">Pastoral Nomadism requires space. What happens when herds grow too big?</p>
+                </div>
+                <div id="soil-health" class="text-xs font-bold bg-emerald-600 px-3 py-1 rounded">Soil: Healthy</div>
+            </div>
+
+            <div class="relative h-48 bg-emerald-800/50 rounded-xl border-2 border-stone-600 overflow-hidden transition-colors duration-1000" id="grazing-land">
+                
+                <!-- Grass -->
+                <div id="grass-layer" class="absolute bottom-0 w-full h-20 flex justify-around items-end text-2xl opacity-80 transition-all duration-1000">
+                    🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿
+                </div>
+
+                <!-- Cattle -->
+                <div id="cattle-container" class="absolute bottom-4 w-full flex justify-center gap-2 transition-all">
+                    <div class="text-4xl">🐄</div>
+                </div>
+
+                <!-- Desert Overlay -->
+                <div id="sand-layer" class="absolute inset-0 bg-yellow-200 opacity-0 transition-opacity duration-1000 mix-blend-overlay pointer-events-none"></div>
+
+            </div>
+
+            <div class="mt-6 flex gap-4">
+                <div class="flex-1">
+                    <input type="range" id="herd-slider" min="1" max="10" value="1" oninput="updateGrazing()" class="w-full h-3 bg-stone-600 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                    <div class="flex justify-between text-xs text-stone-400 mt-2 uppercase font-bold">
+                        <span>Sustainable Herd</span>
+                        <span>Overgrazing</span>
+                    </div>
+                </div>
+                <div class="w-1/3 text-xs text-stone-300 bg-stone-700 p-3 rounded">
+                    <strong>Desertification:</strong> The process by which fertile land becomes desert, typically as a result of drought, deforestation, or inappropriate agriculture (Overgrazing).
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SOCIETAL EFFECTS (Diet Footprint) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 p-8">
+            <h2 class="text-xl font-bold text-stone-800 mb-6 pl-4 border-l-4 border-blue-500">3. Societal Effects: The Cost of Diet</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- Traditional Diet -->
+                <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100 text-center group hover:shadow-md transition">
+                    <div class="text-5xl mb-4">🍚</div>
+                    <h3 class="font-bold text-emerald-900 mb-2">Plant-Based Diet</h3>
+                    <p class="text-xs text-emerald-700 mb-4">Grains, Vegetables, Pulses</p>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-bold text-stone-500">
+                            <span>Water Use</span>
+                            <span>Low</span>
+                        </div>
+                        <div class="w-full h-2 bg-emerald-200 rounded-full">
+                            <div class="h-full bg-blue-400 rounded-full" style="width: 20%"></div>
+                        </div>
+                        
+                        <div class="flex justify-between text-xs font-bold text-stone-500 mt-2">
+                            <span>Land Use</span>
+                            <span>Low</span>
+                        </div>
+                        <div class="w-full h-2 bg-emerald-200 rounded-full">
+                            <div class="h-full bg-emerald-600 rounded-full" style="width: 15%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Western Diet -->
+                <div class="bg-red-50 p-6 rounded-xl border border-red-100 text-center group hover:shadow-md transition">
+                    <div class="text-5xl mb-4">🍔</div>
+                    <h3 class="font-bold text-red-900 mb-2">Western Diet (Meat-Heavy)</h3>
+                    <p class="text-xs text-red-700 mb-4">Beef, Pork, Processed Foods</p>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs font-bold text-stone-500">
+                            <span>Water Use</span>
+                            <span class="text-red-600">High (15,000L / kg beef)</span>
+                        </div>
+                        <div class="w-full h-2 bg-red-200 rounded-full">
+                            <div class="h-full bg-blue-600 rounded-full" style="width: 90%"></div>
+                        </div>
+                        
+                        <div class="flex justify-between text-xs font-bold text-stone-500 mt-2">
+                            <span>Land Use</span>
+                            <span class="text-red-600">High (Feed crops + Grazing)</span>
+                        </div>
+                        <div class="w-full h-2 bg-red-200 rounded-full">
+                            <div class="h-full bg-emerald-600 rounded-full" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. LANDSCAPE LAB LOGIC ---
+        const svg = document.getElementById('landscape-svg');
+        let currentMode = 'slash';
+        let simStage = 0; // 0=Pre, 1=Action, 2=Result
+
+        const practices = {
+            'slash': {
+                title: "Slash and Burn",
+                desc: "Farmers cut down vegetation and burn it. The ash provides nutrients for soil (Swidden).",
+                btnText: "Ignite Fire 🔥",
+                warning: "Deforestation & Soil Depletion: Nutrients are exhausted in 2-3 years, forcing farmers to move. Not sustainable for large populations.",
+                drawPre: () => `
+                    <rect width="600" height="400" fill="#dcfce7" /> <!-- Sky/Ground base -->
+                    <rect y="200" width="600" height="200" fill="#166534" /> <!-- Jungle Floor -->
+                    <text x="50" y="250" font-size="60">🌳</text><text x="150" y="300" font-size="60">🌳</text>
+                    <text x="250" y="250" font-size="60">🌳</text><text x="350" y="300" font-size="60">🌳</text>
+                    <text x="450" y="250" font-size="60">🌳</text>
+                `,
+                animate: () => {
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#dcfce7" />
+                        <rect y="200" width="600" height="200" fill="#3f3f46" /> <!-- Ash Ground -->
+                        <text x="50" y="250" font-size="60" class="fire-anim">🔥</text>
+                        <text x="250" y="250" font-size="60" class="fire-anim">🔥</text>
+                        <text x="450" y="250" font-size="60" class="fire-anim">🔥</text>
+                    `;
+                },
+                result: () => {
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#dcfce7" />
+                        <rect y="200" width="600" height="200" fill="#3f3f46" />
+                        <!-- Small Crops -->
+                        <text x="100" y="300" font-size="40">🌱</text>
+                        <text x="300" y="300" font-size="40">🌱</text>
+                        <text x="500" y="300" font-size="40">🌱</text>
+                    `;
+                }
+            },
+            'terrace': {
+                title: "Terracing",
+                desc: "Carving steps into steep mountains to create flat land for farming (e.g., Rice Paddies).",
+                btnText: "Carve Mountain ⛰️",
+                warning: "Mudslides & Water Flow: Altering the mountain shape changes how rain flows, potentially causing landslides if not maintained.",
+                drawPre: () => `
+                    <rect width="600" height="400" fill="#bae6fd" />
+                    <!-- Mountain -->
+                    <path d="M 0 400 L 300 50 L 600 400 Z" fill="#64748b" />
+                `,
+                animate: () => {
+                    // Construction dust?
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#bae6fd" />
+                        <path d="M 0 400 L 300 50 L 600 400 Z" fill="#64748b" class="shake" />
+                        <text x="250" y="200" font-size="40">⛏️</text>
+                    `;
+                },
+                result: () => {
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#bae6fd" />
+                        <!-- Terraced Mountain -->
+                        <path d="M 0 400 L 100 400 L 100 350 L 200 350 L 200 300 L 300 300 L 300 250 L 400 250 L 400 200 L 500 200 L 500 400 Z" fill="#16a34a" stroke="#14532d" stroke-width="2" />
+                        <!-- Water/Crops -->
+                        <rect x="100" y="350" width="100" height="10" fill="#3b82f6" opacity="0.6" />
+                        <rect x="200" y="300" width="100" height="10" fill="#3b82f6" opacity="0.6" />
+                        <text x="120" y="345" font-size="20">🌾</text>
+                        <text x="220" y="295" font-size="20">🌾</text>
+                    `;
+                }
+            },
+            'irrigation': {
+                title: "Irrigation (Arid)",
+                desc: "Diverting water to grow crops in deserts (e.g., California, Egypt).",
+                btnText: "Open Floodgates 💧",
+                warning: "Soil Salinization: Water evaporates in the heat, leaving behind salt. Over time, the soil turns white and toxic to plants.",
+                drawPre: () => `
+                    <rect width="600" height="400" fill="#fef3c7" /> <!-- Desert Sky -->
+                    <rect y="200" width="600" height="200" fill="#d6d3d1" /> <!-- Dry Soil -->
+                    <circle cx="500" cy="80" r="40" fill="#fcd34d" />
+                    <text x="250" y="300" font-size="30">🌵</text>
+                `,
+                animate: () => {
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#fef3c7" />
+                        <rect y="200" width="600" height="200" fill="#d6d3d1" />
+                        <!-- Water Pipe -->
+                        <rect x="0" y="180" width="600" height="20" fill="#9ca3af" />
+                        <line x1="0" y1="200" x2="600" y2="200" stroke="#3b82f6" stroke-width="10" class="water-line" />
+                        <text x="300" y="350" font-size="40" class="fade-enter">🌱</text>
+                    `;
+                },
+                result: () => {
+                    svg.innerHTML = `
+                        <rect width="600" height="400" fill="#fef3c7" />
+                        <rect y="200" width="600" height="200" fill="#d6d3d1" />
+                        <!-- Salt Crust -->
+                        <rect y="200" width="600" height="200" fill="url(#saltPattern)" opacity="0.6" />
+                        <text x="300" y="350" font-size="40" class="grayscale">🥀</text>
+                        
+                        <defs>
+                            <pattern id="saltPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <circle cx="2" cy="2" r="1" fill="white" />
+                                <circle cx="10" cy="10" r="1" fill="white" />
+                            </pattern>
+                        </defs>
+                    `;
+                }
+            }
+        };
+
+        function setPractice(type) {
+            currentMode = type;
+            simStage = 0;
+            
+            // UI Update
+            document.querySelectorAll('.practice-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+            
+            // Info Update
+            const info = practices[type];
+            document.getElementById('practice-info').innerHTML = `
+                <h3 class="text-xl font-bold text-amber-900 mb-2">${info.title}</h3>
+                <p class="text-sm text-stone-600 mb-4">${info.desc}</p>
+            `;
+            document.getElementById('action-btn').innerText = info.btnText;
+            document.getElementById('action-btn').disabled = false;
+            document.getElementById('action-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+
+            // Warning Reset
+            const warning = document.getElementById('env-warning');
+            warning.classList.add('hidden');
+            document.getElementById('warning-text').innerText = info.warning;
+
+            // Draw Pre-state
+            svg.innerHTML = info.drawPre();
+        }
+
+        function runSimulation() {
+            const info = practices[currentMode];
+            const btn = document.getElementById('action-btn');
+            
+            if (simStage === 0) {
+                // Run Animation
+                info.animate();
+                btn.innerText = "Wait...";
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                setTimeout(() => {
+                    info.result();
+                    btn.innerText = "Reset";
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btn.setAttribute('onclick', "setPractice('" + currentMode + "')"); // Reset logic
+                    simStage = 2;
+                    
+                    // Show Warning
+                    document.getElementById('env-warning').classList.remove('hidden');
+                }, 2000);
+            } else {
+                // Reset
+                setPractice(currentMode);
+            }
+        }
+
+        // --- 2. GRAZING LOGIC ---
+        function updateGrazing() {
+            const val = parseInt(document.getElementById('herd-slider').value);
+            const container = document.getElementById('cattle-container');
+            const grass = document.getElementById('grass-layer');
+            const land = document.getElementById('grazing-land');
+            const sand = document.getElementById('sand-layer');
+            const status = document.getElementById('soil-health');
+
+            // 1. Add Cattle
+            let cows = "";
+            for(let i=0; i<val; i++) cows += `<div class="text-4xl -ml-2">🐄</div>`;
+            container.innerHTML = cows;
+
+            // 2. Kill Grass / Change Land
+            if (val > 7) {
+                // Desertification
+                grass.innerHTML = "";
+                grass.classList.add('opacity-0');
+                land.className = "relative h-48 bg-amber-200 rounded-xl border-2 border-stone-600 overflow-hidden transition-colors duration-1000"; // Sand color
+                sand.classList.remove('opacity-0');
+                sand.classList.add('opacity-80');
+                
+                status.innerText = "Soil: DESERTIFIED";
+                status.className = "text-xs font-bold bg-red-600 px-3 py-1 rounded animate-pulse";
+            } else if (val > 4) {
+                // Stressed
+                grass.innerHTML = "🌿 🌿 🌿";
+                grass.classList.remove('opacity-0');
+                land.className = "relative h-48 bg-emerald-800/50 rounded-xl border-2 border-stone-600 overflow-hidden transition-colors duration-1000";
+                sand.classList.add('opacity-0');
+                sand.classList.remove('opacity-80');
+
+                status.innerText = "Soil: Stressed";
+                status.className = "text-xs font-bold bg-yellow-600 px-3 py-1 rounded";
+            } else {
+                // Healthy
+                grass.innerHTML = "🌿🌿🌿🌿🌿🌿🌿🌿🌿🌿";
+                grass.classList.remove('opacity-0');
+                land.className = "relative h-48 bg-emerald-800/50 rounded-xl border-2 border-stone-600 overflow-hidden transition-colors duration-1000";
+                sand.classList.add('opacity-0');
+                
+                status.innerText = "Soil: Healthy";
+                status.className = "text-xs font-bold bg-emerald-600 px-3 py-1 rounded";
+            }
+        }
+
+        // Init
+        setPractice('slash');
+
+    </script>
+</body>
+</html>
