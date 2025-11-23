@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 1.7: Regional Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Functional Region Animation (Pulse) */
+        @keyframes radioWave {
+            0% { opacity: 1; r: 10; stroke-width: 2; }
+            100% { opacity: 0; r: 120; stroke-width: 0; }
+        }
+        .wave {
+            fill: none;
+            stroke: #3b82f6;
+            animation: radioWave 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Perceptual Region Animation (Morph) */
+        @keyframes floaty {
+            0% { d: path("M 200 100 Q 300 50 400 100 Q 450 200 350 250 Q 200 280 150 200 Q 100 150 200 100"); }
+            50% { d: path("M 210 110 Q 290 60 390 110 Q 460 210 360 260 Q 210 270 140 210 Q 110 140 210 110"); }
+            100% { d: path("M 200 100 Q 300 50 400 100 Q 450 200 350 250 Q 200 280 150 200 Q 100 150 200 100"); }
+        }
+        .fuzzy-cloud {
+            animation: floaty 6s infinite ease-in-out;
+            filter: blur(8px);
+        }
+
+        /* Card Hover */
+        .region-btn {
+            transition: all 0.2s ease;
+        }
+        .region-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .region-btn.active {
+            ring-width: 2px;
+            ring-offset-width: 2px;
+        }
+    </style>
+</head>
+<body class="bg-indigo-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 1.7: Regional Analysis</h1>
+                <p class="text-indigo-200 text-sm mt-1">Formal, Functional, and Perceptual Regions (SPS-1.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-indigo-800 px-3 py-1 rounded border border-indigo-700">
+                Defining "Where" & "Why"
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE REGION PROJECTOR -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col h-full">
+                <h2 class="text-lg font-bold text-slate-800 mb-4 border-b pb-2">1. Types of Regions</h2>
+                <p class="text-sm text-slate-500 mb-4">Click to visualize the definition on the map.</p>
+
+                <div class="space-y-3 flex-1">
+                    
+                    <!-- Formal -->
+                    <button onclick="setRegion('formal')" id="btn-formal" class="region-btn w-full text-left p-4 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 active ring-emerald-500">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-emerald-900 text-sm">Formal (Uniform)</h3>
+                            <span class="text-xl">🗺️</span>
+                        </div>
+                        <p class="text-xs text-emerald-700 mt-1">
+                            Defined by a <strong>shared trait</strong> (language, crop, law). Borders are clear.
+                            <br><em class="opacity-70">Ex: The Corn Belt, France, Montana.</em>
+                        </p>
+                    </button>
+
+                    <!-- Functional -->
+                    <button onclick="setRegion('functional')" id="btn-functional" class="region-btn w-full text-left p-4 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 active ring-blue-500">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-blue-900 text-sm">Functional (Nodal)</h3>
+                            <span class="text-xl">📡</span>
+                        </div>
+                        <p class="text-xs text-blue-700 mt-1">
+                            Organized around a <strong>center point</strong> (node). Interaction decays with distance.
+                            <br><em class="opacity-70">Ex: Radio Signal, Airline Hub, Pizza Delivery.</em>
+                        </p>
+                    </button>
+
+                    <!-- Perceptual -->
+                    <button onclick="setRegion('perceptual')" id="btn-perceptual" class="region-btn w-full text-left p-4 rounded-lg border border-purple-200 bg-purple-50 hover:bg-purple-100 active ring-purple-500">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-purple-900 text-sm">Perceptual (Vernacular)</h3>
+                            <span class="text-xl">💭</span>
+                        </div>
+                        <p class="text-xs text-purple-700 mt-1">
+                            Based on <strong>cultural identity</strong> or feelings. Borders are fuzzy/debated.
+                            <br><em class="opacity-70">Ex: "The South", "The Middle East", "Downfield".</em>
+                        </p>
+                    </button>
+
+                </div>
+            </section>
+
+            <!-- Visualizer -->
+            <section class="lg:col-span-2 bg-slate-900 rounded-xl shadow-lg border border-slate-700 relative overflow-hidden flex items-center justify-center">
+                
+                <!-- Canvas -->
+                <svg id="map-canvas" viewBox="0 0 600 400" class="w-full h-full">
+                    <!-- Base Map (Grid/Cities) -->
+                    <rect width="600" height="400" fill="#1e293b" />
+                    <g id="grid-lines" stroke="#334155" stroke-width="1">
+                        <line x1="100" y1="0" x2="100" y2="400" />
+                        <line x1="200" y1="0" x2="200" y2="400" />
+                        <line x1="300" y1="0" x2="300" y2="400" />
+                        <line x1="400" y1="0" x2="400" y2="400" />
+                        <line x1="500" y1="0" x2="500" y2="400" />
+                        <line x1="0" y1="100" x2="600" y2="100" />
+                        <line x1="0" y1="200" x2="600" y2="200" />
+                        <line x1="0" y1="300" x2="600" y2="300" />
+                    </g>
+
+                    <!-- Dynamic Layer -->
+                    <g id="region-layer"></g>
+                    
+                    <!-- Info Label -->
+                    <text id="region-label" x="300" y="380" text-anchor="middle" fill="white" font-weight="bold" font-size="14" opacity="0.8">Select a Region Type</text>
+                </svg>
+                
+            </section>
+        </div>
+
+        <!-- SECTION 2: BOUNDARY BLUR (Transitional Boundaries) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">2. The Boundary Blur (SPS-1.A.3)</h2>
+                    <p class="text-sm text-slate-600 mb-6 leading-relaxed">
+                        On a political map, borders are sharp lines. In reality, cultural regions (like Language or Religion) act as <strong>Transition Zones</strong>.
+                        <br><br>
+                        Use the slider to peel away the political border and reveal the cultural reality.
+                    </p>
+                    
+                    <div class="relative pt-6 pb-2">
+                        <input type="range" id="blur-slider" min="0" max="100" value="0" oninput="updateBlur()" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                        <div class="flex justify-between text-xs font-bold text-slate-400 mt-2 uppercase">
+                            <span>Political Map</span>
+                            <span>Cultural Reality</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="w-full md:w-1/2 h-48 rounded-xl overflow-hidden relative border-2 border-slate-300 bg-slate-100">
+                    
+                    <!-- Layer 1: Cultural (Gradient) -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 opacity-0 transition-opacity duration-500" id="cultural-view"></div>
+                    <div id="culture-text" class="absolute inset-0 flex justify-around items-center opacity-0 transition-opacity duration-500 text-white font-bold text-sm drop-shadow-md">
+                        <span>French</span>
+                        <span>"Franglais"</span>
+                        <span>English</span>
+                    </div>
+
+                    <!-- Layer 2: Political (Hard Line) -->
+                    <div id="political-view" class="absolute inset-0 flex transition-opacity duration-500">
+                        <div class="w-1/2 h-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">Country A</div>
+                        <div class="w-1/2 h-full bg-red-500 flex items-center justify-center text-white font-bold text-sm border-l-4 border-white">Country B</div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE SORTING CHALLENGE -->
+        <section class="bg-indigo-900 text-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-bold">3. Region Sorting Challenge</h2>
+                <p class="text-indigo-200 text-xs mt-1">Test your knowledge. Click the correct type for the scenario.</p>
+            </div>
+
+            <div class="bg-white/10 p-6 rounded-xl border border-indigo-700 max-w-2xl mx-auto text-center">
+                <div id="game-scenario" class="text-xl font-serif italic mb-6">"The broadcast area of a local TV station."</div>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <button onclick="guess('formal')" class="game-btn py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-sm font-bold transition shadow">Formal</button>
+                    <button onclick="guess('functional')" class="game-btn py-2 rounded bg-blue-600 hover:bg-blue-500 text-sm font-bold transition shadow">Functional</button>
+                    <button onclick="guess('perceptual')" class="game-btn py-2 rounded bg-purple-600 hover:bg-purple-500 text-sm font-bold transition shadow">Perceptual</button>
+                </div>
+                
+                <div id="game-feedback" class="mt-4 h-6 text-sm font-bold text-emerald-400"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. REGION PROJECTOR LOGIC ---
+        
+        function setRegion(type) {
+            const layer = document.getElementById('region-layer');
+            const label = document.getElementById('region-label');
+            const buttons = document.querySelectorAll('.region-btn');
+            
+            // UI Reset
+            buttons.forEach(b => {
+                b.classList.remove('ring-2', 'ring-offset-2');
+                if(b.id === `btn-${type}`) {
+                    if(type === 'formal') b.classList.add('ring-emerald-500', 'ring-2', 'ring-offset-2');
+                    if(type === 'functional') b.classList.add('ring-blue-500', 'ring-2', 'ring-offset-2');
+                    if(type === 'perceptual') b.classList.add('ring-purple-500', 'ring-2', 'ring-offset-2');
+                }
+            });
+
+            layer.innerHTML = ''; // Clear
+
+            if (type === 'formal') {
+                // Draw distinct polygon (State)
+                label.textContent = "Formal: Clear borders, shared laws/traits.";
+                layer.innerHTML = `
+                    <path d="M 150 100 L 450 100 L 450 300 L 150 300 Z" fill="#10b981" fill-opacity="0.3" stroke="#10b981" stroke-width="4" />
+                    <text x="300" y="200" text-anchor="middle" fill="#10b981" font-weight="bold">State of Kansas</text>
+                `;
+            } else if (type === 'functional') {
+                // Draw Node + Waves
+                label.textContent = "Functional: Node with distance decay.";
+                layer.innerHTML = `
+                    <!-- Waves -->
+                    <circle cx="300" cy="200" r="10" class="wave" style="animation-delay: 0s" />
+                    <circle cx="300" cy="200" r="10" class="wave" style="animation-delay: 1s" />
+                    <circle cx="300" cy="200" r="10" class="wave" style="animation-delay: 2s" />
+                    <!-- Node -->
+                    <circle cx="300" cy="200" r="15" fill="#3b82f6" stroke="white" stroke-width="2" />
+                    <text x="300" y="235" text-anchor="middle" fill="#3b82f6" font-weight="bold" font-size="12">Pizza Shop (Node)</text>
+                `;
+            } else if (type === 'perceptual') {
+                // Draw Fuzzy Cloud
+                label.textContent = "Perceptual: Fuzzy borders, defined by feelings.";
+                layer.innerHTML = `
+                    <path class="fuzzy-cloud" fill="#a855f7" fill-opacity="0.4" stroke="none" />
+                    <text x="300" y="200" text-anchor="middle" fill="#e9d5ff" font-weight="bold" font-size="16" style="pointer-events:none;">"The South"</text>
+                `;
+            }
+        }
+
+        // --- 2. BOUNDARY BLUR LOGIC ---
+        function updateBlur() {
+            const val = document.getElementById('blur-slider').value;
+            const political = document.getElementById('political-view');
+            const cultural = document.getElementById('cultural-view');
+            const text = document.getElementById('culture-text');
+
+            // Fade out Political, Fade in Cultural
+            const opacity = val / 100;
+            
+            political.style.opacity = 1 - opacity;
+            cultural.style.opacity = opacity;
+            text.style.opacity = opacity;
+        }
+
+        // --- 3. GAME LOGIC ---
+        const scenarios = [
+            { t: "The broadcast area of a local TV station.", a: "functional" },
+            { t: "The Corn Belt (Region growing corn).", a: "formal" },
+            { t: "'The Middle East' (Cultural perception).", a: "perceptual" },
+            { t: "A subway map (Network of lines).", a: "functional" },
+            { t: "The State of Texas (Political Borders).", a: "formal" },
+            { t: "'The Rust Belt' (Identity based on history).", a: "perceptual" }
+        ];
+        let qIdx = 0;
+
+        function guess(ans) {
+            const q = scenarios[qIdx];
+            const fb = document.getElementById('game-feedback');
+            
+            if (ans === q.a) {
+                fb.innerText = "Correct!";
+                fb.className = "mt-4 h-6 text-sm font-bold text-emerald-400 animate-bounce";
+            } else {
+                fb.innerText = "Incorrect. Try again.";
+                fb.className = "mt-4 h-6 text-sm font-bold text-red-400 animate-pulse";
+                return; // Don't advance
+            }
+
+            // Next Q
+            setTimeout(() => {
+                qIdx = (qIdx + 1) % scenarios.length;
+                document.getElementById('game-scenario').innerText = `"${scenarios[qIdx].t}"`;
+                fb.innerText = "";
+            }, 1000);
+        }
+
+        // Init
+        setRegion('formal');
+
+    </script>
+</body>
+</html>
