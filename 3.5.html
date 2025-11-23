@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.5: Historical Causes of Diffusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+
+        /* Blender Animation */
+        @keyframes mix {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .mixing {
+            animation: mix 0.5s ease-in-out infinite;
+        }
+
+        /* Trade Route Animation */
+        .trade-line {
+            stroke-dasharray: 5;
+            animation: flow 1s linear infinite;
+        }
+        @keyframes flow {
+            to { stroke-dashoffset: -10; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-amber-900 text-white p-4 shadow-lg shrink-0 z-20">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold">Topic 3.5: Historical Causes of Diffusion</h1>
+                <p class="text-amber-200 text-xs mt-1">Colonialism, Trade, and New Cultural Forms (SPS-3.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-amber-800 px-3 py-1 rounded border border-amber-700">
+                Lingua Franca • Creolization • Imperialism
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col lg:flex-row max-w-7xl mx-auto w-full overflow-hidden">
+
+        <!-- LEFT: CONCEPTS (Lingua Franca & Creolization) -->
+        <section class="w-full lg:w-1/3 bg-white border-r border-gray-200 overflow-y-auto p-6 space-y-8 shadow-xl z-10">
+            
+            <!-- 1. Lingua Franca -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-amber-50 p-4 border-b border-amber-100">
+                    <h2 class="text-lg font-bold text-amber-900 flex items-center">
+                        <span class="text-2xl mr-2">🗣️</span> Lingua Franca
+                    </h2>
+                    <p class="text-xs text-amber-800 mt-1">A language mutually understood and commonly used in trade by people who have different native languages.</p>
+                </div>
+                
+                <div class="p-6 flex flex-col items-center">
+                    <!-- Interactive Visual -->
+                    <svg width="250" height="120" viewBox="0 0 250 120" class="mb-4">
+                        <!-- Group A -->
+                        <circle cx="40" cy="60" r="25" fill="#ef4444" opacity="0.8" />
+                        <text x="40" y="65" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Native A</text>
+                        
+                        <!-- Group B -->
+                        <circle cx="210" cy="60" r="25" fill="#3b82f6" opacity="0.8" />
+                        <text x="210" y="65" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Native B</text>
+
+                        <!-- Bridge (Hidden initially) -->
+                        <g id="bridge-group" class="opacity-30 transition-opacity duration-500">
+                            <rect x="80" y="45" width="90" height="30" rx="15" fill="#f59e0b" />
+                            <text x="125" y="64" text-anchor="middle" fill="white" font-size="10" font-weight="bold">Lingua Franca</text>
+                            <line x1="65" y1="60" x2="80" y2="60" stroke="#cbd5e1" stroke-width="2" />
+                            <line x1="170" y1="60" x2="185" y2="60" stroke="#cbd5e1" stroke-width="2" />
+                        </g>
+                    </svg>
+
+                    <button onclick="toggleLinguaFranca()" class="bg-slate-800 text-white px-4 py-2 rounded text-xs font-bold hover:bg-slate-700 transition">
+                        Facilitate Trade
+                    </button>
+                    
+                    <div class="mt-4 text-xs text-slate-500 bg-slate-50 p-2 rounded w-full">
+                        <strong>Real World Example:</strong> <span class="text-amber-700 font-bold">Swahili</span> in East Africa (Bantu + Arabic) or <span class="text-amber-700 font-bold">English</span> in global business.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Creolization -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="bg-purple-50 p-4 border-b border-purple-100">
+                    <h2 class="text-lg font-bold text-purple-900 flex items-center">
+                        <span class="text-2xl mr-2">🍲</span> Creolization
+                    </h2>
+                    <p class="text-xs text-purple-800 mt-1">Process where two or more separate languages blend together to create a new, distinct language.</p>
+                </div>
+
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4 text-xs font-bold text-slate-500">
+                        <div class="text-center">
+                            <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center mb-1">Fr</div>
+                            Colonizer
+                        </div>
+                        <div class="text-xl text-slate-300">+</div>
+                        <div class="text-center">
+                            <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center mb-1">Af</div>
+                            Indigenous
+                        </div>
+                        <div class="text-xl text-slate-300">=</div>
+                        <div class="text-center">
+                            <div id="creole-result" class="w-12 h-12 rounded-full bg-slate-200 text-slate-400 flex items-center justify-center mb-1 transition-all duration-500">?</div>
+                            Creole
+                        </div>
+                    </div>
+
+                    <button onclick="mixCreole()" class="w-full bg-purple-600 text-white px-4 py-2 rounded text-xs font-bold hover:bg-purple-700 transition">
+                        Mix Cultures
+                    </button>
+
+                    <div id="creole-desc" class="mt-4 text-xs text-slate-500 bg-slate-50 p-2 rounded w-full hidden">
+                        <strong>Result:</strong> <span class="text-purple-700 font-bold">Haitian Creole</span>. It uses French vocabulary but West African grammar structures. It is a full language, not just a mix.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT: COLONIALISM MAP -->
+        <section class="flex-1 relative bg-slate-100">
+            
+            <div id="map"></div>
+
+            <!-- Map Controls -->
+            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg z-[1000] border border-slate-200 w-48">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Imperial Influence</h3>
+                <div class="space-y-2">
+                    <button onclick="showEmpire('spanish')" class="w-full text-left px-3 py-2 rounded hover:bg-yellow-50 text-xs font-bold text-slate-700 border-l-4 border-yellow-500 transition">
+                        🇪🇸 Spanish Empire
+                    </button>
+                    <button onclick="showEmpire('british')" class="w-full text-left px-3 py-2 rounded hover:bg-red-50 text-xs font-bold text-slate-700 border-l-4 border-red-500 transition">
+                        🇬🇧 British Empire
+                    </button>
+                    <button onclick="showEmpire('french')" class="w-full text-left px-3 py-2 rounded hover:bg-blue-50 text-xs font-bold text-slate-700 border-l-4 border-blue-500 transition">
+                        🇫🇷 French Empire
+                    </button>
+                </div>
+            </div>
+
+            <!-- Map Legend/Info -->
+            <div id="map-info" class="absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur p-4 rounded-xl shadow-xl border border-gray-200 z-[1000] transition-all transform translate-y-full opacity-0 md:w-96 md:left-auto">
+                <h3 id="empire-title" class="text-lg font-bold text-slate-800 mb-1"></h3>
+                <p id="empire-desc" class="text-xs text-slate-600 leading-relaxed"></p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- UI LOGIC ---
+
+        // 1. Lingua Franca
+        let lfActive = false;
+        function toggleLinguaFranca() {
+            const group = document.getElementById('bridge-group');
+            if (!lfActive) {
+                group.classList.remove('opacity-30');
+                group.classList.add('opacity-100');
+                // Add connecting lines dynamically? SVG allows animation via CSS class
+            } else {
+                group.classList.add('opacity-30');
+                group.classList.remove('opacity-100');
+            }
+            lfActive = !lfActive;
+        }
+
+        // 2. Creolization
+        function mixCreole() {
+            const result = document.getElementById('creole-result');
+            const desc = document.getElementById('creole-desc');
+            
+            // Animation
+            result.classList.add('mixing');
+            result.innerText = "🔄";
+            
+            setTimeout(() => {
+                result.classList.remove('mixing');
+                result.style.backgroundColor = "#9333ea"; // Purple
+                result.style.color = "white";
+                result.innerText = "Cr"; // Creole
+                desc.classList.remove('hidden');
+                desc.classList.add('fade-in');
+            }, 1000);
+        }
+
+        // --- MAP LOGIC ---
+        let map;
+        let currentLayer = null;
+
+        // Rough GeoJSON-like coordinates for visualization
+        const empireData = {
+            'spanish': {
+                title: "Spanish Empire",
+                color: "#eab308", // Yellow
+                regions: [
+                    [[40.4, -3.7], 5], // Spain
+                    [[19.4, -99.1], 20], // Mexico
+                    [[-12.0, -77.0], 35], // South America (West)
+                    [[14.6, 121.0], 8] // Philippines
+                ],
+                desc: "<strong>Legacy:</strong> Spanish is the primary language of Latin America. Catholicism is the dominant religion. <br><strong>Cultural Diffusion:</strong> Relocation diffusion via colonization."
+            },
+            'british': {
+                title: "British Empire",
+                color: "#ef4444", // Red
+                regions: [
+                    [[51.5, -0.1], 5], // UK
+                    [[40.0, -100.0], 35], // North America
+                    [[20.0, 77.0], 25], // India
+                    [[-25.0, 135.0], 30], // Australia
+                    [[0.0, 37.0], 15], // East Africa
+                    [[9.0, 8.0], 10] // Nigeria
+                ],
+                desc: "<strong>Legacy:</strong> English is the global Lingua Franca. Common Law systems spread worldwide. <br><strong>Impact:</strong> Protestant Christianity spread to N. America and Sub-Saharan Africa."
+            },
+            'french': {
+                title: "French Empire",
+                color: "#3b82f6", // Blue
+                regions: [
+                    [[46.2, 2.2], 5], // France
+                    [[15.0, -5.0], 30], // West Africa
+                    [[46.8, -71.2], 8], // Quebec
+                    [[10.8, 106.6], 5], // Indochina (Vietnam)
+                    [[18.5, -72.3], 2] // Haiti
+                ],
+                desc: "<strong>Legacy:</strong> French is an official language in many West African nations. <br><strong>Creolization:</strong> High interaction in the Caribbean (Haiti) led to Haitian Creole."
+            }
+        };
+
+        window.onload = function() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+        };
+
+        function showEmpire(key) {
+            // Clear
+            if (currentLayer) map.removeLayer(currentLayer);
+            
+            const data = empireData[key];
+            const layerGroup = L.layerGroup();
+
+            data.regions.forEach(reg => {
+                L.circleMarker(reg[0], {
+                    radius: reg[1],
+                    color: data.color,
+                    fillColor: data.color,
+                    fillOpacity: 0.4,
+                    weight: 2
+                }).addTo(layerGroup);
+            });
+
+            layerGroup.addTo(map);
+            currentLayer = layerGroup;
+
+            // Update Info
+            const info = document.getElementById('map-info');
+            document.getElementById('empire-title').innerText = data.title;
+            document.getElementById('empire-title').style.color = data.color;
+            document.getElementById('empire-desc').innerHTML = data.desc;
+            
+            info.classList.remove('translate-y-full', 'opacity-0');
+        }
+
+    </script>
+</body>
+</html>
