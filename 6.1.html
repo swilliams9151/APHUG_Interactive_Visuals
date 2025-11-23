@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.1: Origin & Influences of Urbanization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Map Interactions */
+        .map-spot { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .map-spot:hover { transform: scale(1.2); fill-opacity: 1; }
+        
+        /* City Shape Animation */
+        .city-shape { transition: d 1s ease-in-out, fill 1s ease, opacity 0.5s; }
+        
+        /* Migration Dot */
+        .migrant { transition: all 1s ease-in-out; }
+        .migrant-enter { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        /* Tab Active State */
+        .tech-btn.active {
+            background-color: #fff;
+            border-color: #0f766e; /* teal-700 */
+            color: #0f766e;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.1: Origin of Cities</h1>
+                <p class="text-teal-200 text-sm mt-1">Site, Situation, and Drivers of Urbanization (PSO-6.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-800 px-3 py-1 rounded border border-teal-700">
+                Why Cities Are Where They Are
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-12">
+
+        <!-- SECTION 1: SITE vs SITUATION (PSO-6.A.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-slate-800">
+            <div class="p-6 border-b border-slate-100 bg-teal-50 flex flex-col md:flex-row justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-teal-900">1. The Founder's Dilemma (Site vs. Situation)</h2>
+                    <p class="text-sm text-slate-600 mt-1">Choose a location to build your city. Hover for details, click to select.</p>
+                </div>
+                <div class="flex gap-4 text-xs font-bold mt-4 md:mt-0">
+                    <div class="flex items-center"><span class="w-3 h-3 bg-emerald-500 rounded-full mr-2"></span> Good</div>
+                    <div class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span> Bad</div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 h-[450px]">
+                
+                <!-- Interactive Map -->
+                <div class="md:col-span-2 relative bg-blue-100 overflow-hidden">
+                    <svg viewBox="0 0 600 400" class="w-full h-full">
+                        <!-- Physical Geography -->
+                        <path d="M 0 0 L 600 0 L 600 400 L 0 400 Z" fill="#a7f3d0" /> <!-- Flat Land -->
+                        <path d="M 0 0 L 200 0 L 100 200 Z" fill="#94a3b8" /> <!-- Mountains (Defense) -->
+                        <path d="M 450 400 L 600 250 L 600 400 Z" fill="#3b82f6" /> <!-- Ocean/Deep Harbor -->
+                        <path d="M 100 200 Q 300 300 480 350" stroke="#3b82f6" stroke-width="8" fill="none" /> <!-- River -->
+                        
+                        <!-- Trade Route (Situation) -->
+                        <line x1="0" y1="350" x2="600" y2="350" stroke="#78716c" stroke-width="4" stroke-dasharray="10,5" />
+                        <text x="10" y="340" font-size="10" fill="#78716c" font-weight="bold">TRADE ROUTE</text>
+
+                        <!-- Potential Sites -->
+                        <!-- A: Mountain Top -->
+                        <circle onclick="selectSite('A')" cx="100" cy="50" r="15" fill="#64748b" class="map-spot shadow-lg" />
+                        <text x="100" y="80" text-anchor="middle" font-weight="bold" font-size="10" pointer-events="none">Site A</text>
+
+                        <!-- B: River/Route Intersection -->
+                        <circle onclick="selectSite('B')" cx="300" cy="300" r="15" fill="#f59e0b" class="map-spot shadow-lg" />
+                        <text x="300" y="330" text-anchor="middle" font-weight="bold" font-size="10" pointer-events="none">Site B</text>
+
+                        <!-- C: River Delta/Ocean (Swampy but Port) -->
+                        <circle onclick="selectSite('C')" cx="500" cy="320" r="15" fill="#10b981" class="map-spot shadow-lg" />
+                        <text x="500" y="350" text-anchor="middle" font-weight="bold" font-size="10" pointer-events="none">Site C</text>
+                    </svg>
+                </div>
+
+                <!-- Analysis Panel -->
+                <div class="p-6 bg-slate-50 border-l border-slate-200 flex flex-col justify-center">
+                    <div id="site-feedback">
+                        <div class="text-center opacity-50">
+                            <div class="text-4xl mb-2">📍</div>
+                            <p class="text-sm italic">Select a site to analyze.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: TRANSPORTATION & MORPHOLOGY (SPS-6.A.2) -->
+        <section class="bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8 z-10 relative">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. Transport Shapes the City</h2>
+                    <p class="text-sm text-slate-400 mt-1">How technology changed urban form (Borchert's Epochs).</p>
+                </div>
+                <div class="flex bg-slate-700 p-1 rounded-lg mt-4 md:mt-0">
+                    <button onclick="setEra('sail')" id="btn-sail" class="tech-btn active px-4 py-2 text-xs font-bold rounded transition bg-slate-600 text-slate-300 hover:text-white">1. Sail-Wagon</button>
+                    <button onclick="setEra('rail')" id="btn-rail" class="tech-btn px-4 py-2 text-xs font-bold rounded transition bg-slate-600 text-slate-300 hover:text-white">2. Iron Horse</button>
+                    <button onclick="setEra('auto')" id="btn-auto" class="tech-btn px-4 py-2 text-xs font-bold rounded transition bg-slate-600 text-slate-300 hover:text-white">3. Auto-Air</button>
+                </div>
+            </div>
+
+            <div class="relative h-80 flex items-center justify-center">
+                
+                <!-- Background Infrastructure -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                    <!-- River (Always there) -->
+                    <path d="M 0 150 Q 400 100 800 150" stroke="#3b82f6" stroke-width="8" fill="none" opacity="0.3" />
+                    
+                    <!-- Rail Lines (Hidden initially) -->
+                    <g id="rail-lines" class="opacity-0 transition-opacity duration-1000">
+                        <line x1="400" y1="0" x2="400" y2="400" stroke="#000" stroke-width="4" />
+                        <line x1="0" y1="150" x2="800" y2="150" stroke="#000" stroke-width="4" /> <!-- Along river -->
+                    </g>
+
+                    <!-- Highways (Hidden initially) -->
+                    <g id="highway-lines" class="opacity-0 transition-opacity duration-1000">
+                        <circle cx="400" cy="150" r="150" stroke="#fbbf24" stroke-width="6" fill="none" /> <!-- Ring Road -->
+                        <line x1="400" y1="0" x2="400" y2="300" stroke="#fbbf24" stroke-width="6" />
+                        <line x1="100" y1="150" x2="700" y2="150" stroke="#fbbf24" stroke-width="6" />
+                    </g>
+                </svg>
+
+                <!-- The City Shape -->
+                <svg class="w-full h-full relative z-10 pointer-events-none">
+                    <path id="city-blob" d="M 400 150 m -30 0 a 30 30 0 1 0 60 0 a 30 30 0 1 0 -60 0" fill="#ef4444" opacity="0.8" class="city-shape" />
+                </svg>
+
+                <!-- Caption -->
+                <div id="era-caption" class="absolute bottom-4 bg-slate-900/80 px-4 py-2 rounded text-xs text-teal-300 font-bold border border-teal-900">
+                    Era 1: Dense, walkable, circular port city.
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: DRIVERS OF URBANIZATION (Push/Pull) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-blue-600">3. The Urbanization Engine (Push/Pull)</h2>
+            
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                
+                <!-- Simulation Visual -->
+                <div class="relative h-48 bg-slate-100 rounded-xl border-2 border-slate-300 overflow-hidden">
+                    <!-- Rural Side -->
+                    <div class="absolute left-0 top-0 w-1/3 h-full bg-emerald-100 flex flex-col justify-center items-center border-r border-slate-300">
+                        <div class="text-4xl mb-2">🌾</div>
+                        <div class="text-xs font-bold text-emerald-800">Rural</div>
+                        <div id="rural-pop" class="flex flex-wrap justify-center gap-1 p-2 w-full">
+                            <!-- Dots start here -->
+                        </div>
+                    </div>
+
+                    <!-- Urban Side -->
+                    <div class="absolute right-0 top-0 w-1/3 h-full bg-slate-300 flex flex-col justify-center items-center border-l border-slate-300">
+                        <div class="text-4xl mb-2">🏭</div>
+                        <div class="text-xs font-bold text-slate-800">Urban</div>
+                        <div id="urban-pop" class="flex flex-wrap justify-center gap-1 p-2 w-full">
+                            <!-- Dots move here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="space-y-4">
+                    <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-emerald-900 text-sm">Push: Farm Mechanization</h3>
+                            <button onclick="triggerMigration('push')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold shadow">Add Tractor 🚜</button>
+                        </div>
+                        <p class="text-xs text-emerald-700">Machines replace labor. Farmers lose jobs.</p>
+                    </div>
+
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-blue-900 text-sm">Pull: Industrialization</h3>
+                            <button onclick="triggerMigration('pull')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs font-bold shadow">Build Factory 🏭</button>
+                        </div>
+                        <p class="text-xs text-blue-700">Factories need workers. Wages are higher.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. SITE/SITUATION LOGIC ---
+        const sites = {
+            'A': {
+                title: "Site A: The Hilltop",
+                status: "Defensive Site",
+                site: "High elevation, easy to defend. Poor water access.",
+                situation: "Isolated from trade routes.",
+                verdict: "Medieval Castle Town. Good for defense, bad for commerce.",
+                color: "text-stone-600"
+            },
+            'B': {
+                title: "Site B: The Crossroads",
+                status: "Market Town",
+                site: "Flat land, river access.",
+                situation: "Perfect intersection of river and road trade.",
+                verdict: "Major Commercial Hub (e.g., St. Louis, Paris). Best choice for growth.",
+                color: "text-emerald-600"
+            },
+            'C': {
+                title: "Site C: The Delta",
+                status: "Port City",
+                site: "Swampy, flood-prone, soft soil (Bad Site).",
+                situation: "Gateway to the ocean and interior river network (Amazing Situation).",
+                verdict: "New Orleans / Shanghai. Will grow huge despite terrible physical geography.",
+                color: "text-blue-600"
+            }
+        };
+
+        function selectSite(id) {
+            const data = sites[id];
+            const box = document.getElementById('site-feedback');
+            
+            box.innerHTML = `
+                <h3 class="text-2xl font-extrabold text-slate-800 mb-2">${data.title}</h3>
+                <div class="inline-block px-2 py-1 rounded bg-slate-200 text-slate-600 text-xs font-bold uppercase mb-4">${data.status}</div>
+                
+                <div class="space-y-3">
+                    <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Site Factors</span>
+                        <p class="text-sm font-medium text-slate-700">${data.site}</p>
+                    </div>
+                    <div class="bg-white p-3 rounded border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Situation Factors</span>
+                        <p class="text-sm font-medium text-slate-700">${data.situation}</p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-3 bg-slate-100 border-l-4 border-teal-500 text-sm italic text-slate-600">
+                    <strong>Result:</strong> ${data.verdict}
+                </div>
+            `;
+        }
+
+        // --- 2. TRANSPORT LOGIC ---
+        const shapes = {
+            'sail': {
+                path: "M 400 150 m -40 0 a 40 40 0 1 0 80 0 a 40 40 0 1 0 -80 0", // Circle
+                caption: "Era 1 (1790-1830): Sail-Wagon. Dense, circular port city. People walk to work.",
+                rail: 0, highway: 0
+            },
+            'rail': {
+                path: "M 400 150 m -30 0 a 30 30 0 1 0 60 0 a 30 30 0 1 0 -60 0 M 380 150 L 0 150 L 0 170 L 380 170 Z M 420 150 L 800 150 L 800 170 L 420 170 Z M 390 140 L 390 0 L 410 0 L 410 140 Z M 390 180 L 390 400 L 410 400 L 410 180 Z",
+                caption: "Era 2 (1830-1920): Iron Horse. Star-shaped. City expands along rail lines (Streetcar Suburbs).",
+                rail: 1, highway: 0
+            },
+            'auto': {
+                path: "M 250 0 L 550 0 L 550 300 L 250 300 Z", // Huge Blob
+                caption: "Era 4 (1920+): Auto-Air-Amenity. Massive sprawl. Highways allow suburbs to fill in the gaps between rail lines.",
+                rail: 1, highway: 1
+            }
+        };
+
+        function setEra(era) {
+            const data = shapes[era];
+            const blob = document.getElementById('city-blob');
+            const rail = document.getElementById('rail-lines');
+            const hway = document.getElementById('highway-lines');
+            const capt = document.getElementById('era-caption');
+
+            // Update Buttons
+            document.querySelectorAll('.tech-btn').forEach(b => b.classList.remove('active', 'bg-white', 'text-teal-800'));
+            document.getElementById(`btn-${era}`).classList.add('active');
+
+            // Animate
+            blob.setAttribute('d', data.path);
+            rail.style.opacity = data.rail;
+            hway.style.opacity = data.highway;
+            capt.innerText = data.caption;
+        }
+
+        // --- 3. MIGRATION LOGIC ---
+        const ruralDiv = document.getElementById('rural-pop');
+        const urbanDiv = document.getElementById('urban-pop');
+        let ruralPop = 12;
+        let urbanPop = 0;
+
+        // Init Rural
+        for(let i=0; i<ruralPop; i++) {
+            ruralDiv.innerHTML += `<div class="w-2 h-2 bg-emerald-600 rounded-full migrant" id="m-${i}"></div>`;
+        }
+
+        function triggerMigration(type) {
+            if (ruralPop <= 0) return;
+
+            // Move 3 people
+            for(let i=0; i<3; i++) {
+                if (ruralDiv.lastElementChild) {
+                    const dot = ruralDiv.lastElementChild;
+                    dot.remove();
+                    // Add new dot to urban
+                    const newDot = document.createElement('div');
+                    newDot.className = "w-2 h-2 bg-blue-500 rounded-full migrant migrant-enter";
+                    urbanDiv.appendChild(newDot);
+                    ruralPop--;
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>
