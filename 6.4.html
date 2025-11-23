@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.4: Size and Distribution of Cities</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Bar Chart Animations */
+        .chart-bar { transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Gravity Model Transitions */
+        .gravity-node { transition: r 0.3s ease, cx 0.1s linear; }
+        .gravity-line { transition: stroke-width 0.3s ease, stroke 0.3s ease; }
+        
+        /* Hexagon Styles */
+        .hex { 
+            transition: fill 0.3s, stroke-width 0.3s, opacity 0.3s; 
+            cursor: pointer;
+        }
+        .hex:hover { opacity: 0.8; }
+        
+        /* Button Active State */
+        .mode-btn.active {
+            background-color: #fff;
+            border-color: #7c3aed; /* violet-600 */
+            color: #7c3aed;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-violet-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.4: Size & Distribution of Cities</h1>
+                <p class="text-violet-200 text-sm mt-1">Rank-Size, Primate Cities, Gravity Model, and Central Place Theory (PSO-6.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-violet-800 px-3 py-1 rounded border border-violet-700">
+                Urban Hierarchy
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-12">
+
+        <!-- SECTION 1: RANK-SIZE vs PRIMATE CITY (PSO-6.C.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-slate-800">
+            <div class="p-6 border-b border-slate-100 bg-violet-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-violet-900">1. The Urban Hierarchy Rule</h2>
+                    <p class="text-sm text-slate-600 mt-1">Compare two different systems of city distribution.</p>
+                </div>
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+                    <button onclick="setRule('rank')" id="btn-rank" class="mode-btn active px-4 py-2 text-xs font-bold rounded transition bg-violet-100 text-violet-800">Rank-Size Rule</button>
+                    <button onclick="setRule('primate')" id="btn-primate" class="mode-btn px-4 py-2 text-xs font-bold rounded transition bg-white text-slate-600 hover:bg-slate-50">Primate City</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 p-8">
+                
+                <!-- The Chart -->
+                <div class="relative h-64 flex items-end justify-around border-b-2 border-slate-300 pb-1 px-4">
+                    <!-- Grid Lines -->
+                    <div class="absolute inset-0 flex flex-col justify-between pointer-events-none z-0">
+                        <div class="w-full h-px bg-slate-100"></div>
+                        <div class="w-full h-px bg-slate-100"></div>
+                        <div class="w-full h-px bg-slate-100"></div>
+                        <div class="w-full h-px bg-slate-100"></div>
+                    </div>
+
+                    <!-- Bar 1 -->
+                    <div class="relative w-16 group z-10 flex flex-col justify-end h-full">
+                        <div class="w-full bg-violet-600 rounded-t shadow-lg chart-bar" id="bar-1" style="height: 100%"></div>
+                        <div class="text-xs font-bold text-center mt-2 text-violet-900">City 1</div>
+                        <div id="label-1" class="absolute -top-6 w-full text-center text-xs font-bold">12M</div>
+                    </div>
+
+                    <!-- Bar 2 -->
+                    <div class="relative w-16 group z-10 flex flex-col justify-end h-full">
+                        <div class="w-full bg-violet-500 rounded-t shadow-lg chart-bar" id="bar-2" style="height: 50%"></div>
+                        <div class="text-xs font-bold text-center mt-2 text-slate-600">City 2</div>
+                        <div id="label-2" class="absolute -top-6 w-full text-center text-xs font-bold text-slate-400">6M</div>
+                    </div>
+
+                    <!-- Bar 3 -->
+                    <div class="relative w-16 group z-10 flex flex-col justify-end h-full">
+                        <div class="w-full bg-violet-400 rounded-t shadow-lg chart-bar" id="bar-3" style="height: 33%"></div>
+                        <div class="text-xs font-bold text-center mt-2 text-slate-600">City 3</div>
+                        <div id="label-3" class="absolute -top-6 w-full text-center text-xs font-bold text-slate-400">4M</div>
+                    </div>
+
+                    <!-- Bar 4 -->
+                    <div class="relative w-16 group z-10 flex flex-col justify-end h-full">
+                        <div class="w-full bg-violet-300 rounded-t shadow-lg chart-bar" id="bar-4" style="height: 25%"></div>
+                        <div class="text-xs font-bold text-center mt-2 text-slate-600">City 4</div>
+                        <div id="label-4" class="absolute -top-6 w-full text-center text-xs font-bold text-slate-400">3M</div>
+                    </div>
+                </div>
+
+                <!-- The Explanation -->
+                <div class="flex flex-col justify-center space-y-4">
+                    <div id="rule-title" class="text-2xl font-extrabold text-violet-800">Rank-Size Rule</div>
+                    <div id="rule-math" class="text-sm font-mono bg-slate-100 p-2 rounded text-slate-600 border border-slate-200">
+                        nth largest city = 1/n size of largest
+                    </div>
+                    <p id="rule-desc" class="text-sm text-slate-600 leading-relaxed">
+                        Common in MDCs (like USA, Germany). Indicates a balanced distribution of wealth and services. No single city dominates the entire country.
+                    </p>
+                    <div id="rule-example" class="text-xs font-bold text-violet-600 uppercase tracking-wide">
+                        Example: United States
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE GRAVITY MODEL -->
+        <section class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8">
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <span class="bg-blue-600 text-white p-1 rounded mr-3 text-sm">PSO-6.C.1</span>
+                2. The Gravity Model (Interaction)
+            </h2>
+
+            <div class="grid lg:grid-cols-3 gap-8">
+                
+                <!-- Controls -->
+                <div class="space-y-6">
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">Population A (Size)</label>
+                        <input type="range" id="pop-a" min="10" max="50" value="20" oninput="updateGravity()" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">Population B (Size)</label>
+                        <input type="range" id="pop-b" min="10" max="50" value="20" oninput="updateGravity()" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                    </div>
+                    <div>
+                        <label class="flex justify-between text-xs font-bold text-slate-400 uppercase mb-2">Distance</label>
+                        <input type="range" id="dist-slider" min="50" max="250" value="150" oninput="updateGravity()" class="w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-slate-400">
+                    </div>
+                    
+                    <div class="bg-slate-700 p-4 rounded-lg text-center">
+                        <div class="text-xs text-slate-400 uppercase mb-1">Interaction Strength</div>
+                        <div id="gravity-score" class="text-2xl font-mono font-bold text-white">Low</div>
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="lg:col-span-2 bg-slate-900 rounded-xl border border-slate-700 h-64 relative flex items-center justify-center">
+                    <svg id="gravity-svg" width="100%" height="100%" class="overflow-visible">
+                        <!-- Connection Line -->
+                        <line id="grav-line" x1="100" y1="128" x2="400" y2="128" stroke="#475569" stroke-width="2" class="gravity-line" />
+                        
+                        <!-- City A -->
+                        <circle id="city-a" cx="100" cy="128" r="20" fill="#3b82f6" class="gravity-node" />
+                        <text id="label-a" x="100" y="132" text-anchor="middle" fill="white" font-size="10" font-weight="bold" pointer-events="none">A</text>
+
+                        <!-- City B -->
+                        <circle id="city-b" cx="400" cy="128" r="20" fill="#10b981" class="gravity-node" />
+                        <text id="label-b" x="400" y="132" text-anchor="middle" fill="white" font-size="10" font-weight="bold" pointer-events="none">B</text>
+                    </svg>
+
+                    <div class="absolute bottom-2 text-xs text-slate-500 italic">
+                        Interaction = (Pop A × Pop B) / Distance²
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: CENTRAL PLACE THEORY (Christaller) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">3. Christaller's Central Place Theory</h2>
+                    <p class="text-sm text-slate-500 mt-1">Hexagonal hinterlands based on Range and Threshold.</p>
+                </div>
+                <div class="flex gap-2 mt-4 md:mt-0">
+                    <button onclick="setCPT('city')" id="cpt-city" class="px-3 py-1 text-xs font-bold rounded bg-slate-100 text-slate-600 hover:bg-rose-100 border hover:border-rose-400 transition">Big City</button>
+                    <button onclick="setCPT('town')" id="cpt-town" class="px-3 py-1 text-xs font-bold rounded bg-slate-100 text-slate-600 hover:bg-blue-100 border hover:border-blue-400 transition">Town</button>
+                    <button onclick="setCPT('village')" id="cpt-village" class="px-3 py-1 text-xs font-bold rounded bg-slate-100 text-slate-600 hover:bg-emerald-100 border hover:border-emerald-400 transition">Village</button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                
+                <!-- Hexagon Map -->
+                <div class="relative h-64 flex items-center justify-center">
+                    <svg viewBox="0 0 400 300" class="w-full h-full">
+                        <!-- Large Hexagon (City Hinterland) -->
+                        <path id="hex-city" d="M 200 50 L 350 125 L 350 225 L 200 300 L 50 225 L 50 125 Z" 
+                              fill="#ffe4e6" stroke="#f43f5e" stroke-width="3" opacity="0.2" class="hex" />
+
+                        <!-- Medium Hexagons (Towns) -->
+                        <g id="hex-towns" opacity="0.2">
+                             <!-- Center Town -->
+                             <path d="M 200 100 L 275 137 L 275 212 L 200 250 L 125 212 L 125 137 Z" 
+                                   fill="none" stroke="#3b82f6" stroke-width="2" />
+                        </g>
+
+                        <!-- Small Hexagons (Villages - Abstracted) -->
+                        <g id="hex-villages" opacity="0.2">
+                             <path d="M 200 150 L 225 162 L 225 187 L 200 200 L 175 187 L 175 162 Z" 
+                                   fill="none" stroke="#10b981" stroke-width="1" />
+                             <!-- Surrounding small hexes -->
+                             <path d="M 200 50 L 225 62 L 225 87 L 200 100 L 175 87 L 175 62 Z" stroke="#10b981" fill="none" />
+                             <path d="M 350 125 L 375 137 L 375 162 L 350 175 L 325 162 L 325 137 Z" stroke="#10b981" fill="none" />
+                             <path d="M 50 125 L 75 137 L 75 162 L 50 175 L 25 162 L 25 137 Z" stroke="#10b981" fill="none" />
+                        </g>
+
+                        <!-- Nodes -->
+                        <circle cx="200" cy="175" r="8" fill="#f43f5e" /> <!-- Big City -->
+                        <circle cx="200" cy="50" r="4" fill="#3b82f6" /> <!-- Town N -->
+                        <circle cx="200" cy="300" r="4" fill="#3b82f6" /> <!-- Town S -->
+                        <circle cx="50" cy="125" r="4" fill="#3b82f6" /> <!-- Town W -->
+                        <circle cx="350" cy="125" r="4" fill="#3b82f6" /> <!-- Town E -->
+                        
+                    </svg>
+                </div>
+
+                <!-- Service Info -->
+                <div class="space-y-4">
+                    <div id="cpt-info-box" class="bg-slate-50 p-6 rounded-xl border-l-4 border-rose-500 transition-colors">
+                        <h3 id="cpt-type" class="text-lg font-bold text-slate-800">Big City</h3>
+                        <div class="flex gap-4 mt-2 text-xs text-slate-500 uppercase font-bold">
+                            <span>Range: <span id="cpt-range" class="text-rose-600">High</span></span>
+                            <span>Threshold: <span id="cpt-thresh" class="text-rose-600">High</span></span>
+                        </div>
+                        <p id="cpt-desc" class="text-sm text-slate-600 mt-3 leading-relaxed">
+                            People will travel long distances for these specialized services. Requires a massive population to support.
+                        </p>
+                        <div id="cpt-examples" class="mt-4 flex flex-wrap gap-2">
+                            <span class="bg-white border border-slate-200 px-2 py-1 rounded text-xs font-bold shadow-sm">🧠 Brain Surgeon</span>
+                            <span class="bg-white border border-slate-200 px-2 py-1 rounded text-xs font-bold shadow-sm">🏟️ Pro Sports Stadium</span>
+                            <span class="bg-white border border-slate-200 px-2 py-1 rounded text-xs font-bold shadow-sm">🎭 Opera House</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. RANK SIZE LOGIC ---
+        const rules = {
+            'rank': {
+                title: "Rank-Size Rule",
+                math: "nth largest city = 1/n size of largest",
+                desc: "Common in MDCs (like USA, Germany). Indicates a balanced distribution of wealth and services. No single city dominates the entire country.",
+                example: "Example: United States",
+                heights: [100, 50, 33, 25], // 1/1, 1/2, 1/3, 1/4
+                labels: ["12M", "6M", "4M", "3M"],
+                colors: ["bg-violet-600", "bg-violet-500", "bg-violet-400", "bg-violet-300"],
+                btnColor: "bg-violet-100 text-violet-800"
+            },
+            'primate': {
+                title: "Primate City Rule",
+                math: "Largest city > 2x next largest",
+                desc: "Common in LDCs (like Mexico, Thailand) or Unitary states (France). The largest city dominates politics, culture, and economy. Rural areas often lack services.",
+                example: "Example: Thailand (Bangkok)",
+                heights: [100, 10, 5, 2], // Massive gap
+                labels: ["10M", "500k", "200k", "100k"],
+                colors: ["bg-rose-600", "bg-slate-300", "bg-slate-300", "bg-slate-300"],
+                btnColor: "bg-rose-100 text-rose-800"
+            }
+        };
+
+        function setRule(type) {
+            const data = rules[type];
+            
+            // Update Texts
+            document.getElementById('rule-title').innerText = data.title;
+            document.getElementById('rule-math').innerText = data.math;
+            document.getElementById('rule-desc').innerText = data.desc;
+            document.getElementById('rule-example').innerText = data.example;
+
+            // Update Bars
+            for(let i=0; i<4; i++) {
+                const bar = document.getElementById(`bar-${i+1}`);
+                const label = document.getElementById(`label-${i+1}`);
+                bar.style.height = `${data.heights[i]}%`;
+                label.innerText = data.labels[i];
+                
+                // Reset classes to apply new color
+                bar.className = `w-full rounded-t shadow-lg chart-bar ${data.colors[i]}`;
+            }
+
+            // Update Buttons
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.classList.remove('active', 'bg-violet-100', 'text-violet-800', 'bg-rose-100', 'text-rose-800');
+                b.classList.add('bg-white', 'text-slate-600'); // Default
+            });
+            const btn = document.getElementById(`btn-${type}`);
+            btn.classList.add('active');
+            // Apply specific active colors
+            const colorClasses = data.btnColor.split(' ');
+            colorClasses.forEach(c => btn.classList.add(c));
+            btn.classList.remove('bg-white', 'text-slate-600');
+        }
+
+
+        // --- 2. GRAVITY MODEL LOGIC ---
+        function updateGravity() {
+            const popA = parseInt(document.getElementById('pop-a').value);
+            const popB = parseInt(document.getElementById('pop-b').value);
+            const dist = parseInt(document.getElementById('dist-slider').value);
+            
+            // Visual Nodes
+            const cityA = document.getElementById('city-a');
+            const cityB = document.getElementById('city-b');
+            const labelA = document.getElementById('label-a');
+            const labelB = document.getElementById('label-b');
+            const line = document.getElementById('grav-line');
+            const scoreEl = document.getElementById('gravity-score');
+
+            // Resize Circles
+            cityA.setAttribute('r', popA / 1.5);
+            cityB.setAttribute('r', popB / 1.5);
+            
+            // Reposition B based on distance
+            // Map Slider 50-250 to SVG X coords
+            // Center is 250. A is fixed at 100. 
+            // Start B at 150 (min dist) to 350 (max dist).
+            const startX = 100;
+            const targetX = startX + dist;
+            
+            cityB.setAttribute('cx', targetX);
+            labelB.setAttribute('x', targetX);
+            line.setAttribute('x2', targetX);
+
+            // Line Thickness (Interaction)
+            // Formula: (P1 * P2) / D^2
+            const rawScore = (popA * popB) / (dist * dist); 
+            const thickness = rawScore * 200; // Scale for visual
+            
+            line.setAttribute('stroke-width', Math.max(1, thickness));
+            
+            // Color shift
+            if(thickness > 10) {
+                line.setAttribute('stroke', '#10b981'); // Emerald
+                scoreEl.innerText = "High";
+                scoreEl.className = "text-2xl font-mono font-bold text-emerald-400";
+            } else if (thickness > 4) {
+                line.setAttribute('stroke', '#3b82f6'); // Blue
+                scoreEl.innerText = "Medium";
+                scoreEl.className = "text-2xl font-mono font-bold text-blue-400";
+            } else {
+                line.setAttribute('stroke', '#ef4444'); // Red
+                scoreEl.innerText = "Low";
+                scoreEl.className = "text-2xl font-mono font-bold text-red-400";
+            }
+        }
+
+
+        // --- 3. CENTRAL PLACE LOGIC ---
+        const cptData = {
+            'city': {
+                hexId: 'hex-city',
+                color: 'rose',
+                range: 'High',
+                thresh: 'High',
+                desc: "People will travel long distances for these specialized services. Requires a massive population to support.",
+                examples: ["🧠 Brain Surgeon", "🏟️ Pro Sports Stadium", "🎭 Opera House"]
+            },
+            'town': {
+                hexId: 'hex-towns',
+                color: 'blue',
+                range: 'Medium',
+                thresh: 'Medium',
+                desc: "Weekly services. People travel moderate distances (20-30 min) for these.",
+                examples: ["👗 Clothing Store", "🏦 Bank Branch", "🎬 Movie Theater"]
+            },
+            'village': {
+                hexId: 'hex-villages',
+                color: 'emerald',
+                range: 'Low',
+                thresh: 'Low',
+                desc: "Daily needs. People won't travel far. Small population needed to support.",
+                examples: ["⛽ Gas Station", "☕ Coffee Shop", "🥖 Bakery"]
+            }
+        };
+
+        function setCPT(type) {
+            const data = cptData[type];
+            
+            // Visuals: Reset all hexes
+            document.getElementById('hex-city').setAttribute('opacity', '0.1');
+            document.getElementById('hex-city').setAttribute('fill', '#ffe4e6'); // pale red
+            document.getElementById('hex-towns').setAttribute('opacity', '0.1');
+            document.getElementById('hex-villages').setAttribute('opacity', '0.1');
+            
+            // Highlight selected
+            const activeHex = document.getElementById(data.hexId);
+            activeHex.setAttribute('opacity', '0.8');
+            
+            // Update Box
+            const box = document.getElementById('cpt-info-box');
+            box.className = `bg-slate-50 p-6 rounded-xl border-l-4 transition-colors border-${data.color}-500`;
+            
+            document.getElementById('cpt-type').innerText = type === 'city' ? "Big City" : (type === 'town' ? "Town" : "Village/Hamlet");
+            document.getElementById('cpt-range').innerText = data.range;
+            document.getElementById('cpt-range').className = `text-${data.color}-600`;
+            document.getElementById('cpt-thresh').innerText = data.thresh;
+            document.getElementById('cpt-thresh').className = `text-${data.color}-600`;
+            document.getElementById('cpt-desc').innerText = data.desc;
+            
+            // Update Examples
+            const exContainer = document.getElementById('cpt-examples');
+            exContainer.innerHTML = data.examples.map(ex => 
+                `<span class="bg-white border border-slate-200 px-2 py-1 rounded text-xs font-bold shadow-sm text-${data.color}-700">${ex}</span>`
+            ).join('');
+        }
+
+        // Init
+        setRule('rank');
+        updateGravity();
+        setCPT('city');
+
+    </script>
+</body>
+</html>
