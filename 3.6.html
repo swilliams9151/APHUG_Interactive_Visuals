@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 3.6: Contemporary Causes of Diffusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+
+        /* Map Scaling Animation */
+        #world-map-container {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+        }
+
+        /* Travel Line Animation */
+        .travel-line {
+            stroke-dasharray: 10;
+            animation: travelFlow 1s linear infinite;
+        }
+        @keyframes travelFlow {
+            to { stroke-dashoffset: -20; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-900 text-white p-6 shadow-lg shrink-0">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 3.6: Causes of Diffusion</h1>
+                <p class="text-indigo-200 text-sm mt-1">Time-Space Convergence, Globalization, and Cultural Change</p>
+            </div>
+            <div class="hidden md:block text-xs bg-indigo-800 px-3 py-1 rounded border border-indigo-700">
+                SPS-3.A.4
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- SECTION 1: TIME-SPACE COMPRESSION (The Shrinking World) -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-xl font-bold text-indigo-900">1. Time-Space Convergence (The "Shrinking World")</h2>
+                <p class="text-sm text-slate-500 mt-1">Use the slider to see how technology reduces the friction of distance.</p>
+            </div>
+
+            <div class="flex flex-col md:flex-row h-[500px]">
+                
+                <!-- Controls -->
+                <div class="w-full md:w-1/3 p-8 bg-white flex flex-col justify-center border-r border-slate-100 z-10">
+                    
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold text-slate-400 uppercase mb-4">Timeline Selector</label>
+                        <input type="range" id="time-slider" min="0" max="3" step="1" value="0" oninput="updateMap()">
+                        <div class="flex justify-between text-xs text-slate-400 mt-2 font-mono">
+                            <span>1500</span>
+                            <span>1850</span>
+                            <span>1950</span>
+                            <span>Today</span>
+                        </div>
+                    </div>
+
+                    <div id="era-info" class="space-y-4">
+                        <!-- Injected via JS -->
+                    </div>
+
+                </div>
+
+                <!-- Visualizer -->
+                <div class="w-full md:w-2/3 bg-slate-900 relative overflow-hidden flex items-center justify-center">
+                    
+                    <!-- Background Grid -->
+                    <div class="absolute inset-0" style="background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px; opacity: 0.2;"></div>
+
+                    <!-- The "World" (Scales down) -->
+                    <div id="world-map-container" class="relative w-[600px] h-[300px]">
+                        <!-- Simple SVG Map Silhouette -->
+                        <svg viewBox="0 0 800 400" class="w-full h-full drop-shadow-2xl">
+                            <!-- Landmasses -->
+                            <path d="M 50 50 L 200 50 L 250 150 L 200 350 L 100 300 Z" fill="#334155" /> <!-- Americas -->
+                            <path d="M 350 50 L 650 50 L 750 100 L 700 350 L 400 350 Z" fill="#334155" /> <!-- Eurasia/Africa -->
+                            
+                            <!-- Cities -->
+                            <circle cx="220" cy="100" r="6" fill="white" /> <!-- NY -->
+                            <text x="220" y="90" text-anchor="middle" fill="white" font-size="12" font-weight="bold">NY</text>
+                            
+                            <circle cx="380" cy="90" r="6" fill="white" /> <!-- London -->
+                            <text x="380" y="80" text-anchor="middle" fill="white" font-size="12" font-weight="bold">LDN</text>
+
+                            <!-- Connection Line -->
+                            <path id="connection-line" d="M 220 100 Q 300 50 380 90" fill="none" stroke="#6366f1" stroke-width="4" class="travel-line" />
+                        </svg>
+                    </div>
+
+                    <!-- Speed Overlay -->
+                    <div id="speed-badge" class="absolute bottom-6 right-6 bg-indigo-600 text-white px-4 py-2 rounded-lg font-mono font-bold shadow-lg transition-all transform scale-100">
+                        10 mph
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: CULTURAL PATTERNS -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Convergence vs Divergence -->
+            <section class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 class="text-lg font-bold text-slate-800">2. Cultural Outcomes</h2>
+                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                        <button onclick="setCulture('convergence')" id="btn-conv" class="px-3 py-1 text-xs font-bold rounded shadow bg-white text-indigo-600 transition">Convergence</button>
+                        <button onclick="setCulture('divergence')" id="btn-div" class="px-3 py-1 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition">Divergence</button>
+                    </div>
+                </div>
+
+                <div id="culture-content" class="bg-slate-50 rounded-lg p-6 border border-slate-200 min-h-[200px] flex flex-col justify-center items-center text-center transition-all">
+                    <!-- Injected Content -->
+                </div>
+            </section>
+
+            <!-- Language Dynamics -->
+            <section class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-lg font-bold text-slate-800 mb-4">3. Language & Technology</h2>
+                
+                <div class="space-y-4">
+                    <div class="bg-indigo-50 p-4 rounded-lg border-l-4 border-indigo-500">
+                        <h3 class="font-bold text-indigo-900 text-sm uppercase mb-1">Lingua Franca</h3>
+                        <p class="text-sm text-slate-600">The internet accelerates the use of <strong>English</strong>. Over 50% of web content is in English, forcing non-native speakers to learn it to participate globally.</p>
+                    </div>
+
+                    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+                        <h3 class="font-bold text-red-900 text-sm uppercase mb-1">Language Loss</h3>
+                        <p class="text-sm text-slate-600">Small indigenous languages struggle to survive because they lack a digital presence (no keyboards, no apps), leading to rapid extinction.</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. Time-Space Logic ---
+        const eras = [
+            {
+                year: "1500 - Age of Exploration",
+                tech: "⛵ Sailboat / Horse",
+                speed: "10 mph",
+                time: "40 Days",
+                desc: "Distance is a massive barrier. Diffusion is slow and mostly relocation (physical movement).",
+                scale: 1.0,
+                color: "#94a3b8"
+            },
+            {
+                year: "1850 - Industrial Revolution",
+                tech: "🚂 Steamship / Train",
+                speed: "30-60 mph",
+                time: "6-10 Days",
+                desc: "The world begins to shrink. Canals (Suez/Panama) and rails accelerate trade.",
+                scale: 0.8,
+                color: "#60a5fa"
+            },
+            {
+                year: "1950 - Modern Era",
+                tech: "✈️ Jet Plane",
+                speed: "600 mph",
+                time: "8 Hours",
+                desc: "Physical travel becomes trivial. Businesses go multinational (MNCs).",
+                scale: 0.5,
+                color: "#3b82f6"
+            },
+            {
+                year: "Today - Information Age",
+                tech: "💻 Internet / Fiber Optics",
+                speed: "Speed of Light",
+                time: "Milliseconds",
+                desc: "<strong>Space-Time Compression</strong> is nearly total for information. Physical distance implies NO time delay for ideas.",
+                scale: 0.3,
+                color: "#4f46e5"
+            }
+        ];
+
+        function updateMap() {
+            const val = document.getElementById('time-slider').value;
+            const data = eras[val];
+            const container = document.getElementById('world-map-container');
+            const line = document.getElementById('connection-line');
+            const infoDiv = document.getElementById('era-info');
+            const badge = document.getElementById('speed-badge');
+
+            // Scale Map (Simulating shrinking world)
+            container.style.transform = `scale(${data.scale})`;
+            
+            // Update Line Speed (animation duration)
+            // fast speed = lower duration
+            const duration = Math.max(0.1, 1 - (val * 0.3)); 
+            line.style.animationDuration = `${duration}s`;
+            line.style.stroke = data.color;
+
+            // Update Text
+            badge.innerText = data.time;
+            badge.style.backgroundColor = data.color;
+
+            infoDiv.innerHTML = `
+                <h3 class="text-2xl font-bold text-slate-800">${data.year}</h3>
+                <div class="inline-block bg-slate-100 px-3 py-1 rounded text-sm font-mono font-bold text-slate-600 mb-4">
+                    ${data.tech}
+                </div>
+                <p class="text-slate-600 leading-relaxed border-l-4 border-slate-200 pl-4">
+                    ${data.desc}
+                </p>
+            `;
+        }
+
+        // --- 2. Culture Logic ---
+        const cultureData = {
+            'convergence': {
+                title: "Cultural Convergence",
+                icon: "🏙️",
+                desc: "Cultures become more alike as they share technology and organizational structures.",
+                features: [
+                    "<strong>Placelessness:</strong> Every city has the same skyscrapers and chain stores.",
+                    "<strong>Global Culture:</strong> Blue jeans, pop music, smartphones.",
+                    "<strong>Language:</strong> English becomes the global standard."
+                ],
+                color: "text-indigo-600"
+            },
+            'divergence': {
+                title: "Cultural Divergence",
+                icon: "🎎",
+                desc: "Cultures separate or restrict outside influence to protect their identity.",
+                features: [
+                    "<strong>Resistance:</strong> Amish communities rejecting technology.",
+                    "<strong>Firewalls:</strong> China blocking western internet (Great Firewall).",
+                    "<strong>Revival:</strong> Teaching indigenous languages in schools."
+                ],
+                color: "text-emerald-600"
+            }
+        };
+
+        function setCulture(type) {
+            // Toggle Buttons
+            const btnConv = document.getElementById('btn-conv');
+            const btnDiv = document.getElementById('btn-div');
+            
+            if (type === 'convergence') {
+                btnConv.className = "px-3 py-1 text-xs font-bold rounded shadow bg-white text-indigo-600 transition";
+                btnDiv.className = "px-3 py-1 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition";
+            } else {
+                btnDiv.className = "px-3 py-1 text-xs font-bold rounded shadow bg-white text-emerald-600 transition";
+                btnConv.className = "px-3 py-1 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition";
+            }
+
+            // Update Content
+            const data = cultureData[type];
+            const container = document.getElementById('culture-content');
+            
+            container.innerHTML = `
+                <div class="text-5xl mb-3 animate-bounce">${data.icon}</div>
+                <h3 class="text-xl font-bold ${data.color} mb-2">${data.title}</h3>
+                <p class="text-sm text-slate-600 mb-4">${data.desc}</p>
+                <ul class="text-left text-xs text-slate-700 space-y-2 bg-white p-4 rounded border border-slate-200 w-full">
+                    ${data.features.map(f => `<li class="flex items-start"><span class="mr-2">•</span><span>${f}</span></li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Init
+        updateMap();
+        setCulture('convergence');
+
+    </script>
+</body>
+</html>
