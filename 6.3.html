@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 6.3: Cities and Globalization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Flow Animation */
+        .network-line {
+            stroke-dasharray: 10;
+            animation: flow 1s linear infinite;
+        }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+
+        /* Card Dragging */
+        .draggable { cursor: grab; touch-action: none; }
+        .draggable:active { cursor: grabbing; }
+        
+        .drop-zone { transition: all 0.3s; }
+        .drop-zone.highlight { background-color: #f0fdf4; border-color: #22c55e; }
+        .drop-zone.wrong { background-color: #fef2f2; border-color: #ef4444; animation: shake 0.5s; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Network Button Active */
+        .net-btn.active {
+            background-color: #0f172a; /* slate-900 */
+            color: white;
+            border-color: #0f172a;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-blue-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 6.3: Cities and Globalization</h1>
+                <p class="text-blue-200 text-sm mt-1">World Cities, Hierarchy, and Networks (PSO-6.B)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-blue-800 px-3 py-1 rounded border border-blue-700">
+                The Command Centers
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE GLOBAL NETWORK MAP (PSO-6.B.2) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col h-[550px]">
+            <div class="p-6 border-b border-slate-100 bg-blue-50 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-blue-900">1. Visualizing Global Networks</h2>
+                    <p class="text-sm text-slate-600 mt-1">Cities are connected by invisible flows. Click a layer to see the connections.</p>
+                </div>
+                
+                <div class="flex gap-2 bg-white p-1 rounded-lg shadow-sm border border-slate-200">
+                    <button onclick="setNetwork('finance')" id="btn-finance" class="net-btn active px-4 py-2 text-xs font-bold rounded transition bg-slate-900 text-white">💰 Finance</button>
+                    <button onclick="setNetwork('media')" id="btn-media" class="net-btn px-4 py-2 text-xs font-bold rounded transition bg-white text-slate-600 hover:bg-slate-100">🎬 Media</button>
+                    <button onclick="setNetwork('politics')" id="btn-politics" class="net-btn px-4 py-2 text-xs font-bold rounded transition bg-white text-slate-600 hover:bg-slate-100">⚖️ Politics</button>
+                </div>
+            </div>
+
+            <div class="relative flex-1 bg-slate-100">
+                <div id="map"></div>
+                
+                <!-- Floating Panel -->
+                <div id="network-info" class="absolute bottom-6 left-6 bg-white/95 backdrop-blur p-5 rounded-xl shadow-2xl w-80 border-l-8 border-blue-600 z-[1000] transition-all">
+                    <h3 id="net-title" class="font-bold text-lg text-slate-800 mb-1">Financial Network</h3>
+                    <p id="net-desc" class="text-xs text-slate-600 leading-relaxed">
+                        <strong>The "Big Three" (NY-LON-TOK)</strong> drive the global economy. Stock markets here determine prices worldwide.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: URBAN HIERARCHY PYRAMID (PSO-6.B.1) -->
+        <section class="grid lg:grid-cols-2 gap-8">
+            
+            <!-- The Sorter -->
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700">
+                <div class="mb-6">
+                    <h2 class="text-xl font-bold text-white">2. The Urban Hierarchy</h2>
+                    <p class="text-sm text-slate-400 mt-1">Not all large cities are "World Cities." Sort them by influence.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Alpha Zone -->
+                    <div class="drop-zone p-4 rounded-lg border-2 border-dashed border-emerald-500/50 bg-emerald-900/20 min-h-[80px] flex flex-col items-center justify-center transition" ondragover="allowDrop(event)" ondrop="drop(event, 'alpha')" id="zone-alpha">
+                        <div class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2">Alpha ++ (Dominant)</div>
+                        <div class="flex flex-wrap gap-2 justify-center w-full" id="alpha-container"></div>
+                    </div>
+
+                    <!-- Beta Zone -->
+                    <div class="drop-zone p-4 rounded-lg border-2 border-dashed border-blue-500/50 bg-blue-900/20 min-h-[80px] flex flex-col items-center justify-center transition" ondragover="allowDrop(event)" ondrop="drop(event, 'beta')" id="zone-beta">
+                        <div class="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">Beta (Major Linkages)</div>
+                        <div class="flex flex-wrap gap-2 justify-center w-full" id="beta-container"></div>
+                    </div>
+
+                    <!-- Gamma Zone -->
+                    <div class="drop-zone p-4 rounded-lg border-2 border-dashed border-purple-500/50 bg-purple-900/20 min-h-[80px] flex flex-col items-center justify-center transition" ondragover="allowDrop(event)" ondrop="drop(event, 'gamma')" id="zone-gamma">
+                        <div class="text-xs font-bold text-purple-400 uppercase tracking-widest mb-2">Gamma (Regional)</div>
+                        <div class="flex flex-wrap gap-2 justify-center w-full" id="gamma-container"></div>
+                    </div>
+                </div>
+
+                <!-- Bank -->
+                <div id="city-bank" class="mt-6 flex flex-wrap gap-2 justify-center bg-slate-900 p-4 rounded-lg border border-slate-700">
+                    <div id="item-ny" class="draggable bg-emerald-100 text-emerald-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="alpha">New York</div>
+                    <div id="item-chicago" class="draggable bg-blue-100 text-blue-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="beta">Chicago</div>
+                    <div id="item-london" class="draggable bg-emerald-100 text-emerald-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="alpha">London</div>
+                    <div id="item-phoenix" class="draggable bg-purple-100 text-purple-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="gamma">Phoenix</div>
+                    <div id="item-tokyo" class="draggable bg-emerald-100 text-emerald-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="alpha">Tokyo</div>
+                    <div id="item-dublin" class="draggable bg-purple-100 text-purple-900 px-3 py-1 rounded font-bold text-xs cursor-grab" draggable="true" ondragstart="drag(event)" data-rank="gamma">Dublin</div>
+                </div>
+            </div>
+
+            <!-- Explanation -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 flex flex-col justify-center">
+                <div class="mb-6">
+                    <h3 class="text-2xl font-extrabold text-slate-800">Pop Size ≠ Influence</h3>
+                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                        Many <strong>Megacities</strong> (e.g., Lagos, Dhaka) are huge but are NOT Alpha World Cities. 
+                        <br><br>
+                        To be a World City, you need:
+                    </p>
+                </div>
+                
+                <ul class="space-y-4">
+                    <li class="flex items-center bg-slate-50 p-3 rounded border border-slate-100">
+                        <span class="text-2xl mr-3">💹</span>
+                        <div class="text-xs text-slate-700"><strong>Economic Control:</strong> Stock exchanges, Headquarters of MNCs.</div>
+                    </li>
+                    <li class="flex items-center bg-slate-50 p-3 rounded border border-slate-100">
+                        <span class="text-2xl mr-3">🏛️</span>
+                        <div class="text-xs text-slate-700"><strong>Political Power:</strong> Embassies, International Organizations (UN).</div>
+                    </li>
+                    <li class="flex items-center bg-slate-50 p-3 rounded border border-slate-100">
+                        <span class="text-2xl mr-3">✈️</span>
+                        <div class="text-xs text-slate-700"><strong>Infrastructure:</strong> Massive international airports, advanced data lines.</div>
+                    </li>
+                </ul>
+            </div>
+
+        </section>
+
+        <!-- SECTION 3: HQ LOCATOR SIM (Scenario) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-slate-800 mb-2">3. CEO Simulation</h2>
+                    <p class="text-sm text-slate-600 mb-4">You run a Global Tech Firm. Where do you put your HQ?</p>
+                    
+                    <div class="space-y-3">
+                        <button onclick="checkDecision('mumbai')" class="w-full text-left p-4 rounded-lg border hover:bg-slate-50 transition group">
+                            <div class="flex justify-between">
+                                <strong class="text-slate-700">Option A: Mumbai</strong>
+                                <span class="text-xs bg-slate-200 px-2 py-1 rounded text-slate-600">Low Cost</span>
+                            </div>
+                            <div id="fb-mumbai" class="text-xs text-slate-500 mt-2 hidden">
+                                <span class="text-red-600 font-bold">Incorrect.</span> Great for outsourcing/back-office, but lacks the global stock market access for an HQ.
+                            </div>
+                        </button>
+
+                        <button onclick="checkDecision('london')" class="w-full text-left p-4 rounded-lg border hover:bg-slate-50 transition group">
+                            <div class="flex justify-between">
+                                <strong class="text-slate-700">Option B: London</strong>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Alpha++</span>
+                            </div>
+                            <div id="fb-london" class="text-xs text-slate-500 mt-2 hidden">
+                                <span class="text-emerald-600 font-bold">Correct!</span> High cost, but you have instant access to capital, law firms, and global travel.
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visual -->
+                <div class="w-48 h-48 bg-blue-900 rounded-full flex items-center justify-center shadow-2xl text-6xl">
+                    🌐
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- 1. MAP LOGIC ---
+        const networks = {
+            'finance': {
+                cities: [
+                    { name: "New York", coords: [40.7, -74.0], rank: "Alpha++" },
+                    { name: "London", coords: [51.5, -0.1], rank: "Alpha++" },
+                    { name: "Tokyo", coords: [35.6, 139.6], rank: "Alpha+" },
+                    { name: "Hong Kong", coords: [22.3, 114.1], rank: "Alpha+" },
+                    { name: "Singapore", coords: [1.3, 103.8], rank: "Alpha+" }
+                ],
+                color: "#10b981", // Emerald
+                title: "Financial Network",
+                desc: "<strong>The 'Big Three' (NY-LON-TOK)</strong> drive the global economy. Capital flows instantly between these hubs 24/7."
+            },
+            'media': {
+                cities: [
+                    { name: "Los Angeles", coords: [34.0, -118.2], rank: "Alpha" },
+                    { name: "New York", coords: [40.7, -74.0], rank: "Alpha++" },
+                    { name: "Mumbai", coords: [19.0, 72.8], rank: "Alpha" }, // Bollywood
+                    { name: "Paris", coords: [48.8, 2.3], rank: "Alpha+" } // Fashion
+                ],
+                color: "#8b5cf6", // Purple
+                title: "Media & Cultural Network",
+                desc: "Cities like LA (Hollywood) and Mumbai (Bollywood) exert massive cultural influence, exporting movies, fashion, and trends."
+            },
+            'politics': {
+                cities: [
+                    { name: "Washington DC", coords: [38.9, -77.0], rank: "Alpha" },
+                    { name: "Brussels", coords: [50.8, 4.3], rank: "Alpha" }, // EU HQ
+                    { name: "Geneva", coords: [46.2, 6.1], rank: "Beta" }, // UN/Red Cross
+                    { name: "New York", coords: [40.7, -74.0], rank: "Alpha++" } // UN HQ
+                ],
+                color: "#3b82f6", // Blue
+                title: "Political Network",
+                desc: "These cities host International Organizations (UN, EU, NATO) and Embassies, making them centers of geopolitical decision making."
+            }
+        };
+
+        let map;
+        let currentLayer = null;
+
+        window.onload = function() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            setNetwork('finance');
+        };
+
+        function setNetwork(type) {
+            // UI
+            document.querySelectorAll('.net-btn').forEach(b => {
+                b.className = "net-btn px-4 py-2 text-xs font-bold rounded transition bg-white text-slate-600 hover:bg-slate-100";
+            });
+            document.getElementById(`btn-${type}`).className = "net-btn active px-4 py-2 text-xs font-bold rounded transition bg-slate-900 text-white";
+
+            // Info
+            const data = networks[type];
+            document.getElementById('net-title').innerText = data.title;
+            document.getElementById('net-title').style.color = data.color;
+            document.getElementById('net-desc').innerHTML = data.desc;
+            document.getElementById('network-info').className = `absolute bottom-6 left-6 bg-white/95 backdrop-blur p-5 rounded-xl shadow-2xl w-80 border-l-8 z-[1000] transition-all`;
+            document.getElementById('network-info').style.borderColor = data.color;
+
+            // Map
+            if (currentLayer) map.removeLayer(currentLayer);
+            const layerGroup = L.layerGroup();
+
+            // Draw Cities
+            data.cities.forEach(c => {
+                L.circleMarker(c.coords, {
+                    radius: 6,
+                    color: "white",
+                    fillColor: data.color,
+                    fillOpacity: 1,
+                    weight: 2
+                }).bindTooltip(c.name, { permanent: true, direction: "top", className: "bg-white text-xs font-bold px-1 rounded border-0 shadow-sm" }).addTo(layerGroup);
+            });
+
+            // Draw Connectors (Hub and Spoke style mostly, or mesh)
+            // Simple mesh for visual
+            for(let i=0; i<data.cities.length; i++) {
+                for(let j=i+1; j<data.cities.length; j++) {
+                    const p1 = data.cities[i].coords;
+                    const p2 = data.cities[j].coords;
+                    
+                    // Don't draw lines across the dateline messily in this simple impl
+                    if (Math.abs(p1[1] - p2[1]) < 180) {
+                         L.polyline([p1, p2], {
+                            color: data.color,
+                            weight: 2,
+                            opacity: 0.4,
+                            dashArray: '5, 10',
+                            className: 'network-line'
+                        }).addTo(layerGroup);
+                    }
+                }
+            }
+
+            layerGroup.addTo(map);
+            currentLayer = layerGroup;
+        }
+
+        // --- 2. DRAG DROP LOGIC ---
+        function allowDrop(ev) { ev.preventDefault(); }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("id", ev.target.id);
+            ev.dataTransfer.setData("rank", ev.target.dataset.rank);
+        }
+
+        function drop(ev, zoneRank) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("id");
+            const itemRank = ev.dataTransfer.getData("rank");
+            const item = document.getElementById(id);
+            const zone = document.getElementById(`zone-${zoneRank}`);
+
+            if (zoneRank === itemRank) {
+                // Correct
+                // Find container inside zone
+                const container = document.getElementById(`${zoneRank}-container`);
+                container.appendChild(item);
+                zone.classList.add('highlight');
+                setTimeout(() => zone.classList.remove('highlight'), 300);
+            } else {
+                // Incorrect
+                zone.classList.add('wrong');
+                setTimeout(() => zone.classList.remove('wrong'), 500);
+            }
+        }
+
+        // --- 3. SIMULATION LOGIC ---
+        function checkDecision(city) {
+            document.getElementById('fb-mumbai').classList.add('hidden');
+            document.getElementById('fb-london').classList.add('hidden');
+            
+            document.getElementById(`fb-${city}`).classList.remove('hidden');
+        }
+
+    </script>
+</body>
+</html>
