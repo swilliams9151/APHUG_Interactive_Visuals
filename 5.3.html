@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 5.3: Agricultural Origins & Diffusion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Exchange Animation */
+        .exchange-item {
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+        }
+        
+        /* Hearth Pulse */
+        .hearth-pulse {
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.8); opacity: 0.8; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* Draggable Item */
+        .draggable { cursor: grab; touch-action: none; }
+        .draggable:active { cursor: grabbing; }
+        .drop-zone { transition: background 0.3s; }
+        .drop-zone.highlight { background-color: rgba(34, 197, 94, 0.2); border-color: #22c55e; }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-green-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 5.3: Agricultural Origins</h1>
+                <p class="text-green-200 text-sm mt-1">Hearths of Domestication & The Columbian Exchange (SPS-5)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-green-800 px-3 py-1 rounded border border-green-700">
+                Where did our food come from?
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: HEARTHS MAP (SPS-5.A.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden flex flex-col md:flex-row h-[500px]">
+            
+            <!-- Map Area -->
+            <div class="relative w-full md:w-2/3 h-full bg-slate-100">
+                <div id="map"></div>
+                <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded shadow text-xs font-bold text-stone-600 z-[1000]">
+                    Click a Green Marker to see origins
+                </div>
+            </div>
+
+            <!-- Info Panel -->
+            <div class="w-full md:w-1/3 bg-stone-50 border-l border-stone-200 p-6 flex flex-col">
+                <h2 class="text-xl font-bold text-green-900 border-b border-green-200 pb-2 mb-4">1. Centers of Domestication</h2>
+                
+                <div id="hearth-info" class="flex-1 flex flex-col justify-center items-center text-center opacity-50">
+                    <div class="text-4xl mb-2">🌍</div>
+                    <p class="text-sm text-stone-500 italic">Select a hearth on the map to reveal its native crops and animals.</p>
+                </div>
+
+                <div id="hearth-content" class="hidden flex-col h-full">
+                    <h3 id="hearth-name" class="text-2xl font-extrabold text-stone-800 mb-1">Hearth Name</h3>
+                    <div class="text-xs font-mono text-green-600 font-bold uppercase mb-6" id="hearth-region">Region</div>
+                    
+                    <div class="space-y-4 overflow-y-auto pr-2 custom-scroll">
+                        <div class="bg-white p-3 rounded shadow-sm border border-stone-100">
+                            <span class="text-xs font-bold text-stone-400 uppercase block mb-1">Major Crops</span>
+                            <div id="hearth-crops" class="text-lg">🌽 🍅 🥔</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow-sm border border-stone-100">
+                            <span class="text-xs font-bold text-stone-400 uppercase block mb-1">Animals</span>
+                            <div id="hearth-animals" class="text-lg">🦙 🦃</div>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded border-l-4 border-green-500 text-xs text-stone-600">
+                            <strong class="block text-green-800 mb-1">Did you know?</strong>
+                            <span id="hearth-fact">Fact goes here.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: COLUMBIAN EXCHANGE SIMULATOR (SPS-5.B.1) -->
+        <section class="bg-blue-900 rounded-2xl shadow-xl p-8 text-white overflow-hidden relative">
+            <!-- Water Texture BG -->
+            <div class="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgdmlld0JveD0iMCAwIDIwIDIwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMSI+PHBhdGggZD0iTTAgMTBRNSAxNSA5IDEwVDE5IDEwIiBvcGFjaXR5PSIwLjUiLz48L3N2Zz4=')]"></div>
+            
+            <div class="relative z-10 mb-8 flex justify-between items-end">
+                <div>
+                    <h2 class="text-2xl font-bold">2. The Columbian Exchange (1492+)</h2>
+                    <p class="text-blue-200 text-sm mt-1">The global diffusion of plants, animals, and diseases between the Old and New Worlds.</p>
+                </div>
+                <button onclick="startExchange()" id="btn-trade" class="bg-amber-500 hover:bg-amber-400 text-amber-900 px-6 py-2 rounded-full font-bold shadow-lg transition transform active:scale-95 flex items-center gap-2">
+                    <span>⚓</span> Start Exchange
+                </button>
+            </div>
+
+            <div class="relative h-64 bg-blue-800/50 rounded-xl border border-blue-700 flex justify-between items-center px-8 md:px-20 overflow-hidden" id="exchange-container">
+                
+                <!-- New World (Americas) -->
+                <div class="text-center w-32 z-20">
+                    <div class="text-6xl mb-2 drop-shadow-lg">🌎</div>
+                    <h3 class="font-bold text-amber-300">The Americas</h3>
+                    <div class="text-[10px] text-blue-200 mt-1">"New World"</div>
+                    <div id="nw-inventory" class="mt-4 flex flex-wrap justify-center gap-1 min-h-[40px]">
+                        <!-- Items start here -->
+                    </div>
+                </div>
+
+                <!-- The Atlantic Ocean (Middle) -->
+                <div class="flex-1 relative h-full">
+                    <!-- Ships (Animation Path) -->
+                    <div id="atlantic-path" class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-full h-0.5 bg-blue-500/30 border-t border-dashed border-blue-300/30"></div>
+                    </div>
+                </div>
+
+                <!-- Old World (Afro-Eurasia) -->
+                <div class="text-center w-32 z-20">
+                    <div class="text-6xl mb-2 drop-shadow-lg">🌍</div>
+                    <h3 class="font-bold text-emerald-300">Afro-Eurasia</h3>
+                    <div class="text-[10px] text-blue-200 mt-1">"Old World"</div>
+                    <div id="ow-inventory" class="mt-4 flex flex-wrap justify-center gap-1 min-h-[40px]">
+                        <!-- Items start here -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Impact Cards -->
+            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                <div id="impact-nw" class="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/10 opacity-0 transition-opacity duration-1000">
+                    <h4 class="font-bold text-red-300 text-xs uppercase mb-1">Impact on Americas</h4>
+                    <p class="text-sm text-blue-100"><strong>Disease (Smallpox):</strong> Decimated indigenous populations (up to 90% mortality). <strong>Horses:</strong> Transformed Plains Indian culture.</p>
+                </div>
+                <div id="impact-ow" class="bg-white/10 p-4 rounded-lg backdrop-blur-sm border border-white/10 opacity-0 transition-opacity duration-1000">
+                    <h4 class="font-bold text-emerald-300 text-xs uppercase mb-1">Impact on Old World</h4>
+                    <p class="text-sm text-blue-100"><strong>Potatoes/Corn:</strong> High calorie crops led to a massive population explosion in Europe and Asia.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: ORIGIN QUIZ -->
+        <section class="bg-white rounded-2xl shadow-xl p-8 border border-stone-200">
+            <h2 class="text-xl font-bold text-stone-800 mb-6">3. Quick Quiz: Where did it start?</h2>
+            
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="drop-zone p-6 rounded-xl border-2 border-dashed border-stone-300 flex flex-col items-center justify-center min-h-[150px]" ondragover="allowDrop(event)" ondrop="drop(event, 'americas')" id="zone-americas">
+                    <span class="text-2xl mb-2">🌎</span>
+                    <span class="text-xs font-bold text-stone-400 uppercase">The Americas</span>
+                </div>
+                <div class="drop-zone p-6 rounded-xl border-2 border-dashed border-stone-300 flex flex-col items-center justify-center min-h-[150px]" ondragover="allowDrop(event)" ondrop="drop(event, 'fertile')" id="zone-fertile">
+                    <span class="text-2xl mb-2">🌙</span>
+                    <span class="text-xs font-bold text-stone-400 uppercase">Fertile Crescent</span>
+                </div>
+                <div class="drop-zone p-6 rounded-xl border-2 border-dashed border-stone-300 flex flex-col items-center justify-center min-h-[150px]" ondragover="allowDrop(event)" ondrop="drop(event, 'asia')" id="zone-asia">
+                    <span class="text-2xl mb-2">🍚</span>
+                    <span class="text-xs font-bold text-stone-400 uppercase">East/SE Asia</span>
+                </div>
+            </div>
+
+            <div id="quiz-bank" class="flex flex-wrap gap-3 justify-center bg-stone-100 p-4 rounded-xl">
+                <div id="item-corn" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-amber-600 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="americas">🌽 Corn (Maize)</div>
+                <div id="item-wheat" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-yellow-600 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="fertile">🌾 Wheat</div>
+                <div id="item-rice" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-stone-600 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="asia">🍚 Rice</div>
+                <div id="item-potato" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-stone-800 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="americas">🥔 Potato</div>
+                <div id="item-chicken" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-orange-600 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="asia">🐔 Chicken</div>
+                <div id="item-cow" class="draggable bg-white px-4 py-2 rounded shadow border border-stone-200 font-bold text-sm text-stone-900 cursor-grab" draggable="true" ondragstart="drag(event)" data-origin="fertile">🐄 Cattle</div>
+            </div>
+            
+            <div id="quiz-feedback" class="h-6 text-center text-sm font-bold mt-4 text-green-600"></div>
+
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- 1. MAP LOGIC ---
+        let map;
+        let currentLayer = null;
+
+        const hearths = {
+            'fertile_crescent': {
+                coords: [33.0, 44.0], // Iraq
+                name: "Fertile Crescent",
+                region: "Southwest Asia (Middle East)",
+                crops: "🌾 Wheat, Barley, Oats, Lentils",
+                animals: "🐄 Cattle, 🐐 Goats, 🐑 Sheep, 🐖 Pigs",
+                fact: "This is considered the first hearth of agriculture (~10,000 years ago). Seed agriculture began here."
+            },
+            'indus_valley': {
+                coords: [26.0, 68.0], // Pakistan
+                name: "Indus River Valley",
+                region: "South Asia",
+                crops: "🌾 Wheat, Barley, 🧵 Cotton",
+                animals: "🐄 Cattle (Zebu)",
+                fact: "Early urbanization (Harappa) occurred alongside agriculture here."
+            },
+            'se_asia': {
+                coords: [15.0, 100.0], // Thailand
+                name: "Southeast Asia",
+                region: "SE Asia",
+                crops: "🥥 Coconuts, 🥭 Mangoes, Taro",
+                animals: "🐔 Chickens",
+                fact: "Carl Sauer believed this was the FIRST hearth, specifically for Vegetative Planting (root crops) before Seed Planting."
+            },
+            'east_asia': {
+                coords: [30.0, 115.0], // China
+                name: "East Asia",
+                region: "China (Yellow/Yangtze Rivers)",
+                crops: "🍚 Rice, Soybeans",
+                animals: "🐖 Pigs, 🐔 Chickens",
+                fact: "Rice requires intensive labor and water (paddies), shaping the dense population patterns of the region."
+            },
+            'mesoamerica': {
+                coords: [19.0, -99.0], // Mexico
+                name: "Mesoamerica",
+                region: "Central America",
+                crops: "🌽 Maize (Corn), 🌶️ Peppers, Beans, Squash",
+                animals: "🦃 Turkeys",
+                fact: "Corn, Beans, and Squash are known as the 'Three Sisters' because they grow well together."
+            },
+            'andes': {
+                coords: [-13.0, -72.0], // Peru
+                name: "Andean Highlands",
+                region: "South America",
+                crops: "🥔 Potatoes, Manioc",
+                animals: "🦙 Llamas, Alpacas",
+                fact: "The potato saved Europe from famine but was originally grown in these high mountains."
+            },
+            'africa': {
+                coords: [10.0, 5.0], // Nigeria/Sahel
+                name: "Sub-Saharan Africa",
+                region: "Sahel / West Africa",
+                crops: "🍠 Yams, Sorghum, ☕ Coffee",
+                animals: "No major herd animals domesticated here.",
+                fact: "Coffee originated in Ethiopia!"
+            }
+        };
+
+        window.onload = function() {
+            // Init Map
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'topright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add Hearths
+            Object.keys(hearths).forEach(key => {
+                const h = hearths[key];
+                const circle = L.circleMarker(h.coords, {
+                    radius: 10,
+                    color: '#22c55e', // Green-500
+                    fillColor: '#22c55e',
+                    fillOpacity: 0.8,
+                    className: 'hearth-pulse cursor-pointer'
+                }).addTo(map);
+                
+                circle.on('click', () => showHearthInfo(key));
+            });
+
+            // Init Exchange Items
+            resetExchange();
+        };
+
+        function showHearthInfo(key) {
+            const data = hearths[key];
+            
+            document.getElementById('hearth-info').classList.add('hidden');
+            document.getElementById('hearth-content').classList.remove('hidden');
+            document.getElementById('hearth-content').classList.add('flex');
+            
+            document.getElementById('hearth-name').innerText = data.name;
+            document.getElementById('hearth-region').innerText = data.region;
+            document.getElementById('hearth-crops').innerText = data.crops;
+            document.getElementById('hearth-animals').innerText = data.animals;
+            document.getElementById('hearth-fact').innerText = data.fact;
+
+            map.flyTo(data.coords, 3);
+        }
+
+        // --- 2. EXCHANGE LOGIC ---
+        
+        const itemsNW = ["🌽 Corn", "🥔 Potato", "🚬 Tobacco", "🦃 Turkey", "🍅 Tomato"];
+        const itemsOW = ["🌾 Wheat", "🐄 Cattle", "🐎 Horse", "🦠 Smallpox", "☕ Coffee"];
+
+        function resetExchange() {
+            const nw = document.getElementById('nw-inventory');
+            const ow = document.getElementById('ow-inventory');
+            nw.innerHTML = itemsNW.map(i => `<span class="bg-amber-100 text-amber-900 px-2 py-1 rounded text-xs font-bold border border-amber-300 shadow-sm z-20 relative" id="${i.split(' ')[1]}">${i}</span>`).join('');
+            ow.innerHTML = itemsOW.map(i => `<span class="bg-emerald-100 text-emerald-900 px-2 py-1 rounded text-xs font-bold border border-emerald-300 shadow-sm z-20 relative" id="${i.split(' ')[1]}">${i}</span>`).join('');
+            
+            document.getElementById('impact-nw').style.opacity = 0;
+            document.getElementById('impact-ow').style.opacity = 0;
+        }
+
+        function startExchange() {
+            // Animate NW to OW
+            itemsNW.forEach((item, i) => {
+                const el = document.getElementById(item.split(' ')[1]);
+                // Clone for animation
+                const clone = el.cloneNode(true);
+                clone.classList.add('exchange-item');
+                // Position logic requires precise calculation in a real app, using simplified translation here
+                // Just visual effect: Append to container, absolute pos, move right
+                document.getElementById('exchange-container').appendChild(clone);
+                
+                // Reset position to left side
+                clone.style.left = "15%";
+                clone.style.top = (40 + i*10) + "%";
+                
+                setTimeout(() => {
+                    clone.style.left = "80%";
+                    clone.style.transform = "scale(1.2)";
+                }, 100 + (i*200));
+                
+                // Fade out at end
+                setTimeout(() => clone.remove(), 2000);
+            });
+
+            // Animate OW to NW
+            itemsOW.forEach((item, i) => {
+                const el = document.getElementById(item.split(' ')[1]);
+                const clone = el.cloneNode(true);
+                clone.classList.add('exchange-item');
+                document.getElementById('exchange-container').appendChild(clone);
+                
+                clone.style.left = "80%";
+                clone.style.top = (40 + i*10) + "%";
+                
+                setTimeout(() => {
+                    clone.style.left = "15%";
+                    clone.style.transform = "scale(1.2)";
+                }, 100 + (i*200));
+
+                setTimeout(() => clone.remove(), 2000);
+            });
+
+            // Show Impact
+            setTimeout(() => {
+                document.getElementById('impact-nw').style.opacity = 1;
+                document.getElementById('impact-ow').style.opacity = 1;
+            }, 1800);
+        }
+
+        // --- 3. QUIZ LOGIC (Drag & Drop) ---
+        function allowDrop(ev) {
+            ev.preventDefault();
+            // Highlight drop zone
+            ev.currentTarget.classList.add('highlight');
+        }
+        
+        // Remove highlight on leave
+        document.addEventListener('dragleave', (ev) => {
+            if(ev.target.classList.contains('drop-zone')) {
+                ev.target.classList.remove('highlight');
+            }
+        });
+
+        function drag(ev) {
+            ev.dataTransfer.setData("id", ev.target.id);
+            ev.dataTransfer.setData("origin", ev.target.dataset.origin);
+        }
+
+        function drop(ev, zoneOrigin) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('highlight');
+            
+            const id = ev.dataTransfer.getData("id");
+            const itemOrigin = ev.dataTransfer.getData("origin");
+            const fb = document.getElementById('quiz-feedback');
+
+            if (zoneOrigin === itemOrigin) {
+                ev.currentTarget.appendChild(document.getElementById(id));
+                fb.innerText = "Correct Origin!";
+                fb.className = "h-6 text-center text-sm font-bold mt-4 text-green-600 animate-bounce";
+            } else {
+                fb.innerText = "Incorrect. Try again.";
+                fb.className = "h-6 text-center text-sm font-bold mt-4 text-red-500 animate-pulse";
+            }
+            
+            setTimeout(() => fb.innerText = "", 1500);
+        }
+
+    </script>
+</body>
+</html>
