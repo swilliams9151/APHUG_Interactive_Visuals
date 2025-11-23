@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 4.5: Nature of Boundaries</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Card Hover Effects */
+        .vocab-card {
+            transition: all 0.3s ease;
+        }
+        .vocab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sea Wave Animation for UNCLOS */
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-20px); }
+            100% { transform: translateX(0); }
+        }
+        .wave-bg {
+            animation: wave 8s ease-in-out infinite;
+        }
+        
+        /* Stepper Active State */
+        .step-active {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #e0f2fe; /* sky-100 */
+            color: #0369a1; /* sky-700 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-sky-700 text-white p-8 text-center shadow-lg sticky top-0 z-50">
+        <h1 class="text-3xl md:text-4xl font-extrabold mb-2">Topic 4.5: Function of Political Boundaries</h1>
+        <p class="text-sky-200 font-medium">How borders are made, administered, and contested.</p>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6 space-y-12">
+
+        <!-- SECTION 1: The Lifecycle of a Boundary -->
+        <section class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+            <div class="border-b border-gray-200 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">1. The "Lifecycle" of a Boundary</h2>
+                <p class="text-sm text-gray-500">Boundaries don't just appear; they go through a four-step legal and physical process.</p>
+            </div>
+
+            <!-- Interactive Stepper -->
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <button onclick="setStep(1)" id="btn-step-1" class="step-btn step-active border-2 border-sky-500 rounded-lg p-4 text-left transition hover:bg-gray-50">
+                    <span class="text-xs font-bold uppercase tracking-wider block mb-1 text-gray-400">Step 1</span>
+                    <span class="font-bold text-lg">Defined</span>
+                </button>
+                <button onclick="setStep(2)" id="btn-step-2" class="step-btn border-2 border-gray-200 rounded-lg p-4 text-left transition hover:bg-gray-50">
+                    <span class="text-xs font-bold uppercase tracking-wider block mb-1 text-gray-400">Step 2</span>
+                    <span class="font-bold text-lg">Delimited</span>
+                </button>
+                <button onclick="setStep(3)" id="btn-step-3" class="step-btn border-2 border-gray-200 rounded-lg p-4 text-left transition hover:bg-gray-50">
+                    <span class="text-xs font-bold uppercase tracking-wider block mb-1 text-gray-400">Step 3</span>
+                    <span class="font-bold text-lg">Demarcated</span>
+                </button>
+                <button onclick="setStep(4)" id="btn-step-4" class="step-btn border-2 border-gray-200 rounded-lg p-4 text-left transition hover:bg-gray-50">
+                    <span class="text-xs font-bold uppercase tracking-wider block mb-1 text-gray-400">Step 4</span>
+                    <span class="font-bold text-lg">Administered</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Content Display -->
+            <div id="step-content" class="bg-slate-50 rounded-xl p-8 border border-slate-200 min-h-[200px] flex flex-col md:flex-row items-center gap-8">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <!-- SECTION 2: UNCLOS Visualizer -->
+        <section class="bg-gradient-to-b from-sky-900 to-sky-800 rounded-2xl shadow-xl overflow-hidden text-white">
+            <div class="p-8 text-center">
+                <h2 class="text-2xl font-bold mb-2">United Nations Convention on the Law of the Sea (UNCLOS)</h2>
+                <p class="text-sky-200 text-sm max-w-2xl mx-auto">
+                    Boundaries don't stop at the water's edge. UNCLOS establishes four zones of sovereignty.
+                    Hover over the zones in the diagram below.
+                </p>
+            </div>
+
+            <!-- SVG Diagram -->
+            <div class="relative h-64 w-full bg-sky-400 overflow-hidden">
+                <!-- Sky -->
+                <div class="absolute top-0 w-full h-20 bg-sky-200 z-0"></div>
+                <!-- Land -->
+                <div class="absolute bottom-0 left-0 w-1/4 h-full bg-emerald-700 z-20 flex items-end justify-center pb-4 shadow-lg">
+                    <span class="font-bold text-emerald-100">Land</span>
+                </div>
+                
+                <!-- Sea Zones (Clickable/Hoverable) -->
+                <svg class="absolute bottom-0 left-0 w-full h-full z-10" preserveAspectRatio="none" viewBox="0 0 1000 200">
+                    
+                    <!-- Water Surface -->
+                    <path d="M 250 80 L 1000 80 L 1000 200 L 250 200 Z" fill="#0284c7" class="wave-bg opacity-80" />
+                    
+                    <!-- Zone 1: Territorial (0-12nm) -->
+                    <rect x="250" y="0" width="100" height="200" fill="transparent" class="cursor-pointer hover:bg-white/10 transition"
+                          onmouseenter="showUnclosInfo('territorial')" />
+                    <line x1="350" y1="80" x2="350" y2="200" stroke="white" stroke-dasharray="5,5" stroke-width="2" />
+                    <text x="300" y="70" fill="white" font-size="12" text-anchor="middle" font-weight="bold">12 NM</text>
+
+                    <!-- Zone 2: Contiguous (12-24nm) -->
+                    <rect x="350" y="0" width="100" height="200" fill="transparent" class="cursor-pointer hover:bg-white/10 transition"
+                          onmouseenter="showUnclosInfo('contiguous')" />
+                    <line x1="450" y1="80" x2="450" y2="200" stroke="white" stroke-dasharray="5,5" stroke-width="2" />
+                    <text x="400" y="70" fill="white" font-size="12" text-anchor="middle" font-weight="bold">24 NM</text>
+
+                    <!-- Zone 3: EEZ (24-200nm) -->
+                    <rect x="450" y="0" width="300" height="200" fill="transparent" class="cursor-pointer hover:bg-white/10 transition"
+                          onmouseenter="showUnclosInfo('eez')" />
+                    <line x1="750" y1="80" x2="750" y2="200" stroke="white" stroke-dasharray="5,5" stroke-width="2" />
+                    <text x="600" y="70" fill="white" font-size="12" text-anchor="middle" font-weight="bold">200 NM</text>
+
+                    <!-- Zone 4: High Seas -->
+                    <rect x="750" y="0" width="250" height="200" fill="transparent" class="cursor-pointer hover:bg-white/10 transition"
+                          onmouseenter="showUnclosInfo('highseas')" />
+                    <text x="875" y="70" fill="white" font-size="12" text-anchor="middle" font-weight="bold">High Seas</text>
+
+                </svg>
+            </div>
+
+            <!-- Info Panel for UNCLOS -->
+            <div id="unclos-info" class="bg-slate-900 p-6 min-h-[120px] border-t border-slate-700 transition-all">
+                <h3 class="text-xl font-bold text-sky-400 mb-1">Hover over a zone...</h3>
+                <p class="text-gray-400 text-sm">Explore the rights and responsibilities of nations in international waters.</p>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Types of Boundaries & Disputes -->
+        <div class="grid lg:grid-cols-2 gap-8">
+            
+            <!-- Boundary Types -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pl-4 border-l-4 border-emerald-500">Types of Boundaries</h2>
+                <div class="space-y-3">
+                    
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-800">🕰️ Relic Boundary</h3>
+                                <p class="text-sm text-gray-600 mt-1">A border that no longer legally exists but still leaves an imprint on the cultural or physical landscape.</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Berlin Wall</span>
+                        </div>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-800">✏️ Superimposed Boundary</h3>
+                                <p class="text-sm text-gray-600 mt-1">Drawn by outsiders (usually colonizers) ignoring existing cultural groups.</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Africa (1884)</span>
+                        </div>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-800">🌲 Antecedent Boundary</h3>
+                                <p class="text-sm text-gray-600 mt-1">Existed <em>before</em> human settlement and cultural landscape emerged (often physical).</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">Pyrenees Mtns</span>
+                        </div>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-800">🤝 Subsequent (Consequent)</h3>
+                                <p class="text-sm text-gray-600 mt-1">Established <em>after</em> settlement to accommodate cultural differences (religion/language).</p>
+                            </div>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded font-bold">N. Ireland</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Boundary Disputes -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 pl-4 border-l-4 border-red-500">Boundary Disputes</h2>
+                <div class="grid grid-cols-1 gap-3">
+                    
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200 border-l-4 border-l-red-400">
+                        <h3 class="font-bold text-gray-800">1. Definitional (Positional)</h3>
+                        <p class="text-sm text-gray-600 mt-1">Conflict over the legal language of the treaty.</p>
+                        <p class="text-xs text-gray-400 mt-2 italic">"Did the treaty say the border is the middle of the river or the bank?"</p>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200 border-l-4 border-l-red-400">
+                        <h3 class="font-bold text-gray-800">2. Locational (Territorial)</h3>
+                        <p class="text-sm text-gray-600 mt-1">Conflict over where the line is actually placed on the ground/map.</p>
+                        <p class="text-xs text-gray-400 mt-2 italic">"The map shows the border here, but we claim this valley."</p>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200 border-l-4 border-l-red-400">
+                        <h3 class="font-bold text-gray-800">3. Operational (Functional)</h3>
+                        <p class="text-sm text-gray-600 mt-1">Conflict over how the border functions (migration, customs).</p>
+                        <p class="text-xs text-gray-400 mt-2 italic">"You are letting too many illegal immigrants/drugs cross into our land."</p>
+                    </div>
+
+                    <div class="vocab-card bg-white p-4 rounded-lg border border-gray-200 border-l-4 border-l-red-400">
+                        <h3 class="font-bold text-gray-800">4. Allocational (Resource)</h3>
+                        <p class="text-sm text-gray-600 mt-1">Conflict over resources that span the border (oil, water, natural gas).</p>
+                        <p class="text-xs text-gray-400 mt-2 italic">"You are drilling oil from a field that goes under our border!" (Ex: Iraq/Kuwait 1990)</p>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="text-center p-8 text-slate-400 text-sm">
+        AP Human Geography • Unit 4 • Topic 4.5
+    </footer>
+
+    <script>
+        // --- 1. Boundary Lifecycle Logic ---
+        const lifecycleData = {
+            1: {
+                title: "Defined",
+                desc: "A boundary is established by a legal document, such as a treaty, that describes the line in words.",
+                icon: "📜",
+                example: "Example: The Treaty of Paris (1783) defined the border between the US and British Canada using latitude/longitude."
+            },
+            2: {
+                title: "Delimited",
+                desc: "Cartographers (mapmakers) draw the boundary on a map based on the legal definition.",
+                icon: "🗺️",
+                example: "Example: Drawing a line on a Google Map to visualize the zone described in the treaty."
+            },
+            3: {
+                title: "Demarcated",
+                desc: "The boundary is visibly marked on the physical landscape using pillars, fences, walls, or signs.",
+                icon: "🚧",
+                example: "Example: The 'Welcome to New Mexico' sign on the highway or a border wall."
+            },
+            4: {
+                title: "Administered",
+                desc: "Governments determine how the boundary will be maintained and how people/goods will cross it.",
+                icon: "🛂",
+                example: "Example: Border patrol agents, checkpoints, customs enforcement, and visas."
+            }
+        };
+
+        function setStep(stepNum) {
+            // Reset buttons
+            for(let i=1; i<=4; i++) {
+                const btn = document.getElementById(`btn-step-${i}`);
+                if(i === stepNum) {
+                    btn.classList.add('step-active', 'border-sky-500');
+                    btn.classList.remove('border-gray-200');
+                } else {
+                    btn.classList.remove('step-active', 'border-sky-500');
+                    btn.classList.add('border-gray-200');
+                }
+            }
+
+            // Set Content
+            const data = lifecycleData[stepNum];
+            const contentDiv = document.getElementById('step-content');
+            contentDiv.innerHTML = `
+                <div class="text-6xl md:text-8xl animate-bounce">${data.icon}</div>
+                <div>
+                    <h3 class="text-2xl font-bold text-sky-800 mb-2">${data.title}</h3>
+                    <p class="text-lg text-gray-700 mb-4 leading-relaxed">${data.desc}</p>
+                    <div class="bg-white border-l-4 border-sky-400 p-3 rounded shadow-sm">
+                        <p class="text-sm text-gray-500 italic">${data.example}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize Step 1
+        setStep(1);
+
+
+        // --- 2. UNCLOS Logic ---
+        const unclosData = {
+            'territorial': {
+                title: "Territorial Sea (0-12 NM)",
+                text: "Total Sovereignty. The state treats this water exactly like its land. They can enforce all laws here. Foreign ships have 'innocent passage' rights but cannot fish or spy."
+            },
+            'contiguous': {
+                title: "Contiguous Zone (12-24 NM)",
+                text: "Enforcement Zone. The state does not own this water but can enforce laws regarding customs, immigration, and sanitation (pollution) to prevent criminals from fleeing."
+            },
+            'eez': {
+                title: "Exclusive Economic Zone (EEZ) (Up to 200 NM)",
+                text: "Economic Rights Only. The state has the sole right to extract resources (fish, oil, natural gas). However, foreign planes and ships can travel through freely."
+            },
+            'highseas': {
+                title: "High Seas (>200 NM)",
+                text: "International Waters. No state has control. Resources are 'common heritage of mankind' (though often exploited). The 'Law of the Sea' applies generally, but enforcement is difficult."
+            }
+        };
+
+        function showUnclosInfo(zone) {
+            const infoBox = document.getElementById('unclos-info');
+            const data = unclosData[zone];
+            infoBox.innerHTML = `
+                <h3 class="text-xl font-bold text-sky-400 mb-2">${data.title}</h3>
+                <p class="text-white text-md leading-relaxed">${data.text}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
