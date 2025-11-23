@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 4.8: Devolutionary Factors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Card Active State */
+        .factor-card.active {
+            border-color: #f59e0b; /* amber-500 */
+            background-color: #fffbeb; /* amber-50 */
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Custom Popup */
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem;
+            padding: 0;
+        }
+        .leaflet-popup-content {
+            margin: 0;
+            width: 280px !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col text-slate-800">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg shrink-0">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold">Topic 4.8: Forces of Devolution</h1>
+                <p class="text-slate-400 text-xs mt-1">What factors cause states to fragment or transfer power regionally?</p>
+            </div>
+            <button onclick="resetMap()" class="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded transition">
+                Reset Map
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+
+        <!-- Sidebar: Factor Selectors -->
+        <aside class="w-full md:w-1/3 lg:w-1/4 bg-white border-r border-gray-200 overflow-y-auto p-4 space-y-3 shadow-xl z-10">
+            <p class="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Select a Devolutionary Force</p>
+
+            <!-- 1. Physical Geography -->
+            <div onclick="filterByFactor('physical')" id="card-physical" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">🏔️</span>
+                    <h3 class="font-bold text-sm text-gray-800">Physical Geography</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">Mountains, islands, or large distances can isolate groups, creating separate identities and making central control difficult.</p>
+            </div>
+
+            <!-- 2. Ethnic Separatism -->
+            <div onclick="filterByFactor('separatism')" id="card-separatism" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">🚩</span>
+                    <h3 class="font-bold text-sm text-gray-800">Ethnic Separatism</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">Distinct ethno-national groups (language/religion) concentrated in specific regions often demand independence or autonomy.</p>
+            </div>
+
+            <!-- 3. Economic Problems -->
+            <div onclick="filterByFactor('economic')" id="card-economic" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">💰</span>
+                    <h3 class="font-bold text-sm text-gray-800">Economic & Social</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">Uneven development. Rich regions don't want to subsidize poor ones; poor regions feel neglected by the center.</p>
+            </div>
+
+            <!-- 4. Terrorism -->
+            <div onclick="filterByFactor('terrorism')" id="card-terrorism" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">💣</span>
+                    <h3 class="font-bold text-sm text-gray-800">Terrorism / Violence</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">Organized violence by non-state actors seeking political change can force a government to grant power to stop the conflict.</p>
+            </div>
+
+            <!-- 5. Ethnic Cleansing -->
+            <div onclick="filterByFactor('cleansing')" id="card-cleansing" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">⚠️</span>
+                    <h3 class="font-bold text-sm text-gray-800">Ethnic Cleansing</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">Forced removal or genocide creates deep hatred and an urgent need for political separation for safety.</p>
+            </div>
+
+            <!-- 6. Irredentism -->
+            <div onclick="filterByFactor('irredentism')" id="card-irredentism" class="factor-card cursor-pointer border-2 border-transparent bg-slate-50 hover:bg-slate-100 p-3 rounded-lg transition-all duration-200">
+                <div class="flex items-center mb-2">
+                    <span class="text-2xl mr-3">🔗</span>
+                    <h3 class="font-bold text-sm text-gray-800">Irredentism</h3>
+                </div>
+                <p class="text-xs text-gray-600 leading-relaxed">A movement to reclaim territory in a neighboring state inhabited by people of the same ethnicity.</p>
+            </div>
+
+        </aside>
+
+        <!-- Main Map Area -->
+        <div class="flex-1 relative">
+            <div id="map"></div>
+            
+            <!-- Map Overlay Instructions -->
+            <div id="map-instructions" class="absolute top-4 left-12 right-12 bg-white/90 backdrop-blur p-3 rounded-lg shadow-lg z-[400] text-center pointer-events-none transition-opacity duration-500">
+                <p class="text-sm font-bold text-gray-700">Select a factor on the left to see real-world examples.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        let map;
+        let markers = [];
+        
+        // Data: Devolution Case Studies
+        // Each location can have multiple factors, but we tag the PRIMARY ones for filtering.
+        const locations = [
+            {
+                name: "Catalonia (Spain)",
+                coords: [41.38, 2.17],
+                factors: ['separatism', 'economic'],
+                desc: "<strong>Economic & Separatism:</strong> Catalonia is Spain's wealthiest region. Many Catalans feel they pay too much in taxes to Madrid (Economic) and have a distinct language/culture (Separatism)."
+            },
+            {
+                name: "Scotland (UK)",
+                coords: [56.49, -4.2],
+                factors: ['separatism', 'economic'],
+                desc: "<strong>Separatism & Economic:</strong> Scotland has its own parliament (Devolution). Desire for independence is driven by distinct Scottish identity and control over North Sea oil revenues."
+            },
+            {
+                name: "Basque Country (Spain)",
+                coords: [43.0, -2.6],
+                factors: ['physical', 'separatism', 'terrorism'],
+                desc: "<strong>Physical & Terrorism:</strong> Historically isolated by the Pyrenees Mountains (Physical). The group ETA used terrorism for decades to demand independence."
+            },
+            {
+                name: "Quebec (Canada)",
+                coords: [52.0, -72.0],
+                factors: ['separatism'],
+                desc: "<strong>Ethnic Separatism:</strong> French-speaking Quebecois have sought independence to protect their language and culture from the English-speaking majority."
+            },
+            {
+                name: "Nunavut (Canada)",
+                coords: [64.0, -95.0],
+                factors: ['physical', 'separatism'],
+                desc: "<strong>Physical & Separatism:</strong> Vast physical distance and distinct Inuit culture led to the creation of Nunavut in 1999 (Peaceful Devolution)."
+            },
+            {
+                name: "Southern Italy (Mezzogiorno)",
+                coords: [40.8, 14.2],
+                factors: ['economic'],
+                desc: "<strong>Economic:</strong> The 'Padania' movement in wealthy Northern Italy has historically called for separation from the poorer, agrarian South (Mezzogiorno)."
+            },
+            {
+                name: "Former Yugoslavia",
+                coords: [44.0, 18.0],
+                factors: ['cleansing', 'separatism'],
+                desc: "<strong>Ethnic Cleansing:</strong> The violent breakup (Balkanization) was fueled by ethnic cleansing and deep separatist hatreds between Serbs, Croats, and Bosniaks."
+            },
+            {
+                name: "Crimea / Donbas (Ukraine)",
+                coords: [45.0, 34.0],
+                factors: ['irredentism'],
+                desc: "<strong>Irredentism:</strong> Russia annexed Crimea (2014) claiming to protect ethnic Russians living there, seeking to reunite them with the 'motherland'."
+            },
+            {
+                name: "Kashmir",
+                coords: [34.0, 76.0],
+                factors: ['irredentism', 'terrorism', 'physical'],
+                desc: "<strong>Irredentism & Physical:</strong> Pakistan claims Kashmir (majority Muslim) should belong to them. Physical geography (mountains) makes the border hard to secure."
+            },
+            {
+                name: "East Timor (Indonesia)",
+                coords: [-8.8, 125.7],
+                factors: ['physical', 'separatism', 'cleansing'],
+                desc: "<strong>Physical & Separatism:</strong> Indonesia is an archipelago (fragmented state). East Timor (Catholic/Portuguese history) was physically and culturally distinct, leading to independence."
+            },
+            {
+                name: "South Sudan",
+                coords: [7.0, 30.0],
+                factors: ['cleansing', 'separatism'],
+                desc: "<strong>Ethnic Cleansing:</strong> Decades of civil war and violence against the Christian/Animist south by the Arab/Muslim north led to independence in 2011."
+            },
+            {
+                name: "Flanders/Wallonia (Belgium)",
+                coords: [50.8, 4.3],
+                factors: ['separatism', 'economic'],
+                desc: "<strong>Economic & Separatism:</strong> Deep divide between Dutch-speaking Flanders (Rich) and French-speaking Wallonia (Poorer). Brussels serves as a buffer."
+            }
+        ];
+
+        window.onload = function() {
+            // Init Map
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Initial: Show all markers lightly? Or show none?
+            // Let's show all to start.
+            renderMarkers(locations);
+        };
+
+        function renderMarkers(data) {
+            // Clear existing
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            data.forEach(loc => {
+                const marker = L.circleMarker(loc.coords, {
+                    radius: 8,
+                    fillColor: "#f59e0b", // Amber
+                    color: "#fff",
+                    weight: 2,
+                    fillOpacity: 0.9
+                }).addTo(map);
+
+                // Custom Popup
+                const popupContent = `
+                    <div class="bg-white p-3 border-l-4 border-amber-500">
+                        <h3 class="font-bold text-gray-900 text-lg mb-1">${loc.name}</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">${loc.desc}</p>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                
+                markers.push(marker);
+            });
+        }
+
+        function filterByFactor(factor) {
+            // 1. Highlight Sidebar Card
+            document.querySelectorAll('.factor-card').forEach(el => el.classList.remove('active'));
+            document.getElementById(`card-${factor}`).classList.add('active');
+
+            // 2. Filter Data
+            const filtered = locations.filter(loc => loc.factors.includes(factor));
+
+            // 3. Render Only Filtered
+            renderMarkers(filtered);
+
+            // 4. Update Overlay Text
+            const instructions = document.getElementById('map-instructions');
+            instructions.innerHTML = `<p class="text-sm font-bold text-amber-700">Showing regions affected by: <span class="uppercase">${factor}</span></p>`;
+            
+            // 5. Fly to bounds of markers (optional, but nice)
+            if (filtered.length > 0) {
+                const group = new L.featureGroup(markers);
+                map.fitBounds(group.getBounds().pad(0.2));
+            }
+        }
+
+        function resetMap() {
+            document.querySelectorAll('.factor-card').forEach(el => el.classList.remove('active'));
+            renderMarkers(locations);
+            map.setView([20, 0], 2);
+            document.getElementById('map-instructions').innerHTML = `<p class="text-sm font-bold text-gray-700">Select a factor on the left to see real-world examples.</p>`;
+        }
+
+    </script>
+</body>
+</html>
