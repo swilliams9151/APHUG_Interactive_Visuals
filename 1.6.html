@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 1.6: Scales of Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Grid Transitions */
+        .grid-cell {
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Scale Bar Animation */
+        .scale-bar-fill {
+            transition: width 0.5s ease;
+        }
+
+        /* Card Hover */
+        .level-btn {
+            transition: all 0.2s;
+        }
+        .level-btn:hover {
+            transform: translateX(4px);
+            background-color: #f0f9ff; /* sky-50 */
+        }
+        .level-btn.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-sky-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 1.6: Scales of Analysis</h1>
+                <p class="text-sky-200 text-sm mt-1">Global, National, Regional, and Local Patterns (PSO-1.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-sky-800 px-3 py-1 rounded border border-sky-700">
+                The "Truth" depends on the Scale
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE ZOOM LENS (Pattern Variation) -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Controls -->
+            <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 text-slate-800 flex flex-col gap-4">
+                <h2 class="text-xl font-bold text-sky-900 border-b border-slate-100 pb-2">1. Select Scale of Analysis</h2>
+                <p class="text-xs text-slate-500">Scenario: Analyzing Wealth/Income Data.</p>
+
+                <div class="space-y-2 flex-1">
+                    <button onclick="setLevel('global')" id="btn-global" class="level-btn active w-full text-left p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm">Global Scale</span>
+                            <span class="text-xs opacity-70">The World</span>
+                        </div>
+                        <p class="text-[10px] mt-1 opacity-80">Generalization: "The North is rich."</p>
+                    </button>
+
+                    <button onclick="setLevel('national')" id="btn-national" class="level-btn w-full text-left p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm">National Scale</span>
+                            <span class="text-xs opacity-70">Countries</span>
+                        </div>
+                        <p class="text-[10px] mt-1 opacity-80">Variation: "Not all Northern countries are equal."</p>
+                    </button>
+
+                    <button onclick="setLevel('local')" id="btn-local" class="level-btn w-full text-left p-4 rounded-lg border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm">Local Scale</span>
+                            <span class="text-xs opacity-70">Sub-national</span>
+                        </div>
+                        <p class="text-[10px] mt-1 opacity-80">Truth: "Rich countries have poor areas."</p>
+                    </button>
+                </div>
+
+                <div class="bg-sky-50 p-3 rounded border border-sky-100">
+                    <span class="text-[10px] font-bold uppercase text-sky-600">Key Concept</span>
+                    <p id="concept-text" class="text-xs text-sky-900 mt-1">
+                        At a <strong>Global Scale</strong>, data is averaged out, hiding details.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Visualizer -->
+            <section class="lg:col-span-2 bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+                
+                <!-- The "Map" Container -->
+                <div id="map-container" class="w-80 h-80 bg-slate-700 rounded-xl grid relative overflow-hidden shadow-2xl transition-all duration-700">
+                    <!-- Cells injected by JS -->
+                </div>
+
+                <!-- Legend -->
+                <div class="flex gap-6 mt-6 text-xs font-bold text-slate-400">
+                    <div class="flex items-center"><span class="w-3 h-3 bg-emerald-500 rounded-sm mr-2"></span> Wealthy</div>
+                    <div class="flex items-center"><span class="w-3 h-3 bg-yellow-500 rounded-sm mr-2"></span> Middle Income</div>
+                    <div class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded-sm mr-2"></span> Low Income</div>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- SECTION 2: THE VOCABULARY TRAP -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-800">2. Don't Get Tricked! (Map Scale vs. Scale of Analysis)</h2>
+                <p class="text-sm text-slate-500">These two terms sound the same but mean opposite things visually.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2">
+                
+                <!-- Map Scale -->
+                <div class="p-8 border-r border-slate-100 hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-3xl">🗺️</div>
+                        <h3 class="font-bold text-indigo-900">Map Scale</h3>
+                    </div>
+                    <p class="text-xs font-mono text-indigo-500 mb-2">Cartographic Ratio</p>
+                    <ul class="text-sm text-slate-600 space-y-2 mb-4">
+                        <li><strong>Definition:</strong> The relationship between distance on the map and distance in reality.</li>
+                        <li class="bg-indigo-50 p-2 rounded text-indigo-800 font-bold text-xs">Large Scale = Zoomed In (Small Area, Big Detail)</li>
+                        <li class="bg-slate-100 p-2 rounded text-slate-500 text-xs">Small Scale = Zoomed Out (World Map)</li>
+                    </ul>
+                </div>
+
+                <!-- Scale of Analysis -->
+                <div class="p-8 hover:bg-slate-50 transition">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="text-3xl">📊</div>
+                        <h3 class="font-bold text-emerald-900">Scale of Analysis</h3>
+                    </div>
+                    <p class="text-xs font-mono text-emerald-500 mb-2">Data Aggregation</p>
+                    <ul class="text-sm text-slate-600 space-y-2 mb-4">
+                        <li><strong>Definition:</strong> The level at which data is grouped or presented.</li>
+                        <li class="bg-emerald-50 p-2 rounded text-emerald-800 font-bold text-xs">Global Scale = Data grouped by World Regions.</li>
+                        <li class="bg-slate-100 p-2 rounded text-slate-500 text-xs">Local Scale = Data grouped by Zip Code/City.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE ECOLOGICAL FALLACY -->
+        <section class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-white mb-2">⚠️ The Ecological Fallacy</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        This error occurs when you assume that what is true at a <strong>Large Scale of Analysis</strong> (e.g., National) is true for every individual at a <strong>Local Scale</strong>.
+                    </p>
+                    <div class="mt-4 p-3 bg-red-900/20 border border-red-500/50 rounded text-red-300 text-xs italic">
+                        "The US has a high average income, therefore this specific person in Detroit must be wealthy." <span class="font-bold not-italic ml-2">FALSE.</span>
+                    </div>
+                </div>
+                <div class="w-32 h-32 bg-slate-700 rounded-full flex items-center justify-center text-6xl shadow-inner">
+                    🚫
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. ZOOM LENS LOGIC ---
+        
+        // We use a CSS Grid to simulate the map
+        // Global = 1x1 (Average)
+        // National = 2x2 (Split)
+        // Local = 4x4 (Detail)
+        
+        const mapContainer = document.getElementById('map-container');
+        const conceptText = document.getElementById('concept-text');
+        
+        function setLevel(level) {
+            // 1. Update Buttons
+            document.querySelectorAll('.level-btn').forEach(b => {
+                b.classList.remove('active');
+                b.querySelector('span.opacity-70').style.color = "";
+            });
+            const btn = document.getElementById(`btn-${level}`);
+            btn.classList.add('active');
+            
+            // 2. Render Grid based on Level
+            mapContainer.innerHTML = ''; // Clear
+            mapContainer.className = "w-80 h-80 bg-slate-700 rounded-xl grid relative overflow-hidden shadow-2xl transition-all duration-700 gap-1 p-1";
+
+            if (level === 'global') {
+                // 1 Giant Cell (The World Average)
+                // It looks "Middle Income" (Yellow) because highs and lows average out
+                mapContainer.style.gridTemplateColumns = "1fr";
+                mapContainer.style.gridTemplateRows = "1fr";
+                
+                const cell = createCell("Global Average", "bg-yellow-500");
+                cell.innerHTML += `<div class="text-2xl mt-2">😐</div>`;
+                mapContainer.appendChild(cell);
+                
+                conceptText.innerHTML = "At a <strong>Global Scale</strong>, data is generalized. The world looks 'Average' because rich and poor cancel each other out.";
+
+            } else if (level === 'national') {
+                // 4 Cells (Countries)
+                // 2 Rich, 1 Med, 1 Poor
+                mapContainer.style.gridTemplateColumns = "repeat(2, 1fr)";
+                mapContainer.style.gridTemplateRows = "repeat(2, 1fr)";
+
+                mapContainer.appendChild(createCell("Country A", "bg-emerald-500")); // Rich
+                mapContainer.appendChild(createCell("Country B", "bg-emerald-500")); // Rich
+                mapContainer.appendChild(createCell("Country C", "bg-yellow-500")); // Med
+                mapContainer.appendChild(createCell("Country D", "bg-red-500"));     // Poor
+
+                conceptText.innerHTML = "At a <strong>National Scale</strong>, we see variation. We can now distinguish between Developed and Developing nations.";
+
+            } else if (level === 'local') {
+                // 16 Cells (Neighborhoods)
+                // Shows the inequality INSIDE the rich country
+                mapContainer.style.gridTemplateColumns = "repeat(4, 1fr)";
+                mapContainer.style.gridTemplateRows = "repeat(4, 1fr)";
+                
+                // Country A (Top Left Quadrant) - Mostly Rich but 1 Poor spot
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+                mapContainer.appendChild(createCell("", "bg-emerald-500")); // Country B starts
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+                
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+                mapContainer.appendChild(createCell("Inner City", "bg-red-500 animate-pulse")); // The hidden poverty!
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+                mapContainer.appendChild(createCell("", "bg-emerald-500"));
+
+                // Country C (Bottom Left) - Mixed
+                mapContainer.appendChild(createCell("", "bg-yellow-500"));
+                mapContainer.appendChild(createCell("", "bg-yellow-500"));
+                mapContainer.appendChild(createCell("", "bg-red-500")); // Country D starts
+                mapContainer.appendChild(createCell("", "bg-red-500"));
+
+                mapContainer.appendChild(createCell("", "bg-yellow-500"));
+                mapContainer.appendChild(createCell("", "bg-yellow-500"));
+                mapContainer.appendChild(createCell("", "bg-red-500"));
+                mapContainer.appendChild(createCell("", "bg-red-500"));
+
+                conceptText.innerHTML = "At a <strong>Local Scale</strong>, the truth is revealed. Even 'Rich' Country A has a poverty pocket (Red). This was invisible at the Global scale.";
+            }
+        }
+
+        function createCell(label, colorClass) {
+            const div = document.createElement('div');
+            div.className = `grid-cell ${colorClass} rounded flex flex-col items-center justify-center text-slate-900 font-bold text-xs shadow-inner`;
+            div.innerText = label;
+            return div;
+        }
+
+        // Init
+        setLevel('global');
+
+    </script>
+</body>
+</html>
