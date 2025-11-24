@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.8: Sustainable Development</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Meters */
+        .meter-bar { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s; }
+        
+        /* Ecotourism Animation */
+        .landscape-item { transition: opacity 0.5s, transform 0.5s; }
+        .hidden-item { opacity: 0; transform: scale(0); }
+        
+        /* SDG Grid */
+        .sdg-card { transition: all 0.2s; cursor: pointer; }
+        .sdg-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 10; }
+        .sdg-active { ring: 4px solid #10b981; transform: scale(1.05); }
+
+        /* Cloud Animation */
+        @keyframes float { 0% { transform: translateX(0); } 50% { transform: translateX(10px); } 100% { transform: translateX(0); } }
+        .cloud { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-emerald-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-emerald-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.8: Sustainable Development</h1>
+                <p class="text-emerald-200 text-sm mt-1">Ecotourism, SDGs, and Environmental Impact (IMP-7.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-emerald-800 px-3 py-1 rounded border border-emerald-700">
+                Meeting needs without compromising the future
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: THE DECOUPLING CHALLENGE (IMP-7.A.1) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-emerald-100 p-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-emerald-900">1. The Sustainability Challenge</h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Can you grow the economy <strong>without</strong> destroying the environment? Try to "Decouple" GDP from Pollution.
+                    </p>
+                </div>
+                <button onclick="togglePolicy()" id="btn-policy" class="bg-slate-200 hover:bg-emerald-200 text-slate-700 font-bold px-4 py-2 rounded-full transition text-xs shadow-sm">
+                    Policy: Business as Usual (Dirty)
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                
+                <!-- Controls -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Industrial Production Level</label>
+                    <input type="range" id="prod-slider" min="0" max="100" value="20" oninput="updateSustainability()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    
+                    <div class="mt-8 space-y-4">
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                                <span>GDP (Standard of Living)</span>
+                                <span id="val-gdp" class="text-blue-600">$Low</span>
+                            </div>
+                            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-gdp" class="h-full bg-blue-600 meter-bar" style="width: 20%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold text-slate-600 mb-1">
+                                <span>CO2 Emissions / Pollution</span>
+                                <span id="val-co2" class="text-emerald-600">Safe</span>
+                            </div>
+                            <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-co2" class="h-full bg-emerald-500 meter-bar" style="width: 10%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="relative h-48 bg-sky-100 rounded-xl border-b-8 border-stone-400 overflow-hidden flex items-end justify-center">
+                    <!-- Factory -->
+                    <div class="relative z-10 text-6xl">🏭</div>
+                    
+                    <!-- Smoke -->
+                    <div id="smoke-cloud" class="absolute top-10 left-1/2 transform -translate-x-1/2 text-4xl opacity-20 transition-all duration-500 cloud">☁️</div>
+                    
+                    <!-- Nature -->
+                    <div id="tree-1" class="absolute bottom-0 left-10 text-4xl transition-opacity duration-500">🌲</div>
+                    <div id="tree-2" class="absolute bottom-0 right-10 text-4xl transition-opacity duration-500">🌲</div>
+                    
+                    <div id="sus-feedback" class="absolute top-2 right-2 bg-white/80 px-2 py-1 rounded text-[10px] font-bold text-slate-500">
+                        System: Stable
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: ECOTOURISM TYCOON (IMP-7.A.2) -->
+        <section class="bg-stone-800 rounded-2xl shadow-xl border border-stone-700 p-8 text-white">
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-white">2. Ecotourism Simulator</h2>
+                <p class="text-sm text-stone-400 mt-1">You discovered a pristine rainforest. How do you develop it?</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                
+                <!-- The Map -->
+                <div class="relative h-64 bg-emerald-900 rounded-xl border-2 border-emerald-700 overflow-hidden shadow-inner">
+                    <!-- Jungle Base -->
+                    <div class="absolute inset-0 opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHRleHQgeD0iMCIgeT0iMTUiIGZvbnQtc2l6ZT0iMTAiPvCfjLM8L3RleHQ+PC9zdmc+')]"></div>
+                    
+                    <!-- Scenario A: Mass Tourism -->
+                    <div id="scene-mass" class="absolute inset-0 flex items-center justify-center hidden-item landscape-item">
+                        <div class="text-center">
+                            <div class="text-6xl">🏨</div>
+                            <div class="text-xs font-bold bg-white text-slate-900 px-2 rounded mt-1">Mega Resort</div>
+                        </div>
+                        <!-- Bulldozed trees -->
+                        <div class="absolute bottom-4 left-4 text-2xl grayscale opacity-50">🪵</div>
+                        <div class="absolute bottom-4 right-4 text-2xl grayscale opacity-50">🪵</div>
+                    </div>
+
+                    <!-- Scenario B: Ecotourism -->
+                    <div id="scene-eco" class="absolute inset-0 flex items-center justify-center hidden-item landscape-item">
+                        <div class="flex gap-8">
+                            <div class="text-center">
+                                <div class="text-4xl">🛖</div>
+                                <div class="text-[10px] bg-emerald-600 px-1 rounded mt-1">Eco-Lodge</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-4xl">📷</div>
+                                <div class="text-[10px] bg-emerald-600 px-1 rounded mt-1">Safari</div>
+                            </div>
+                        </div>
+                        <!-- Nature intact -->
+                        <div class="absolute bottom-4 left-4 text-2xl">🐆</div>
+                        <div class="absolute top-4 right-4 text-2xl">🦜</div>
+                    </div>
+                </div>
+
+                <!-- Decision Panel -->
+                <div class="flex flex-col justify-center space-y-4">
+                    <button onclick="setTourism('mass')" class="w-full text-left p-4 rounded-lg bg-stone-700 hover:bg-stone-600 border border-stone-600 transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <strong class="text-blue-400">Option A: Mass Tourism</strong>
+                            <span class="text-xs bg-stone-900 px-2 py-1 rounded">MNC Owned</span>
+                        </div>
+                        <p class="text-xs text-stone-400 group-hover:text-stone-200">Build a giant concrete hotel. High profit, but money goes to foreign corporations. Damages environment.</p>
+                    </button>
+
+                    <button onclick="setTourism('eco')" class="w-full text-left p-4 rounded-lg bg-stone-700 hover:bg-stone-600 border border-stone-600 transition group">
+                        <div class="flex justify-between items-center mb-1">
+                            <strong class="text-emerald-400">Option B: Ecotourism</strong>
+                            <span class="text-xs bg-stone-900 px-2 py-1 rounded">Locally Owned</span>
+                        </div>
+                        <p class="text-xs text-stone-400 group-hover:text-stone-200">Small scale. Protects nature. Profits stay local (guides, homestays). Educates visitors.</p>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: THE UN SDGs (IMP-7.A.3) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-emerald-200 p-8">
+            <h2 class="text-xl font-bold text-emerald-900 mb-6 pl-4 border-l-4 border-blue-500">3. The 2030 Agenda (SDGs)</h2>
+            <p class="text-sm text-slate-500 mb-6">Click a goal to see a sustainable development strategy.</p>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <!-- Selection of key SDGs for APHG -->
+                <div onclick="showSDG(1)" class="sdg-card bg-red-500 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">🚫💰</span>
+                    1. No Poverty
+                </div>
+                <div onclick="showSDG(2)" class="sdg-card bg-yellow-500 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">🍲</span>
+                    2. Zero Hunger
+                </div>
+                <div onclick="showSDG(5)" class="sdg-card bg-red-400 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">⚖️</span>
+                    5. Gender Equality
+                </div>
+                <div onclick="showSDG(7)" class="sdg-card bg-yellow-400 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">☀️</span>
+                    7. Clean Energy
+                </div>
+                <div onclick="showSDG(11)" class="sdg-card bg-orange-500 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">🏙️</span>
+                    11. Sustainable Cities
+                </div>
+                <div onclick="showSDG(13)" class="sdg-card bg-green-600 text-white p-3 rounded text-center font-bold text-xs flex flex-col items-center justify-center h-24">
+                    <span class="text-lg">🌍</span>
+                    13. Climate Action
+                </div>
+            </div>
+
+            <div id="sdg-info" class="mt-6 p-6 bg-slate-50 rounded-xl border border-slate-200 text-center hidden">
+                <h3 id="sdg-title" class="text-lg font-bold text-slate-800 mb-2">Goal Title</h3>
+                <p id="sdg-desc" class="text-sm text-slate-600 mb-4">Description.</p>
+                <div class="inline-block bg-white px-4 py-2 rounded border border-slate-200 shadow-sm">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Strategy:</span>
+                    <span id="sdg-strat" class="text-sm font-bold text-emerald-600 ml-2">Strategy Name</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. DECOUPLING LOGIC ---
+        let isGreenPolicy = false;
+
+        function togglePolicy() {
+            isGreenPolicy = !isGreenPolicy;
+            const btn = document.getElementById('btn-policy');
+            
+            if (isGreenPolicy) {
+                btn.innerText = "Policy: Green Tech / Carbon Tax";
+                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-full transition text-xs shadow-lg transform scale-105";
+            } else {
+                btn.innerText = "Policy: Business as Usual (Dirty)";
+                btn.className = "bg-slate-200 hover:bg-emerald-200 text-slate-700 font-bold px-4 py-2 rounded-full transition text-xs shadow-sm";
+            }
+            updateSustainability();
+        }
+
+        function updateSustainability() {
+            const val = parseInt(document.getElementById('prod-slider').value);
+            const barGDP = document.getElementById('bar-gdp');
+            const barCO2 = document.getElementById('bar-co2');
+            const cloud = document.getElementById('smoke-cloud');
+            const t1 = document.getElementById('tree-1');
+            const t2 = document.getElementById('tree-2');
+            const fb = document.getElementById('sus-feedback');
+            const valGDP = document.getElementById('val-gdp');
+            const valCO2 = document.getElementById('val-co2');
+
+            // GDP is linear with production
+            barGDP.style.width = `${val}%`;
+            valGDP.innerText = val > 70 ? "$High" : (val > 30 ? "$Medium" : "$Low");
+
+            // CO2 depends on policy
+            let co2;
+            if (isGreenPolicy) {
+                co2 = val * 0.2; // Decoupled! Low pollution even at high output
+            } else {
+                co2 = val; // Coupled. Pollution matches growth.
+            }
+
+            barCO2.style.width = `${co2}%`;
+            
+            // Visual Effects
+            cloud.style.opacity = co2 / 100;
+            cloud.style.transform = `translate(-50%, 0) scale(${1 + (co2/50)})`;
+
+            // Environmental Damage
+            if (co2 > 60) {
+                barCO2.classList.replace('bg-emerald-500', 'bg-red-500');
+                valCO2.innerText = "Critical";
+                valCO2.className = "text-red-600 font-bold animate-pulse";
+                t1.style.opacity = 0; // Trees die
+                t2.style.opacity = 0;
+                fb.innerText = "Status: Unsustainable";
+                fb.className = "absolute top-2 right-2 bg-red-100 px-2 py-1 rounded text-[10px] font-bold text-red-600";
+            } else {
+                barCO2.classList.replace('bg-red-500', 'bg-emerald-500');
+                valCO2.innerText = isGreenPolicy ? "Decoupled (Low)" : "Moderate";
+                valCO2.className = "text-emerald-600";
+                t1.style.opacity = 1;
+                t2.style.opacity = 1;
+                fb.innerText = isGreenPolicy ? "Status: Sustainable Growth" : "Status: Stable";
+                fb.className = isGreenPolicy ? "absolute top-2 right-2 bg-emerald-100 px-2 py-1 rounded text-[10px] font-bold text-emerald-600" : "absolute top-2 right-2 bg-white/80 px-2 py-1 rounded text-[10px] font-bold text-slate-500";
+            }
+        }
+
+        // --- 2. ECOTOURISM LOGIC ---
+        function setTourism(type) {
+            const mass = document.getElementById('scene-mass');
+            const eco = document.getElementById('scene-eco');
+
+            if (type === 'mass') {
+                mass.classList.remove('hidden-item');
+                eco.classList.add('hidden-item');
+            } else {
+                eco.classList.remove('hidden-item');
+                mass.classList.add('hidden-item');
+            }
+        }
+
+        // --- 3. SDG LOGIC ---
+        const sdgData = {
+            1: { title: "No Poverty", desc: "End poverty in all its forms everywhere.", strat: "Microloans (Small-scale finance)" },
+            2: { title: "Zero Hunger", desc: "End hunger, achieve food security, promote sustainable agriculture.", strat: "Drought-resistant Seeds / Local Food Movements" },
+            5: { title: "Gender Equality", desc: "Achieve gender equality and empower all women and girls.", strat: "Education Access / Land Rights" },
+            7: { title: "Affordable & Clean Energy", desc: "Ensure access to affordable, reliable, sustainable energy.", strat: "Solar/Wind Farms (Renewables)" },
+            11: { title: "Sustainable Cities", desc: "Make cities inclusive, safe, resilient and sustainable.", strat: "Public Transit / Greenbelts / Mixed-Use Zoning" },
+            13: { title: "Climate Action", desc: "Take urgent action to combat climate change and its impacts.", strat: "Carbon Tax / Reforestation" }
+        };
+
+        function showSDG(id) {
+            // Highlight Card
+            document.querySelectorAll('.sdg-card').forEach(c => c.classList.remove('sdg-active'));
+            // Finding specific card via event target is tricky with grid, easier to just reset all styles visually or add IDs
+            // For simplicity in this demo, just showing info box
+            
+            const info = document.getElementById('sdg-info');
+            const data = sdgData[id];
+            
+            document.getElementById('sdg-title').innerText = `Goal ${id}: ${data.title}`;
+            document.getElementById('sdg-desc').innerText = data.desc;
+            document.getElementById('sdg-strat').innerText = data.strat;
+            
+            info.classList.remove('hidden');
+            info.classList.add('fade-in-up'); // Add simple animation class if defined or just show
+        }
+
+        // Init
+        updateSustainability();
+
+    </script>
+</body>
+</html>
