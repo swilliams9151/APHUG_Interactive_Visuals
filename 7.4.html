@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.4: Women and Economic Development</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Icon Transitions */
+        .role-icon { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Loan Animation */
+        .money-flow { animation: flowUp 1s forwards; }
+        @keyframes flowUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Bar Animation */
+        .gap-bar { transition: height 1s ease; }
+        
+        /* Tab Buttons */
+        .nav-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #db2777; /* pink-600 */
+            color: #db2777;
+        }
+        .nav-btn { border-bottom: 4px solid transparent; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-pink-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.4: Women & Economy</h1>
+                <p class="text-pink-200 text-sm mt-1">Roles, Equity, and Microloans (SPS-7.D)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-pink-800 px-3 py-1 rounded border border-pink-700">
+                Gender Development Index (GDI)
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Navigation -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button onclick="setTab('roles')" id="tab-roles" class="nav-btn active w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">1. Changing Roles</button>
+            <button onclick="setTab('gap')" id="tab-gap" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">2. The Wage Gap</button>
+            <button onclick="setTab('micro')" id="tab-micro" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">3. Microloans</button>
+        </div>
+
+        <!-- SECTION 1: CHANGING ROLES (SPS-7.D.1) -->
+        <section id="view-roles" class="visible-tab bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <div class="flex flex-col md:flex-row gap-10">
+                
+                <!-- Controls -->
+                <div class="w-full md:w-1/3 flex flex-col justify-center">
+                    <h2 class="text-xl font-bold text-pink-900 mb-4">Economic Development Scale</h2>
+                    <p class="text-sm text-slate-500 mb-6">
+                        As a country develops (GDP rises), women's roles shift from the home/farm to the factory, and finally to the office.
+                    </p>
+                    
+                    <div class="mb-8 relative pt-6">
+                        <input type="range" id="dev-slider" min="1" max="3" step="1" value="1" oninput="updateRoles()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-pink-600">
+                        <div class="flex justify-between text-xs font-bold text-slate-400 mt-2 uppercase">
+                            <span>LDC (Agrarian)</span>
+                            <span>NIC (Industrial)</span>
+                            <span>MDC (Service)</span>
+                        </div>
+                    </div>
+
+                    <div id="role-desc" class="p-4 bg-pink-50 border-l-4 border-pink-500 rounded text-sm text-slate-600">
+                        Women primarily work in subsistence agriculture. High fertility rates limit career options.
+                    </div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="w-full md:w-2/3 bg-slate-100 rounded-xl border border-slate-200 flex flex-col items-center justify-center p-8 relative overflow-hidden">
+                    
+                    <!-- Icon -->
+                    <div id="role-icon" class="text-9xl role-icon mb-4">👩‍🌾</div>
+                    <h3 id="role-title" class="text-2xl font-extrabold text-slate-800">Subsistence Farmer</h3>
+                    
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-3 gap-4 w-full mt-8">
+                        <div class="bg-white p-3 rounded shadow text-center">
+                            <div class="text-[10px] uppercase font-bold text-slate-400">Fertility (TFR)</div>
+                            <div id="stat-tfr" class="text-xl font-bold text-pink-600">6.0</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow text-center">
+                            <div class="text-[10px] uppercase font-bold text-slate-400">Literacy</div>
+                            <div id="stat-lit" class="text-xl font-bold text-blue-600">40%</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow text-center">
+                            <div class="text-[10px] uppercase font-bold text-slate-400">Sector</div>
+                            <div id="stat-sec" class="text-xl font-bold text-emerald-600">Primary</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE EQUITY GAP (SPS-7.D.2) -->
+        <section id="view-gap" class="hidden bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The Unfinished Revolution</h2>
+                    <p class="text-sm text-slate-400 mt-1">Even in MDCs, women face the "Glass Ceiling" and wage gaps.</p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10 items-end h-64">
+                
+                <!-- Wage Visual -->
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-600 h-full flex items-center justify-center relative">
+                    <div class="text-center w-full">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Average Earnings ($1.00 Baseline)</h3>
+                        <div class="flex justify-center gap-8 items-end h-32">
+                            <!-- Men -->
+                            <div class="w-16 bg-blue-500 rounded-t relative group h-full">
+                                <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-white font-bold">$1.00</span>
+                                <div class="absolute bottom-2 w-full text-center text-xs text-blue-200 font-bold">Men</div>
+                            </div>
+                            <!-- Women -->
+                            <div class="w-16 bg-pink-500 rounded-t relative group" style="height: 82%">
+                                <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-white font-bold">$0.82</span>
+                                <div class="absolute bottom-2 w-full text-center text-xs text-pink-200 font-bold">Women</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation -->
+                <div class="space-y-4">
+                    <div class="bg-slate-700 p-4 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-bold text-white text-sm">The Glass Ceiling</h4>
+                        <p class="text-xs text-slate-300 mt-1">An invisible barrier that prevents women from rising to the highest levels of leadership (CEOs, Presidents), despite having the qualifications.</p>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-lg border-l-4 border-pink-500">
+                        <h4 class="font-bold text-white text-sm">The "Second Shift"</h4>
+                        <p class="text-xs text-slate-300 mt-1">Women often work a full-time job and then come home to perform the majority of unpaid domestic labor (childcare, cooking), limiting career advancement.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: MICROLOANS (SPS-7.D.3) -->
+        <section id="view-micro" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <h2 class="text-xl font-bold text-emerald-900 mb-6">3. Microloans: Small Money, Big Impact</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <!-- Step 1: The Loan -->
+                <div onclick="runMicroSim(1)" id="micro-1" class="cursor-pointer bg-emerald-50 p-6 rounded-xl border-2 border-emerald-100 hover:border-emerald-400 transition text-center group">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition">💸</div>
+                    <h3 class="font-bold text-emerald-800">1. The Loan</h3>
+                    <p class="text-xs text-emerald-600 mt-2">Lend $50 to a woman in a rural village to buy a sewing machine or goat.</p>
+                </div>
+
+                <!-- Step 2: The Business -->
+                <div onclick="runMicroSim(2)" id="micro-2" class="cursor-pointer bg-slate-50 p-6 rounded-xl border-2 border-slate-100 transition text-center opacity-50">
+                    <div class="text-5xl mb-4">🧵</div>
+                    <h3 class="font-bold text-slate-800">2. The Business</h3>
+                    <p class="text-xs text-slate-500 mt-2">She starts a small business (informal economy) selling clothes or milk.</p>
+                </div>
+
+                <!-- Step 3: The Impact -->
+                <div onclick="runMicroSim(3)" id="micro-3" class="cursor-pointer bg-slate-50 p-6 rounded-xl border-2 border-slate-100 transition text-center opacity-50">
+                    <div class="text-5xl mb-4">🎓</div>
+                    <h3 class="font-bold text-slate-800">3. The Multiplier</h3>
+                    <p class="text-xs text-slate-500 mt-2">Profits are reinvested in children's education and home repairs. Poverty cycle breaks.</p>
+                </div>
+
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="micro-feedback" class="mt-8 p-4 bg-indigo-50 rounded-lg text-center text-indigo-800 text-sm font-bold hidden">
+                Congratulations! You just empowered a community. Note: Microloans are overwhelmingly given to women (95%+) because they are more likely to repay and reinvest in the family.
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['roles', 'gap', 'micro'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+                document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            const btn = document.getElementById(`tab-${id}`);
+            btn.classList.add('active');
+            btn.classList.remove('text-slate-400');
+        }
+
+        // --- 1. ROLES LOGIC ---
+        const roles = {
+            1: {
+                title: "Subsistence Farmer",
+                icon: "👩‍🌾",
+                tfr: "6.0",
+                lit: "40%",
+                sec: "Primary",
+                desc: "<strong>LDC Stage 2:</strong> Women primarily work in agriculture to feed their families. High fertility rates and lack of education limit access to the formal economy."
+            },
+            2: {
+                title: "Factory Worker",
+                icon: "🏭",
+                tfr: "3.5",
+                lit: "75%",
+                sec: "Secondary",
+                desc: "<strong>NIC Stage 3:</strong> Urbanization pulls women into factories (textiles/assembly). Wages are low, but financial independence begins. Fertility drops."
+            },
+            3: {
+                title: "Professional / CEO",
+                icon: "👩‍💻",
+                tfr: "1.6",
+                lit: "99%",
+                sec: "Tertiary+",
+                desc: "<strong>MDC Stage 4/5:</strong> Women access higher education and enter professional careers. Delayed marriage and family planning lead to low fertility."
+            }
+        };
+
+        function updateRoles() {
+            const val = document.getElementById('dev-slider').value;
+            const data = roles[val];
+            
+            document.getElementById('role-icon').innerText = data.icon;
+            document.getElementById('role-title').innerText = data.title;
+            document.getElementById('stat-tfr').innerText = data.tfr;
+            document.getElementById('stat-lit').innerText = data.lit;
+            document.getElementById('stat-sec').innerText = data.sec;
+            document.getElementById('role-desc').innerHTML = data.desc;
+        }
+
+        // --- 3. MICROLOAN LOGIC ---
+        let microStage = 0;
+        
+        function runMicroSim(step) {
+            // Enforce order
+            if (step !== microStage + 1) return;
+            microStage = step;
+
+            // Highlight current step
+            const card = document.getElementById(`micro-${step}`);
+            card.classList.remove('opacity-50', 'bg-slate-50', 'border-slate-100');
+            card.classList.add('bg-emerald-50', 'border-emerald-400', 'money-flow');
+
+            if (step === 3) {
+                document.getElementById('micro-feedback').classList.remove('hidden');
+                document.getElementById('micro-feedback').classList.add('fade-in');
+            }
+        }
+
+    </script>
+</body>
+</html>
