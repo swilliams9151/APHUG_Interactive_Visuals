@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.2: Economic Sectors & Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for Sectors -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Factory Animation */
+        .factory-move { transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Container Animation */
+        @keyframes crane-lift {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+            100% { transform: translateY(0); }
+        }
+        .crane-action { animation: crane-lift 2s ease-in-out; }
+
+        /* Tab Active State */
+        .nav-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #f59e0b; /* amber-500 */
+            color: #b45309; /* amber-700 */
+        }
+        .nav-btn { border-bottom: 4px solid transparent; }
+
+        /* Sector Icons */
+        .sector-icon { transition: transform 0.3s; }
+        .sector-icon:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-amber-800 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.2: Economic Sectors & Patterns</h1>
+                <p class="text-amber-200 text-sm mt-1">Sectors, Location Theory, and Global Trade (SPS-7.B)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-amber-700 px-3 py-1 rounded border border-amber-600">
+                Weber's Least Cost Theory
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Nav -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button onclick="setTab('sectors')" id="tab-sectors" class="nav-btn active w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">1. The 5 Sectors</button>
+            <button onclick="setTab('weber')" id="tab-weber" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">2. Weber's Factory</button>
+            <button onclick="setTab('logistics')" id="tab-logistics" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">3. Global Logistics</button>
+        </div>
+
+        <!-- SECTION 1: SECTOR EVOLUTION (SPS-7.B.1) -->
+        <section id="view-sectors" class="visible-tab bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <div class="flex flex-col md:flex-row gap-8">
+                
+                <!-- Controls -->
+                <div class="w-full md:w-1/3 flex flex-col justify-center">
+                    <h2 class="text-xl font-bold text-amber-900 mb-4">Structural Change</h2>
+                    <p class="text-sm text-slate-500 mb-6">
+                        As a country develops, its economy shifts. Drag the slider to see the transition from LDC to MDC.
+                    </p>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between text-xs font-bold uppercase text-slate-400 mb-2">
+                            <span>Pre-Industrial (LDC)</span>
+                            <span>Post-Industrial (MDC)</span>
+                        </div>
+                        <input type="range" id="dev-slider" min="1" max="100" value="10" oninput="updateSectors()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+                    </div>
+
+                    <div id="dev-status" class="p-4 bg-slate-50 border-l-4 border-amber-500 rounded text-sm text-slate-600 italic">
+                        Mostly subsistence farming.
+                    </div>
+                </div>
+
+                <!-- Chart Visualizer -->
+                <div class="w-full md:w-2/3 flex items-center justify-center">
+                    <div class="relative w-64 h-64">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                    
+                    <!-- Legend/Definitions -->
+                    <div class="ml-8 space-y-2">
+                        <div class="flex items-center gap-2 group cursor-pointer relative">
+                            <div class="w-4 h-4 rounded bg-emerald-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Primary (Raw Materials)</span>
+                            <span class="absolute left-0 -top-8 bg-slate-800 text-white text-[10px] p-2 rounded hidden group-hover:block w-40 z-10">Mining, Farming, Fishing. Extraction from Earth.</span>
+                        </div>
+                        <div class="flex items-center gap-2 group cursor-pointer relative">
+                            <div class="w-4 h-4 rounded bg-blue-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Secondary (Manufacturing)</span>
+                            <span class="absolute left-0 -top-8 bg-slate-800 text-white text-[10px] p-2 rounded hidden group-hover:block w-40 z-10">Factories, Processing, Construction. Value added.</span>
+                        </div>
+                        <div class="flex items-center gap-2 group cursor-pointer relative">
+                            <div class="w-4 h-4 rounded bg-purple-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Tertiary (Services)</span>
+                            <span class="absolute left-0 -top-8 bg-slate-800 text-white text-[10px] p-2 rounded hidden group-hover:block w-40 z-10">Retail, Banking, Law. Selling goods/skills.</span>
+                        </div>
+                        <div class="flex items-center gap-2 group cursor-pointer relative">
+                            <div class="w-4 h-4 rounded bg-pink-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Quaternary (Information)</span>
+                            <span class="absolute left-0 -top-8 bg-slate-800 text-white text-[10px] p-2 rounded hidden group-hover:block w-40 z-10">Research, IT, Data Analysis. Knowledge based.</span>
+                        </div>
+                        <div class="flex items-center gap-2 group cursor-pointer relative">
+                            <div class="w-4 h-4 rounded bg-orange-500"></div>
+                            <span class="text-xs font-bold text-slate-600">Quinary (Decision Making)</span>
+                            <span class="absolute left-0 -top-8 bg-slate-800 text-white text-[10px] p-2 rounded hidden group-hover:block w-40 z-10">CEOs, Government Officials. High-level leadership.</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: WEBER'S LEAST COST THEORY (SPS-7.B.2) -->
+        <section id="view-weber" class="hidden bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8 text-white">
+            <div class="grid lg:grid-cols-3 gap-8 h-full">
+                
+                <!-- Controls -->
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">2. Weber's Location Theory</h2>
+                        <p class="text-sm text-slate-400 mt-1">Alfred Weber said factories locate where transportation costs are lowest. <br><strong>Weight Gained vs. Weight Lost.</strong></p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="setWeber('bulk-reducing')" id="btn-reducing" class="w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group ring-2 ring-orange-500">
+                            <div class="flex justify-between items-center">
+                                <strong class="text-orange-400">Bulk-Reducing</strong>
+                                <span class="text-2xl">⛏️</span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 mt-1 group-hover:text-white">Input is heavier than Product. (e.g., Copper, Steel)</p>
+                        </button>
+
+                        <button onclick="setWeber('bulk-gaining')" id="btn-gaining" class="w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group">
+                            <div class="flex justify-between items-center">
+                                <strong class="text-blue-400">Bulk-Gaining</strong>
+                                <span class="text-2xl">🥤</span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 mt-1 group-hover:text-white">Product is heavier than Input. (e.g., Soda, Cars)</p>
+                        </button>
+
+                        <button onclick="setWeber('labor')" id="btn-labor" class="w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group">
+                            <div class="flex justify-between items-center">
+                                <strong class="text-emerald-400">Labor Oriented</strong>
+                                <span class="text-2xl">👕</span>
+                            </div>
+                            <p class="text-[10px] text-slate-300 mt-1 group-hover:text-white">Cheap labor > Transport cost. (e.g., Textiles)</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Visualizer (The Triangle) -->
+                <div class="lg:col-span-2 bg-slate-900 rounded-xl border-2 border-slate-600 relative overflow-hidden">
+                    <svg id="weber-svg" viewBox="0 0 600 400" class="w-full h-full">
+                        <!-- Triangle Base -->
+                        <line x1="100" y1="100" x2="300" y2="300" stroke="#475569" stroke-width="2" stroke-dasharray="5,5" />
+                        <line x1="500" y1="100" x2="300" y2="300" stroke="#475569" stroke-width="2" stroke-dasharray="5,5" />
+                        
+                        <!-- Resources -->
+                        <circle cx="100" cy="100" r="20" fill="#94a3b8" />
+                        <text x="100" y="70" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="bold">Raw Material 1</text>
+                        
+                        <circle cx="500" cy="100" r="20" fill="#94a3b8" />
+                        <text x="500" y="70" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="bold">Raw Material 2</text>
+
+                        <!-- Market -->
+                        <rect x="280" y="280" width="40" height="40" fill="#3b82f6" />
+                        <text x="300" y="340" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="bold">Market</text>
+
+                        <!-- Factory (Dynamic) -->
+                        <g id="factory-token" class="factory-move" style="transform: translate(280px, 180px);">
+                            <rect width="40" height="30" fill="#f59e0b" stroke="white" stroke-width="2" />
+                            <text x="20" y="50" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="bold">Factory</text>
+                        </g>
+                    </svg>
+
+                    <div id="weber-feedback" class="absolute bottom-4 left-4 bg-slate-800/90 p-3 rounded border border-slate-500 text-xs max-w-sm text-orange-300">
+                        Select a scenario.
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: LOGISTICS & CONTAINERIZATION -->
+        <section id="view-logistics" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-6 pl-4 border-l-4 border-blue-600">3. The Break-of-Bulk Point</h2>
+            
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                
+                <!-- Animation Container -->
+                <div class="relative h-64 bg-sky-100 rounded-xl overflow-hidden border-b-4 border-slate-400">
+                    <!-- Water -->
+                    <div class="absolute bottom-0 left-0 w-1/2 h-20 bg-blue-500"></div>
+                    <!-- Dock -->
+                    <div class="absolute bottom-0 right-0 w-1/2 h-24 bg-slate-400 border-l-4 border-slate-500"></div>
+                    
+                    <!-- Ship -->
+                    <div class="absolute bottom-10 left-10 text-6xl transition-all duration-1000" id="ship">🚢</div>
+                    
+                    <!-- Crane -->
+                    <div class="absolute bottom-24 right-1/3 text-6xl text-slate-700">🏗️</div>
+
+                    <!-- Truck -->
+                    <div class="absolute bottom-24 right-10 text-5xl transition-all duration-1000" id="truck">🚛</div>
+
+                    <!-- Container Box -->
+                    <div id="container-box" class="absolute w-8 h-8 bg-red-600 border-2 border-white shadow-md z-20 opacity-0" style="bottom: 60px; left: 80px;"></div>
+                </div>
+
+                <!-- Explanation -->
+                <div class="space-y-4">
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        A <strong>Break-of-Bulk Point</strong> is where cargo is transferred from one mode of transport to another (e.g., Ship ➔ Truck).
+                    </p>
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 text-sm uppercase mb-2">Containerization</h4>
+                        <p class="text-xs text-indigo-800">
+                            Before containers, loading a ship took weeks. Now it takes hours. Standardized steel boxes lowered the cost of transport so much that it became profitable to manufacture goods in Asia and ship them to the US.
+                        </p>
+                    </div>
+                    <button onclick="runLogistics()" class="w-full py-2 bg-slate-800 text-white rounded font-bold text-sm hover:bg-slate-700 transition">
+                        Simulate Transfer
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['sectors', 'weber', 'logistics'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('active');
+        }
+
+
+        // --- 1. SECTOR CHART LOGIC ---
+        const ctx = document.getElementById('sectorChart').getContext('2d');
+        let sectorChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Primary', 'Secondary', 'Tertiary', 'Quat/Quin'],
+                datasets: [{
+                    data: [80, 10, 10, 0],
+                    backgroundColor: ['#10b981', '#3b82f6', '#a855f7', '#ec4899'],
+                    borderWidth: 0
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        function updateSectors() {
+            const val = parseInt(document.getElementById('dev-slider').value);
+            const status = document.getElementById('dev-status');
+            
+            // Logic for Sector Shifts (Approximate)
+            // LDC (0-30): High Primary
+            // NIC (30-70): High Secondary
+            // MDC (70-100): High Tertiary/Quat
+            
+            let p, s, t, q;
+
+            if (val < 30) {
+                p = 80 - val; 
+                s = 10 + (val/2);
+                t = 10 + (val/2);
+                q = 0;
+                status.innerHTML = "<strong>Stage 2 (LDC):</strong> Mostly Primary (Farming). Industrialization beginning.";
+            } else if (val < 70) {
+                const norm = val - 30;
+                p = 50 - norm;
+                s = 25 + (norm/2);
+                t = 25 + (norm/2);
+                q = norm / 4;
+                status.innerHTML = "<strong>Stage 3 (NIC):</strong> Industrial Boom. Secondary sector peaks (Manufacturing).";
+            } else {
+                const norm = val - 70;
+                p = 10 - (norm/3);
+                s = 45 - (norm);
+                t = 45 + (norm/1.5);
+                q = 10 + (norm/1.5);
+                status.innerHTML = "<strong>Stage 4/5 (MDC):</strong> Deindustrialization. Service Economy dominates (Tertiary/Quaternary).";
+            }
+
+            // Update Chart
+            sectorChart.data.datasets[0].data = [p, s, t, q];
+            sectorChart.update();
+        }
+
+
+        // --- 2. WEBER LOGIC ---
+        function setWeber(type) {
+            // Reset buttons
+            document.getElementById('btn-reducing').className = "w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group";
+            document.getElementById('btn-gaining').className = "w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group";
+            document.getElementById('btn-labor').className = "w-full text-left p-4 rounded-lg bg-slate-700 hover:bg-slate-600 border border-slate-500 transition group";
+
+            const factory = document.getElementById('factory-token');
+            const feedback = document.getElementById('weber-feedback');
+
+            if (type === 'bulk-reducing') {
+                document.getElementById('btn-reducing').classList.add('ring-2', 'ring-orange-500');
+                // Move near resources (Top Left)
+                factory.style.transform = "translate(130px, 100px)";
+                feedback.innerHTML = "<strong>Result:</strong> Factory locates near the <strong>Raw Material</strong>. <br>Why? Copper ore is heavy; purified copper is light. Don't pay to ship waste rock.";
+                feedback.className = "absolute bottom-4 left-4 bg-slate-800/90 p-3 rounded border border-orange-500 text-xs max-w-sm text-orange-300";
+            } 
+            else if (type === 'bulk-gaining') {
+                document.getElementById('btn-gaining').classList.add('ring-2', 'ring-blue-500');
+                // Move near Market (Bottom)
+                factory.style.transform = "translate(280px, 250px)";
+                feedback.innerHTML = "<strong>Result:</strong> Factory locates near the <strong>Market</strong>. <br>Why? Empty bottles/syrup are light; filled soda is heavy (water weight). Ship the heavy part the shortest distance.";
+                feedback.className = "absolute bottom-4 left-4 bg-slate-800/90 p-3 rounded border border-blue-500 text-xs max-w-sm text-blue-300";
+            } 
+            else if (type === 'labor') {
+                document.getElementById('btn-labor').classList.add('ring-2', 'ring-emerald-500');
+                // Move far away (Outsourcing) - Simulated by moving to corner or off center
+                factory.style.transform = "translate(450px, 250px)"; 
+                feedback.innerHTML = "<strong>Result:</strong> Factory ignores transport costs to find <strong>Cheap Labor</strong>. <br>Why? The savings on wages outweigh the extra shipping cost (e.g., Vietnam textiles).";
+                feedback.className = "absolute bottom-4 left-4 bg-slate-800/90 p-3 rounded border border-emerald-500 text-xs max-w-sm text-emerald-300";
+            }
+        }
+
+
+        // --- 3. LOGISTICS LOGIC ---
+        function runLogistics() {
+            const container = document.getElementById('container-box');
+            
+            // Reset
+            container.style.transition = "none";
+            container.style.opacity = 1;
+            container.style.bottom = "60px";
+            container.style.left = "80px"; // On ship
+
+            // Sequence
+            // 1. Lift Up (Crane)
+            setTimeout(() => {
+                container.style.transition = "all 1s ease-in-out";
+                container.style.bottom = "150px"; // Up
+                container.style.left = "250px"; // Over dock
+            }, 100);
+
+            // 2. Drop Down (To Truck)
+            setTimeout(() => {
+                container.style.bottom = "60px"; // Down onto truck
+                container.style.left = "350px"; // Truck pos
+            }, 1200);
+
+            // 3. Truck Drives Away
+            setTimeout(() => {
+                const truck = document.getElementById('truck');
+                truck.style.transform = "translateX(200px)";
+                container.style.transform = "translateX(200px)";
+                container.style.opacity = 0;
+            }, 2500);
+
+            // Reset visuals after a bit
+            setTimeout(() => {
+                document.getElementById('truck').style.transform = "translateX(0)";
+                container.style.transform = "translateX(0)";
+            }, 4000);
+        }
+
+    </script>
+</body>
+</html>
