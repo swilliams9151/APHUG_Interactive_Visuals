@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.1: The Industrial Revolution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Cog Animation */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .cog { animation: spin 4s linear infinite; transform-origin: center; }
+        .cog-fast { animation: spin 2s linear infinite; transform-origin: center; }
+        .cog-paused { animation-play-state: paused; }
+
+        /* Map Marker Hover */
+        .marker { transition: all 0.3s ease; cursor: pointer; }
+        .marker:hover { transform: scale(1.3); filter: drop-shadow(0 0 5px white); }
+        
+        /* Flow Animation */
+        .flow-dash {
+            stroke-dasharray: 10;
+            animation: flow 1s linear infinite;
+        }
+        @keyframes flow { to { stroke-dashoffset: -20; } }
+
+        /* Tab Active */
+        .tab-btn.active {
+            border-bottom: 4px solid #f97316; /* orange-500 */
+            color: #c2410c; /* orange-700 */
+            background-color: #fff;
+        }
+        .tab-btn { border-bottom: 4px solid transparent; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-orange-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.1: The Industrial Revolution</h1>
+                <p class="text-orange-200 text-sm mt-1">Origins, Diffusion, and Consequences (SPS-7.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-orange-800 px-3 py-1 rounded border border-orange-700">
+                From Cottage to Factory
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Nav -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button onclick="setTab('hearth')" id="tab-hearth" class="tab-btn active w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">1. The Hearth (Origins)</button>
+            <button onclick="setTab('diffusion')" id="tab-diffusion" class="tab-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">2. Diffusion (Spread)</button>
+            <button onclick="setTab('impact')" id="tab-impact" class="tab-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">3. Impacts (Imperialism)</button>
+        </div>
+
+        <!-- SECTION 1: THE HEARTH (Great Britain) -->
+        <section id="view-hearth" class="visible-tab bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden text-slate-800 flex flex-col md:flex-row">
+            
+            <!-- Controls -->
+            <div class="w-full md:w-1/3 p-6 bg-orange-50 border-r border-slate-200 flex flex-col gap-4">
+                <h2 class="text-xl font-bold text-orange-900">Why Great Britain?</h2>
+                <p class="text-sm text-slate-600">Find the 3 ingredients needed to start the Industrial Revolution.</p>
+                
+                <div class="space-y-2 mt-4">
+                    <div id="check-coal" class="flex items-center gap-3 p-3 rounded bg-white border border-slate-200 opacity-50 transition">
+                        <div class="text-2xl">⚫</div>
+                        <div class="text-xs font-bold text-slate-500">Coal (Energy)</div>
+                    </div>
+                    <div id="check-iron" class="flex items-center gap-3 p-3 rounded bg-white border border-slate-200 opacity-50 transition">
+                        <div class="text-2xl">🔩</div>
+                        <div class="text-xs font-bold text-slate-500">Iron Ore (Machines)</div>
+                    </div>
+                    <div id="check-water" class="flex items-center gap-3 p-3 rounded bg-white border border-slate-200 opacity-50 transition">
+                        <div class="text-2xl">🌊</div>
+                        <div class="text-xs font-bold text-slate-500">Water/Ports (Transport)</div>
+                    </div>
+                </div>
+
+                <div id="hearth-status" class="mt-auto text-center text-xs italic text-slate-400 font-bold">
+                    Status: Cottage Industry (Pre-Industrial)
+                </div>
+            </div>
+
+            <!-- Map Visualizer -->
+            <div class="relative w-full md:w-2/3 h-96 bg-blue-100 flex items-center justify-center overflow-hidden">
+                <!-- UK Map Silhouette -->
+                <svg viewBox="0 0 400 500" class="h-full drop-shadow-xl">
+                    <path d="M 150 450 L 250 450 L 300 350 L 250 150 L 150 50 L 100 200 L 50 350 Z" fill="#d6d3d1" stroke="#a8a29e" stroke-width="2" />
+                    
+                    <!-- Ingredient Markers -->
+                    <circle onclick="foundResource('coal')" cx="180" cy="250" r="15" fill="#1f2937" class="marker animate-bounce" id="mark-coal">
+                        <title>Coal Deposits (Midlands)</title>
+                    </circle>
+                    <text x="180" y="255" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Coal</text>
+
+                    <circle onclick="foundResource('iron')" cx="220" cy="300" r="15" fill="#78716c" class="marker animate-bounce" style="animation-delay: 0.2s" id="mark-iron">
+                        <title>Iron Ore</title>
+                    </circle>
+                    <text x="220" y="305" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Iron</text>
+
+                    <circle onclick="foundResource('water')" cx="120" cy="350" r="15" fill="#3b82f6" class="marker animate-bounce" style="animation-delay: 0.4s" id="mark-water">
+                        <title>Ports (Liverpool)</title>
+                    </circle>
+                    <text x="120" y="355" text-anchor="middle" fill="white" font-size="10" pointer-events="none">Port</text>
+
+                    <!-- Factory (Hidden) -->
+                    <g id="factory-icon" class="opacity-0 transition-all duration-1000 transform scale-0 origin-center">
+                        <rect x="160" y="280" width="80" height="60" fill="#b45309" />
+                        <rect x="170" y="250" width="20" height="40" fill="#78350f" /> <!-- Chimney -->
+                        <circle cx="180" cy="240" r="5" fill="#9ca3af" class="smoke-particle" />
+                        <circle cx="185" cy="230" r="8" fill="#9ca3af" class="smoke-particle" style="animation-delay: 0.5s" />
+                        <text x="200" y="320" text-anchor="middle" fill="white" font-size="10" font-bold>FACTORY</text>
+                    </g>
+                </svg>
+            </div>
+        </section>
+
+        <!-- SECTION 2: DIFFUSION (Timeline) -->
+        <section id="view-diffusion" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-xl font-bold text-slate-800">2. Diffusion Waves</h2>
+                <span id="year-display" class="text-4xl font-mono font-bold text-orange-600">1750</span>
+            </div>
+
+            <div class="relative pt-8 pb-4">
+                <input type="range" id="year-slider" min="0" max="3" step="1" value="0" oninput="updateMap()" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-600">
+                <div class="flex justify-between text-xs font-bold text-slate-400 mt-2 font-mono">
+                    <span>1750 (Start)</span>
+                    <span>1800 (Europe)</span>
+                    <span>1850 (USA)</span>
+                    <span>1900 (Global)</span>
+                </div>
+            </div>
+
+            <div class="mt-6 p-6 bg-slate-50 rounded-xl border border-slate-200 min-h-[150px] flex items-center justify-center text-center">
+                <p id="diff-desc" class="text-lg text-slate-700 font-medium">
+                    <strong>1750:</strong> The Revolution begins in Great Britain (Textiles). The rest of the world is still agricultural.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 3: IMPERIALISM & IMPACTS -->
+        <section id="view-impact" class="hidden grid lg:grid-cols-2 gap-8">
+            
+            <!-- Imperialism Cycle -->
+            <div class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8 relative overflow-hidden">
+                <h2 class="text-xl font-bold text-white mb-4 z-10 relative">3. The Imperialism Cycle (SPS-7.A.3)</h2>
+                
+                <div class="relative h-64 flex items-center justify-between z-10">
+                    <!-- Core (Factory) -->
+                    <div class="w-1/3 bg-slate-700 p-4 rounded-xl border border-slate-500 text-center relative">
+                        <div class="text-4xl mb-2">🏭</div>
+                        <h3 class="font-bold text-white">The Core</h3>
+                        <p class="text-xs text-slate-400">(Europe/USA)</p>
+                        <div class="mt-2 text-[10px] text-orange-300">Needs Raw Materials</div>
+                    </div>
+
+                    <!-- Arrows -->
+                    <div class="flex-1 relative h-full">
+                        <!-- Top Arrow (Raw Materials) -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                            <path id="arrow-raw" d="M 200 80 Q 100 40 20 80" fill="none" stroke="#10b981" stroke-width="4" class="flow-dash opacity-0" marker-end="url(#arrowhead)" />
+                            <text x="110" y="50" text-anchor="middle" fill="#10b981" font-size="10" font-weight="bold" class="opacity-0" id="txt-raw">Raw Materials (Cotton/Rubber)</text>
+                        </svg>
+                        
+                        <!-- Bottom Arrow (Markets) -->
+                        <svg class="absolute inset-0 w-full h-full pointer-events-none">
+                            <path id="arrow-market" d="M 20 180 Q 100 220 200 180" fill="none" stroke="#fbbf24" stroke-width="4" class="flow-dash opacity-0" marker-end="url(#arrowhead)" />
+                            <text x="110" y="230" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="bold" class="opacity-0" id="txt-market">Finished Goods (Markets)</text>
+                        </svg>
+                    </div>
+
+                    <!-- Periphery (Colony) -->
+                    <div class="w-1/3 bg-emerald-900/50 p-4 rounded-xl border border-emerald-700 text-center relative">
+                        <div class="text-4xl mb-2">🌴</div>
+                        <h3 class="font-bold text-white">The Colony</h3>
+                        <p class="text-xs text-emerald-400">(Africa/Asia)</p>
+                        <div class="mt-2 text-[10px] text-emerald-200">Extracts Resources</div>
+                    </div>
+                </div>
+
+                <button onclick="runCycle()" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow transition z-10 relative mt-4">
+                    Start the Machine ⚙️
+                </button>
+
+                <!-- BG Gear -->
+                <div class="absolute -right-10 -bottom-10 text-slate-700 opacity-20">
+                    <svg width="300" height="300" viewBox="0 0 24 24" fill="currentColor" class="cog">
+                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M20 12C20 11.27 19.9 10.56 19.72 9.89L21.82 8.33C22.01 8.19 22.06 7.92 21.94 7.72L19.94 4.25C19.82 4.05 19.57 3.98 19.36 4.06L16.89 5.06C16.36 4.66 15.78 4.32 15.16 4.06L14.79 1.43C14.76 1.2 14.56 1.03 14.32 1.03H10.32C10.09 1.03 9.89 1.2 9.85 1.43L9.48 4.06C8.86 4.32 8.28 4.66 7.75 5.06L5.28 4.06C5.07 3.98 4.82 4.05 4.7 4.25L2.7 7.72C2.58 7.92 2.63 8.19 2.82 8.33L4.92 9.89C4.74 10.56 4.64 11.27 4.64 12C4.64 12.73 4.74 13.44 4.92 14.11L2.82 15.67C2.63 15.81 2.58 16.08 2.7 16.28L4.7 19.75C4.82 19.95 5.07 20.02 5.28 19.94L7.75 18.94C8.28 19.34 8.86 19.68 9.48 19.94L9.85 22.57C9.88 22.8 10.09 22.97 10.32 22.97H14.32C14.56 22.97 14.76 22.8 14.79 22.57L15.16 19.94C15.78 19.68 16.36 19.34 16.89 18.94L19.36 19.94C19.57 20.02 19.82 19.95 19.94 19.75L21.94 16.28C22.06 16.08 22.01 15.81 21.82 15.67L19.72 14.11C19.9 13.44 20 12.73 20 12ZM12 16.5C9.51 16.5 7.5 14.49 7.5 12C7.5 9.51 9.51 7.5 12 7.5C14.49 7.5 16.5 9.51 16.5 12C16.5 14.49 14.49 16.5 12 16.5Z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Social Impact -->
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+                <h2 class="text-xl font-bold text-orange-900 mb-4">Social Change (SPS-7.A.2)</h2>
+                
+                <div class="space-y-4">
+                    <div class="flex gap-4 p-4 bg-slate-50 rounded border border-slate-100 items-center">
+                        <div class="text-3xl">🏠 ➡️ 🏭</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Urbanization</h3>
+                            <p class="text-xs text-slate-500">People left rural farms (pushed by Enclosure Acts) for city factories (pulled by jobs).</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 p-4 bg-slate-50 rounded border border-slate-100 items-center">
+                        <div class="text-3xl">🎩 vs 🧢</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Class Structure</h3>
+                            <p class="text-xs text-slate-500">Rise of the Middle Class (Bourgeoisie) and the Industrial Working Class (Proletariat).</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 p-4 bg-slate-50 rounded border border-slate-100 items-center">
+                        <div class="text-3xl">📈</div>
+                        <div>
+                            <h3 class="font-bold text-sm">Demographic Transition</h3>
+                            <p class="text-xs text-slate-500">Food supply increased -> Death rates fell -> Population exploded (Stage 2).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['hearth', 'diffusion', 'impact'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('active');
+        }
+
+        // --- 1. HEARTH LOGIC ---
+        let found = { coal: false, iron: false, water: false };
+
+        function foundResource(type) {
+            if (found[type]) return;
+            found[type] = true;
+            
+            // Update Checkbox UI
+            const box = document.getElementById(`check-${type}`);
+            box.classList.remove('opacity-50');
+            box.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-800');
+            box.innerHTML = box.innerHTML.replace('text-slate-500', 'text-emerald-700'); // Hacky style swap
+
+            // Remove Marker Animation
+            document.getElementById(`mark-${type}`).classList.remove('animate-bounce');
+            document.getElementById(`mark-${type}`).setAttribute('fill', '#22c55e');
+
+            checkWin();
+        }
+
+        function checkWin() {
+            if (found.coal && found.iron && found.water) {
+                document.getElementById('hearth-status').innerHTML = "<span class='text-emerald-600 text-lg font-extrabold'>INDUSTRIAL REVOLUTION IGNITED!</span>";
+                
+                // Show Factory
+                const fac = document.getElementById('factory-icon');
+                fac.classList.remove('opacity-0', 'scale-0');
+                fac.classList.add('opacity-100', 'scale-100');
+            }
+        }
+
+        // --- 2. DIFFUSION LOGIC ---
+        const diffData = [
+            "<strong>1750:</strong> The Revolution begins in Great Britain (Textiles). The rest of the world is still agricultural.",
+            "<strong>1800:</strong> Spreads to Western Europe (Belgium, France, Germany). Proximity to coal fields dictates location.",
+            "<strong>1850:</strong> Spreads to the USA (New England). Access to ports and fast-flowing rivers drives early mills.",
+            "<strong>1900:</strong> Reaches Russia (Trans-Siberian Rail), Japan (Meiji Restoration), and Southern/Eastern Europe."
+        ];
+
+        function updateMap() {
+            const val = document.getElementById('year-slider').value;
+            const years = [1750, 1800, 1850, 1900];
+            
+            document.getElementById('year-display').innerText = years[val];
+            document.getElementById('diff-desc').innerHTML = diffData[val];
+        }
+
+        // --- 3. CYCLE LOGIC ---
+        function runCycle() {
+            const rawArrow = document.getElementById('arrow-raw');
+            const mktArrow = document.getElementById('arrow-market');
+            const txtRaw = document.getElementById('txt-raw');
+            const txtMkt = document.getElementById('txt-market');
+
+            // Reset
+            rawArrow.classList.remove('opacity-0');
+            txtRaw.classList.remove('opacity-0');
+            
+            setTimeout(() => {
+                mktArrow.classList.remove('opacity-0');
+                txtMkt.classList.remove('opacity-0');
+            }, 1000);
+        }
+    </script>
+    
+    <!-- SVG Definition for Arrowhead -->
+    <svg style="display: none;">
+        <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="currentColor" />
+            </marker>
+        </defs>
+    </svg>
+</body>
+</html>
