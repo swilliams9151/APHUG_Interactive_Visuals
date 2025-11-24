@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.6: Trade and the World Economy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        #map { height: 100%; width: 100%; z-index: 0; }
+        
+        /* Bar Animation */
+        .trade-bar { transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        
+        /* Contagion Animation */
+        .node { transition: background-color 0.5s ease, transform 0.3s ease; }
+        .line { transition: stroke 0.5s ease; }
+        .shockwave { animation: shock 0.5s forwards; }
+        
+        @keyframes shock {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* Tab Active State */
+        .nav-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #0f766e; /* teal-700 */
+            color: #0f766e;
+        }
+        .nav-btn { border-bottom: 4px solid transparent; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-teal-800 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.6: Trade & World Economy</h1>
+                <p class="text-teal-200 text-sm mt-1">Comparative Advantage, Neoliberalism, and Interdependence (PSO-7.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-teal-700 px-3 py-1 rounded border border-teal-600">
+                Global Markets
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Navigation -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button onclick="setTab('advantage')" id="tab-advantage" class="nav-btn active w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">1. Comparative Advantage</button>
+            <button onclick="setTab('blocs')" id="tab-blocs" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">2. Trade Blocs</button>
+            <button onclick="setTab('crisis')" id="tab-crisis" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">3. Global Crisis</button>
+        </div>
+
+        <!-- SECTION 1: COMPARATIVE ADVANTAGE SIMULATOR -->
+        <section id="view-advantage" class="visible-tab space-y-6">
+            <div class="bg-white text-slate-800 rounded-2xl shadow-xl border border-slate-200 p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-teal-900">1. The Math of Trade (PSO-7.A.1)</h2>
+                        <p class="text-sm text-slate-500 mt-1">
+                            <strong>Scenario:</strong> Techland is better at phones. Farmville is better at corn. <br>Should they try to make everything themselves (Isolation) or Specialize & Trade?
+                        </p>
+                    </div>
+                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                        <button onclick="setTradeMode('isolation')" id="btn-iso" class="px-4 py-2 text-xs font-bold rounded bg-white shadow text-slate-700 border transition">Isolation</button>
+                        <button onclick="setTradeMode('trade')" id="btn-trade" class="px-4 py-2 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition">Specialize & Trade</button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-12">
+                    
+                    <!-- Techland -->
+                    <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-100 text-center relative">
+                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-3 py-1 rounded text-xs font-bold uppercase">Techland</div>
+                        <div class="flex justify-around items-end h-40 mt-4">
+                            <div class="w-16 relative group">
+                                <div id="bar-tech-phone" class="w-full bg-indigo-500 rounded-t shadow trade-bar" style="height: 50%"></div>
+                                <div class="mt-2 text-xs font-bold text-indigo-900">Phones</div>
+                                <span class="absolute -top-6 left-0 w-full text-center font-bold text-xs" id="val-tech-phone">50</span>
+                            </div>
+                            <div class="w-16 relative group">
+                                <div id="bar-tech-corn" class="w-full bg-yellow-400 rounded-t shadow trade-bar" style="height: 50%"></div>
+                                <div class="mt-2 text-xs font-bold text-yellow-700">Corn</div>
+                                <span class="absolute -top-6 left-0 w-full text-center font-bold text-xs" id="val-tech-corn">50</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Farmville -->
+                    <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100 text-center relative">
+                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold uppercase">Farmville</div>
+                        <div class="flex justify-around items-end h-40 mt-4">
+                            <div class="w-16 relative group">
+                                <div id="bar-farm-phone" class="w-full bg-indigo-400 rounded-t shadow trade-bar" style="height: 20%"></div>
+                                <div class="mt-2 text-xs font-bold text-indigo-900">Phones</div>
+                                <span class="absolute -top-6 left-0 w-full text-center font-bold text-xs" id="val-farm-phone">20</span>
+                            </div>
+                            <div class="w-16 relative group">
+                                <div id="bar-farm-corn" class="w-full bg-emerald-500 rounded-t shadow trade-bar" style="height: 80%"></div>
+                                <div class="mt-2 text-xs font-bold text-emerald-800">Corn</div>
+                                <span class="absolute -top-6 left-0 w-full text-center font-bold text-xs" id="val-farm-corn">80</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Result Banner -->
+                <div id="trade-result" class="mt-8 p-4 bg-slate-100 rounded-lg text-center border-l-4 border-slate-400">
+                    <h3 class="text-lg font-bold text-slate-700">Total Global Output: <span id="total-output">200</span> Units</h3>
+                    <p class="text-xs text-slate-500 mt-1" id="trade-desc">
+                        In isolation, resources are wasted doing things countries are bad at.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TRADE BLOCS MAP (PSO-7.A.2) -->
+        <section id="view-blocs" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col h-[550px]">
+            <div class="p-6 border-b border-slate-100 bg-teal-50 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-teal-900">2. Neoliberal Trade Organizations</h2>
+                    <p class="text-sm text-stone-600 mt-1">Free Trade Agreements reduce tariffs to foster globalization. Click a bloc.</p>
+                </div>
+            </div>
+
+            <div class="relative flex-1 bg-slate-100">
+                <div id="map"></div>
+                
+                <!-- Info Panel -->
+                <div id="bloc-info" class="absolute bottom-6 left-6 bg-white/90 backdrop-blur p-4 rounded-xl shadow-lg w-72 border-l-8 border-slate-400 z-[1000] hidden transition-all transform translate-y-4">
+                    <h3 id="bloc-title" class="font-bold text-lg text-slate-800 mb-1">Organization</h3>
+                    <p id="bloc-desc" class="text-xs text-slate-600 leading-relaxed">Description...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: GLOBAL CRISIS SIMULATOR (PSO-7.A.4) -->
+        <section id="view-crisis" class="hidden bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8">
+            <div class="flex flex-col md:flex-row justify-between items-start mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">3. Interdependence: The Domino Effect</h2>
+                    <p class="text-sm text-slate-400 mt-1">Economies are linked. A crash in one causes a crash in others (2008 Recession).</p>
+                </div>
+                <button onclick="resetCrisis()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-xs font-bold transition mt-4 md:mt-0">Reset System</button>
+            </div>
+
+            <!-- Network Visualizer -->
+            <div class="relative h-96 w-full border border-slate-600 rounded-xl bg-slate-900 flex items-center justify-center">
+                
+                <svg id="crisis-svg" class="w-full h-full overflow-visible">
+                    <!-- Lines (Connections) -->
+                    <line id="line-us-eu" x1="150" y1="200" x2="450" y2="100" stroke="#475569" stroke-width="2" class="line" />
+                    <line id="line-us-chn" x1="150" y1="200" x2="450" y2="300" stroke="#475569" stroke-width="2" class="line" />
+                    <line id="line-eu-chn" x1="450" y1="100" x2="450" y2="300" stroke="#475569" stroke-width="2" class="line" />
+                    <line id="line-us-ldc" x1="150" y1="200" x2="300" y2="350" stroke="#475569" stroke-width="2" class="line" />
+
+                    <!-- Nodes -->
+                    <!-- USA -->
+                    <g onclick="triggerCrash('us')" class="cursor-pointer group">
+                        <circle id="node-us" cx="150" cy="200" r="40" fill="#3b82f6" class="node group-hover:stroke-white stroke-2" />
+                        <text x="150" y="205" text-anchor="middle" fill="white" font-bold font-size="12" pointer-events="none">USA</text>
+                        <text x="150" y="225" text-anchor="middle" fill="#93c5fd" font-size="8" pointer-events="none">Consumer Core</text>
+                    </g>
+
+                    <!-- EU -->
+                    <g id="node-group-eu">
+                        <circle id="node-eu" cx="450" cy="100" r="35" fill="#3b82f6" class="node" />
+                        <text x="450" y="105" text-anchor="middle" fill="white" font-bold font-size="12" pointer-events="none">EU</text>
+                    </g>
+
+                    <!-- China -->
+                    <g id="node-group-chn">
+                        <circle id="node-chn" cx="450" cy="300" r="35" fill="#f59e0b" class="node" />
+                        <text x="450" y="305" text-anchor="middle" fill="white" font-bold font-size="12" pointer-events="none">China</text>
+                        <text x="450" y="325" text-anchor="middle" fill="#fcd34d" font-size="8" pointer-events="none">Manufacturing</text>
+                    </g>
+
+                    <!-- LDCs -->
+                    <g id="node-group-ldc">
+                        <circle id="node-ldc" cx="300" cy="350" r="25" fill="#10b981" class="node" />
+                        <text x="300" y="355" text-anchor="middle" fill="white" font-bold font-size="10" pointer-events="none">LDCs</text>
+                    </g>
+                </svg>
+
+                <div id="crisis-feedback" class="absolute top-4 left-4 bg-slate-800/90 border border-red-500/50 text-red-300 p-3 rounded text-xs hidden max-w-xs">
+                    
+                </div>
+
+                <div class="absolute top-4 right-4 text-slate-500 text-xs italic">
+                    Click USA to simulate 2008 Recession
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['advantage', 'blocs', 'crisis'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('active');
+            
+            // Resize map if visible
+            if(id === 'blocs') setTimeout(() => map.invalidateSize(), 100);
+        }
+
+        // --- 1. COMPARATIVE ADVANTAGE LOGIC ---
+        function setTradeMode(mode) {
+            // Buttons
+            document.getElementById('btn-iso').className = mode === 'isolation' ? "px-4 py-2 text-xs font-bold rounded bg-slate-700 text-white shadow border transition" : "px-4 py-2 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition";
+            document.getElementById('btn-trade').className = mode === 'trade' ? "px-4 py-2 text-xs font-bold rounded bg-teal-600 text-white shadow transition" : "px-4 py-2 text-xs font-bold rounded text-slate-500 hover:text-slate-700 transition";
+
+            const techPhone = document.getElementById('bar-tech-phone');
+            const techCorn = document.getElementById('bar-tech-corn');
+            const farmPhone = document.getElementById('bar-farm-phone');
+            const farmCorn = document.getElementById('bar-farm-corn');
+            
+            const resBox = document.getElementById('trade-result');
+            const resTotal = document.getElementById('total-output');
+            const resDesc = document.getElementById('trade-desc');
+
+            if (mode === 'isolation') {
+                // Both split effort 50/50
+                techPhone.style.height = "50%"; document.getElementById('val-tech-phone').innerText = "50";
+                techCorn.style.height = "50%"; document.getElementById('val-tech-corn').innerText = "50";
+                
+                farmPhone.style.height = "20%"; document.getElementById('val-farm-phone').innerText = "20"; // Farmville bad at phones
+                farmCorn.style.height = "80%"; document.getElementById('val-farm-corn').innerText = "80"; // Farmville good at corn
+
+                resTotal.innerText = "200";
+                resBox.className = "mt-8 p-4 bg-slate-100 rounded-lg text-center border-l-4 border-slate-400";
+                resDesc.innerText = "Without trade, Techland wastes time farming, and Farmville struggles to make phones. Total wealth is limited.";
+            } else {
+                // Specialization
+                // Techland makes 100% Phones (100)
+                // Farmville makes 100% Corn (160 - assume they are super efficient at corn)
+                // Actually let's keep math simple.
+                // Techland: 100 Phones. Farmville: 160 Corn.
+                
+                techPhone.style.height = "100%"; document.getElementById('val-tech-phone').innerText = "100";
+                techCorn.style.height = "0%"; document.getElementById('val-tech-corn').innerText = "0";
+                
+                farmPhone.style.height = "0%"; document.getElementById('val-farm-phone').innerText = "0";
+                farmCorn.style.height = "100%"; document.getElementById('val-farm-corn').innerText = "160";
+
+                resTotal.innerText = "260";
+                resBox.className = "mt-8 p-4 bg-emerald-50 rounded-lg text-center border-l-4 border-emerald-500";
+                resDesc.innerHTML = "<strong class='text-emerald-700'>Efficiency Gain!</strong> By specializing in their <strong>Comparative Advantage</strong> and trading, global output increased by 60 units. Both countries get richer.";
+            }
+        }
+
+        // --- 2. MAP LOGIC ---
+        let map;
+        const blocs = {
+            'eu': {
+                coords: [48.8, 2.3],
+                title: "European Union (EU)",
+                desc: "A political and economic union. Removed borders (Schengen) and uses a common currency (Euro) to frictionlessly move goods, money, and people.",
+                color: "#3b82f6"
+            },
+            'usmca': {
+                coords: [38.0, -97.0],
+                title: "USMCA (formerly NAFTA)",
+                desc: "Free trade zone between USA, Mexico, and Canada. Encourages 'Maquiladoras' (factories) in Mexico for cheap labor, exporting to the US market.",
+                color: "#ef4444"
+            },
+            'mercosur': {
+                coords: [-15.0, -55.0],
+                title: "Mercosur",
+                desc: "South American trade bloc (Brazil, Argentina, etc.). Promotes free trade and fluid movement of goods, people, and currency.",
+                color: "#10b981"
+            },
+            'opec': {
+                coords: [24.0, 45.0],
+                title: "OPEC",
+                desc: "Organization of Petroleum Exporting Countries. A Cartel (not just free trade) that controls oil supply to manipulate global prices.",
+                color: "#f59e0b"
+            }
+        };
+
+        window.onload = function() {
+            map = L.map('map', {
+                center: [20, 0],
+                zoom: 2,
+                minZoom: 2,
+                worldCopyJump: true,
+                zoomControl: false
+            });
+            L.control.zoom({ position: 'topright' }).addTo(map);
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CARTO',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Add Markers
+            Object.keys(blocs).forEach(key => {
+                const b = blocs[key];
+                const marker = L.circleMarker(b.coords, {
+                    radius: 15,
+                    color: "white",
+                    fillColor: b.color,
+                    fillOpacity: 0.8,
+                    weight: 2
+                }).bindTooltip(b.title, { permanent: true, direction: "top", className: "bg-white font-bold shadow text-xs px-1 rounded" }).addTo(map);
+
+                marker.on('click', () => {
+                    const panel = document.getElementById('bloc-info');
+                    document.getElementById('bloc-title').innerText = b.title;
+                    document.getElementById('bloc-title').style.color = b.color;
+                    document.getElementById('bloc-desc').innerText = b.desc;
+                    document.getElementById('bloc-info').style.borderColor = b.color;
+                    
+                    panel.classList.remove('hidden', 'translate-y-4');
+                    map.flyTo(b.coords, 3);
+                });
+            });
+
+            // Init Tab 1
+            setTradeMode('isolation');
+        };
+
+        // --- 3. CRISIS LOGIC ---
+        function triggerCrash(origin) {
+            const us = document.getElementById('node-us');
+            const eu = document.getElementById('node-eu');
+            const chn = document.getElementById('node-chn');
+            const ldc = document.getElementById('node-ldc');
+            const lines = document.querySelectorAll('.line');
+            const fb = document.getElementById('crisis-feedback');
+
+            // 1. Crash Origin
+            us.setAttribute('fill', '#ef4444'); // Red
+            us.classList.add('shockwave');
+            
+            fb.innerHTML = "<strong>Housing Bubble Bursts!</strong><br>US Banks collapse. Import demand drops.";
+            fb.classList.remove('hidden');
+
+            // 2. Spread (Contagion)
+            lines.forEach(l => l.setAttribute('stroke', '#ef4444')); // Red lines
+
+            setTimeout(() => {
+                eu.setAttribute('fill', '#ef4444');
+                eu.classList.add('shockwave');
+                fb.innerHTML += "<br><strong>EU Contagion:</strong> European banks held bad US debt. They crash too.";
+            }, 1000);
+
+            setTimeout(() => {
+                chn.setAttribute('fill', '#f97316'); // Orange
+                chn.classList.add('shockwave');
+                fb.innerHTML += "<br><strong>China Slowdown:</strong> US/EU stop buying Chinese factory goods.";
+            }, 2000);
+
+            setTimeout(() => {
+                ldc.setAttribute('fill', '#ef4444');
+                ldc.classList.add('shockwave');
+                fb.innerHTML += "<br><strong>LDC Crisis:</strong> Foreign aid dries up. Commodity prices tank.";
+            }, 3000);
+        }
+
+        function resetCrisis() {
+            document.querySelectorAll('.node').forEach(n => {
+                n.setAttribute('fill', n.id === 'node-chn' ? '#f59e0b' : (n.id === 'node-ldc' ? '#10b981' : '#3b82f6'));
+                n.classList.remove('shockwave');
+            });
+            document.querySelectorAll('.line').forEach(l => l.setAttribute('stroke', '#475569'));
+            document.getElementById('crisis-feedback').classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
