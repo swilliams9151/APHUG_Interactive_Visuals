@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.7: Changes in World Economy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Factory Animation */
+        .factory-move { transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Conveyor Belt Animation */
+        @keyframes belt {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 0; }
+        }
+        .conveyor-active {
+            background: repeating-linear-gradient(90deg, #334155 0, #334155 10px, #475569 10px, #475569 20px);
+            animation: belt 1s linear infinite;
+        }
+        .conveyor-stop {
+            background: repeating-linear-gradient(90deg, #334155 0, #334155 10px, #475569 10px, #475569 20px);
+        }
+
+        /* Tab Active */
+        .nav-btn.active {
+            background-color: #fff;
+            border-bottom: 4px solid #ea580c; /* orange-600 */
+            color: #ea580c;
+        }
+        .nav-btn { border-bottom: 4px solid transparent; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-orange-900 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.7: Changes in World Economy</h1>
+                <p class="text-orange-200 text-sm mt-1">Outsourcing, SEZs, and Post-Fordist Production (PSO-7.A)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-orange-800 px-3 py-1 rounded border border-orange-700">
+                The New International Division of Labor
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
+
+        <!-- Nav -->
+        <div class="flex border-b border-slate-700 mb-6">
+            <button onclick="setTab('outsource')" id="tab-outsource" class="nav-btn active w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">1. Outsourcing Decision</button>
+            <button onclick="setTab('sez')" id="tab-sez" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">2. Zone Creator (SEZ)</button>
+            <button onclick="setTab('jit')" id="tab-jit" class="nav-btn w-1/3 py-3 font-bold text-slate-400 hover:bg-slate-800 transition">3. Post-Fordist (JIT)</button>
+        </div>
+
+        <!-- SECTION 1: OUTSOURCING SIMULATOR (PSO-7.A.5) -->
+        <section id="view-outsource" class="visible-tab bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <div class="flex flex-col md:flex-row gap-10">
+                
+                <!-- Calculator Panel -->
+                <div class="w-full md:w-1/3 flex flex-col gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-orange-900">The CEO's Choice</h2>
+                        <p class="text-sm text-slate-500 mt-1">Compare labor costs to decide where to manufacture your sneakers.</p>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold uppercase text-slate-500">USA (Rust Belt)</span>
+                            <span class="font-mono font-bold text-red-600">$25.00/hr</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold uppercase text-slate-500">Vietnam (NIC)</span>
+                            <span class="font-mono font-bold text-emerald-600">$2.50/hr</span>
+                        </div>
+                        <div class="border-t pt-2 flex justify-between items-center">
+                            <span class="text-xs font-bold uppercase text-slate-500">Shipping Cost</span>
+                            <span class="font-mono font-bold text-slate-600">+$1.00/unit</span>
+                        </div>
+                    </div>
+
+                    <button onclick="triggerOutsource()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg shadow transition transform active:scale-95">
+                        Close US Factory & Outsource
+                    </button>
+
+                    <div id="outsource-result" class="hidden p-3 bg-orange-50 border border-orange-200 rounded text-xs text-orange-800 italic">
+                        Result: Profits tripled. US region suffers <strong>Deindustrialization</strong> (unemployment). Vietnam gains jobs but low wages.
+                    </div>
+                </div>
+
+                <!-- Map Visualizer -->
+                <div class="w-full md:w-2/3 relative h-64 bg-slate-200 rounded-xl overflow-hidden border border-slate-300">
+                    <!-- World Map Silhouette (Abstract) -->
+                    <svg viewBox="0 0 600 300" class="w-full h-full opacity-50">
+                        <path d="M 50 50 L 150 50 L 180 150 L 100 250 L 50 150 Z" fill="#cbd5e1" /> <!-- Americas -->
+                        <path d="M 300 50 L 500 50 L 550 150 L 500 250 L 350 250 Z" fill="#cbd5e1" /> <!-- Eurasia -->
+                    </svg>
+
+                    <!-- Rust Belt Location -->
+                    <div class="absolute top-16 left-24">
+                        <div class="text-xs font-bold text-slate-600 mb-1">Rust Belt</div>
+                        <div id="factory-us" class="text-4xl transition-all duration-1000">🏭</div>
+                    </div>
+
+                    <!-- NIC Location (Vietnam) -->
+                    <div class="absolute top-32 right-32">
+                        <div class="text-xs font-bold text-slate-600 mb-1">SE Asia</div>
+                        <div id="factory-nic" class="text-4xl opacity-0 transition-all duration-1000 scale-0">🏭</div>
+                    </div>
+
+                    <!-- Flow Arrow -->
+                    <svg class="absolute inset-0 pointer-events-none">
+                        <path id="flow-arrow" d="M 140 90 Q 300 20 450 140" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="10" class="hidden" />
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: SEZ CREATOR (PSO-7.A.6) -->
+        <section id="view-sez" class="hidden bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8 text-white">
+            <div class="grid md:grid-cols-2 gap-10">
+                
+                <!-- Interactive Map -->
+                <div class="relative h-80 bg-slate-900 rounded-xl border-2 border-slate-600 overflow-hidden">
+                    <div class="absolute top-4 left-4 z-10 bg-slate-800/90 p-2 rounded text-xs font-bold text-slate-400">
+                        Developing Nation (Coastal)
+                    </div>
+                    
+                    <!-- Land -->
+                    <svg viewBox="0 0 400 400" class="w-full h-full">
+                        <rect width="400" height="400" fill="#0f172a" />
+                        <path d="M 0 0 L 300 0 L 300 400 L 0 400 Z" fill="#334155" /> <!-- Land -->
+                        <rect x="300" y="0" width="100" height="400" fill="#1e3a8a" /> <!-- Ocean -->
+                        
+                        <!-- Port City -->
+                        <circle cx="300" cy="200" r="10" fill="white" />
+                        <text x="280" y="205" text-anchor="end" font-size="10" fill="white" font-weight="bold">Port City</text>
+
+                        <!-- Potential Zones -->
+                        <rect onclick="createZone('interior')" x="50" y="100" width="80" height="80" fill="transparent" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" class="cursor-pointer hover:fill-white/10 transition" />
+                        <text x="90" y="145" text-anchor="middle" font-size="10" fill="#94a3b8" pointer-events="none">Interior</text>
+
+                        <rect onclick="createZone('coast')" x="220" y="160" width="80" height="80" fill="transparent" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,5" class="cursor-pointer hover:fill-white/10 transition" />
+                        <text x="260" y="205" text-anchor="middle" font-size="10" fill="#94a3b8" pointer-events="none">Coastal</text>
+
+                        <!-- Active Zone Visual -->
+                        <rect id="active-zone" x="0" y="0" width="0" height="0" fill="#10b981" opacity="0.5" class="pointer-events-none transition-all duration-500" />
+                    </svg>
+                </div>
+
+                <!-- Policy Panel -->
+                <div class="flex flex-col justify-center space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-emerald-400">Designate an SEZ</h2>
+                        <p class="text-sm text-slate-400 mt-1">
+                            <strong>Special Economic Zone:</strong> An area with different laws (Tax breaks, no unions) to attract foreign companies.
+                        </p>
+                    </div>
+
+                    <div id="sez-feedback" class="p-4 bg-slate-700 rounded border border-slate-600 text-sm text-slate-300 italic">
+                        Click a dashed box on the map to establish your zone.
+                    </div>
+
+                    <div class="space-y-2 hidden" id="sez-stats">
+                        <div class="flex justify-between text-xs font-bold uppercase text-slate-500">
+                            <span>FDI (Investment)</span>
+                            <span class="text-emerald-500">High</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-700 rounded-full"><div class="h-full bg-emerald-500 w-[90%]"></div></div>
+                        
+                        <div class="flex justify-between text-xs font-bold uppercase text-slate-500 mt-2">
+                            <span>Regional Inequality</span>
+                            <span class="text-red-500">High</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-700 rounded-full"><div class="h-full bg-red-500 w-[80%]"></div></div>
+                        <p class="text-[10px] text-slate-500 mt-1">The zone booms (Growth Pole), but the rest of the country lags behind (Backwash).</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: POST-FORDIST SIMULATOR (PSO-7.A.7) -->
+        <section id="view-jit" class="hidden bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">3. Just-in-Time Delivery</h2>
+                    <p class="text-sm text-slate-500 mt-1">Post-Fordist production eliminates warehouses. Parts arrive the moment they are needed.</p>
+                </div>
+                <div class="text-xs font-bold text-orange-600 bg-orange-50 px-3 py-1 rounded border border-orange-200">
+                    Goal: Efficiency
+                </div>
+            </div>
+
+            <div class="relative h-48 bg-slate-100 rounded-xl border border-slate-300 overflow-hidden">
+                <!-- Assembly Line -->
+                <div class="absolute bottom-0 w-full h-12 conveyor-stop" id="conveyor"></div>
+                
+                <!-- The Car Chassis -->
+                <div class="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-6xl transition-all duration-500" id="car-body">🚗</div>
+                
+                <!-- Parts Inventory -->
+                <div class="absolute top-4 left-4 bg-white p-2 rounded shadow text-xs">
+                    <strong>Inventory:</strong> <span id="inv-count" class="text-red-500 font-bold">0</span> Tires
+                </div>
+
+                <!-- Delivery Truck -->
+                <div id="delivery-truck" class="absolute top-12 -left-20 text-4xl transition-all duration-1000">🚚</div>
+            </div>
+
+            <div class="flex justify-center gap-4 mt-6">
+                <button onclick="orderParts('early')" class="px-6 py-3 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm transition">
+                    Order Early (Storage Cost!)
+                </button>
+                <button onclick="orderParts('perfect')" class="px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition transform active:scale-95">
+                    Order Just-in-Time
+                </button>
+                <button onclick="orderParts('late')" class="px-6 py-3 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 font-bold text-sm transition">
+                    Order Late (Delay!)
+                </button>
+            </div>
+
+            <div id="jit-feedback" class="mt-4 text-center text-sm font-bold h-6 text-slate-600"></div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- TAB LOGIC ---
+        function setTab(id) {
+            ['outsource', 'sez', 'jit'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            document.getElementById(`view-${id}`).classList.remove('hidden');
+            document.getElementById(`tab-${id}`).classList.add('active');
+        }
+
+        // --- 1. OUTSOURCING LOGIC ---
+        function triggerOutsource() {
+            const us = document.getElementById('factory-us');
+            const nic = document.getElementById('factory-nic');
+            const arrow = document.getElementById('flow-arrow');
+            const res = document.getElementById('outsource-result');
+
+            // Animate
+            us.classList.add('opacity-0', 'scale-0'); // Disappear
+            arrow.classList.remove('hidden');
+            arrow.classList.add('flow-dash'); // Animate arrow? (CSS handles dash)
+            
+            setTimeout(() => {
+                nic.classList.remove('opacity-0', 'scale-0');
+                nic.classList.add('scale-100');
+                res.classList.remove('hidden');
+            }, 1000);
+        }
+
+        // --- 2. SEZ LOGIC ---
+        function createZone(type) {
+            const active = document.getElementById('active-zone');
+            const fb = document.getElementById('sez-feedback');
+            const stats = document.getElementById('sez-stats');
+
+            if (type === 'coast') {
+                // Correct choice for EPZ (Export Processing Zone)
+                active.setAttribute('x', 220);
+                active.setAttribute('y', 160);
+                active.setAttribute('width', 80);
+                active.setAttribute('height', 80);
+                active.setAttribute('fill', '#10b981'); // Green
+
+                fb.innerHTML = "<strong class='text-emerald-400'>Success!</strong> Coastal location reduces transport costs for exports (Break-of-Bulk point). MNCs are building factories.";
+                stats.classList.remove('hidden');
+            } else {
+                // Interior (Less ideal for export)
+                active.setAttribute('x', 50);
+                active.setAttribute('y', 100);
+                active.setAttribute('width', 80);
+                active.setAttribute('height', 80);
+                active.setAttribute('fill', '#f59e0b'); // Orange
+
+                fb.innerHTML = "<strong class='text-orange-400'>Sub-optimal.</strong> Interior zones have higher transport costs to the port. Less attractive to foreign investors.";
+                stats.classList.add('hidden');
+            }
+        }
+
+        // --- 3. JIT LOGIC ---
+        function orderParts(timing) {
+            const truck = document.getElementById('delivery-truck');
+            const belt = document.getElementById('conveyor');
+            const car = document.getElementById('car-body');
+            const inv = document.getElementById('inv-count');
+            const fb = document.getElementById('jit-feedback');
+
+            // Reset Truck
+            truck.style.transition = "none";
+            truck.style.left = "-50px";
+            void truck.offsetWidth; // Trigger reflow
+            truck.style.transition = "all 1s ease-out";
+
+            if (timing === 'perfect') {
+                // Truck arrives exactly as belt moves
+                truck.style.left = "50%";
+                setTimeout(() => {
+                    inv.innerText = "4";
+                    inv.className = "text-emerald-600 font-bold";
+                    belt.classList.add('conveyor-active');
+                    car.innerText = "🏎️"; // Finished car
+                    fb.innerText = "Perfect! Zero storage costs. Maximum efficiency.";
+                    fb.className = "mt-4 text-center text-sm font-bold h-6 text-emerald-600";
+                }, 1000);
+            } else if (timing === 'early') {
+                // Truck arrives, sits there
+                truck.style.left = "50%";
+                setTimeout(() => {
+                    inv.innerText = "4";
+                    fb.innerText = "Inventory piled up! You are paying for storage space (Fordist style).";
+                    fb.className = "mt-4 text-center text-sm font-bold h-6 text-orange-600";
+                    belt.classList.remove('conveyor-active');
+                }, 1000);
+            } else {
+                // Late
+                fb.innerText = "Line Stoppage! Workers are standing around waiting. Money lost.";
+                fb.className = "mt-4 text-center text-sm font-bold h-6 text-red-600";
+                belt.classList.remove('conveyor-active');
+            }
+        }
+
+    </script>
+</body>
+</html>
