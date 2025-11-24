@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APHG Topic 7.3: Measures of Development</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Transitions */
+        .bar-fill { transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Drag and Drop */
+        .draggable { cursor: grab; touch-action: none; }
+        .draggable:active { cursor: grabbing; }
+        .drop-zone { transition: all 0.3s; }
+        .drop-zone.highlight { background-color: #f0fdf4; border-color: #22c55e; }
+        
+        /* Gini Visual */
+        .person { transition: all 0.5s ease; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-indigo-800 text-white p-6 shadow-lg shrink-0 z-10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold">Topic 7.3: Measures of Development</h1>
+                <p class="text-indigo-200 text-sm mt-1">HDI, GII, and Economic Indicators (SPS-7.C)</p>
+            </div>
+            <div class="hidden md:block text-xs bg-indigo-700 px-3 py-1 rounded border border-indigo-600">
+                Human Development Index
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-10">
+
+        <!-- SECTION 1: HDI CALCULATOR (SPS-7.C.3) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8 text-slate-800">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+                <h2 class="text-xl font-bold text-indigo-900">1. Build the HDI (Human Development Index)</h2>
+                <p class="text-sm text-slate-500">Drag the 3 correct components into the box to calculate HDI.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                
+                <!-- Ingredient Bank -->
+                <div class="grid grid-cols-2 gap-3 content-start">
+                    <div id="item-gni" class="draggable bg-emerald-100 text-emerald-800 p-3 rounded shadow border border-emerald-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="correct">
+                        💰 GNI per Capita <br><span class="font-normal opacity-70">(Standard of Living)</span>
+                    </div>
+                    <div id="item-life" class="draggable bg-blue-100 text-blue-800 p-3 rounded shadow border border-blue-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="correct">
+                        🏥 Life Expectancy <br><span class="font-normal opacity-70">(Health)</span>
+                    </div>
+                    <div id="item-school" class="draggable bg-purple-100 text-purple-800 p-3 rounded shadow border border-purple-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="correct">
+                        📚 Years of Schooling <br><span class="font-normal opacity-70">(Knowledge)</span>
+                    </div>
+                    <div id="item-mil" class="draggable bg-red-100 text-red-800 p-3 rounded shadow border border-red-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="wrong">
+                        🔫 Military Spending <br><span class="font-normal opacity-70">(Power)</span>
+                    </div>
+                    <div id="item-fert" class="draggable bg-orange-100 text-orange-800 p-3 rounded shadow border border-orange-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="wrong">
+                        👶 Fertility Rate <br><span class="font-normal opacity-70">(Demographics)</span>
+                    </div>
+                    <div id="item-gini" class="draggable bg-slate-100 text-slate-800 p-3 rounded shadow border border-slate-200 cursor-grab font-bold text-xs text-center" draggable="true" ondragstart="drag(event)" data-type="wrong">
+                        📉 Gini Coefficient <br><span class="font-normal opacity-70">(Inequality)</span>
+                    </div>
+                </div>
+
+                <!-- Calculation Zone -->
+                <div class="bg-indigo-50 rounded-xl border-2 border-dashed border-indigo-300 p-6 flex flex-col items-center justify-center min-h-[200px] relative drop-zone" ondragover="allowDrop(event)" ondrop="dropHDI(event)">
+                    <h3 class="text-indigo-300 font-bold text-lg mb-4 uppercase tracking-widest">HDI Formula</h3>
+                    
+                    <div id="hdi-slots" class="flex gap-2 w-full justify-center mb-4">
+                        <!-- Slots fill up -->
+                    </div>
+
+                    <div id="hdi-result" class="text-center hidden">
+                        <div class="text-4xl font-extrabold text-indigo-600 mb-1">0.920</div>
+                        <div class="text-xs font-bold text-indigo-400 uppercase">Very High Human Development</div>
+                    </div>
+
+                    <p id="hdi-prompt" class="text-xs text-indigo-400 absolute bottom-4">Drop items here</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 2: DATA LIMITATIONS (Skill 3.F) -->
+        <section class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 p-8">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-white">2. The "Average" Trap (Data Limitations)</h2>
+                    <p class="text-sm text-slate-400 mt-1">Why GDP per Capita can be misleading. Compare "Average" vs. "Reality".</p>
+                </div>
+                <button onclick="revealInequality()" class="bg-rose-600 hover:bg-rose-500 text-white px-6 py-2 rounded-full font-bold shadow transition mt-4 md:mt-0">
+                    Reveal Distribution (Gini)
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-10">
+                
+                <!-- View 1: The Average -->
+                <div class="bg-slate-700 p-6 rounded-xl border border-slate-600 text-center">
+                    <h3 class="text-xs font-bold text-emerald-400 uppercase mb-4">Official Statistic: GDP Per Capita</h3>
+                    <div class="text-4xl font-mono font-bold text-white mb-2">$50,000</div>
+                    <p class="text-xs text-slate-400 mb-6">"On average, everyone in this country is rich!"</p>
+                    
+                    <!-- Visual: Everyone looks same size -->
+                    <div class="flex justify-center gap-1 items-end h-20">
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                        <div class="w-4 h-12 bg-emerald-500 rounded-t"></div>
+                    </div>
+                </div>
+
+                <!-- View 2: The Reality (Gini) -->
+                <div class="bg-slate-700 p-6 rounded-xl border border-slate-600 text-center relative overflow-hidden">
+                    <h3 class="text-xs font-bold text-rose-400 uppercase mb-4">Reality: Income Distribution</h3>
+                    
+                    <div id="gini-overlay" class="absolute inset-0 bg-slate-800/90 flex items-center justify-center z-10">
+                        <span class="text-slate-500 italic text-sm">Click "Reveal" to see the truth</span>
+                    </div>
+
+                    <div class="flex justify-center gap-1 items-end h-32 pt-4">
+                        <!-- The 90% Poor -->
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-2 bg-red-500 rounded-t person"></div>
+                        <div class="w-4 h-4 bg-red-400 rounded-t person"></div>
+                        <div class="w-4 h-6 bg-orange-400 rounded-t person"></div>
+                        <div class="w-4 h-12 bg-yellow-400 rounded-t person"></div>
+                        <!-- The 1% Rich -->
+                        <div class="w-8 h-full bg-emerald-400 rounded-t shadow-[0_0_15px_rgba(52,211,153,0.5)] person"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4"><strong>Gini Coefficient:</strong> High. Averages hide the fact that most wealth is held by a few elites.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 3: GENDER INEQUALITY (GII) -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 p-8">
+            <h2 class="text-xl font-bold text-pink-900 mb-6 pl-4 border-l-4 border-pink-500">3. Gender Inequality Index (GII)</h2>
+            
+            <div class="flex flex-col md:flex-row gap-8">
+                
+                <div class="w-full md:w-1/3 space-y-4">
+                    <p class="text-sm text-slate-600">
+                        GII measures the loss of achievement due to gender inequality. 
+                        <br><span class="font-bold text-pink-600">Lower Score = Better (0.0 is perfect equality).</span>
+                    </p>
+                    <div class="bg-pink-50 p-4 rounded-lg border border-pink-100">
+                        <h3 class="text-xs font-bold text-pink-800 uppercase mb-2">3 Components (SPS-7.C.2)</h3>
+                        <ul class="text-xs text-pink-700 space-y-2 list-disc pl-4">
+                            <li><strong>Reproductive Health:</strong> Maternal mortality & Teen birth rate.</li>
+                            <li><strong>Empowerment:</strong> Seats in legislature & Secondary education.</li>
+                            <li><strong>Labor Market:</strong> Female labor force participation rate.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-2/3 grid grid-cols-2 gap-4">
+                    <!-- Country A -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center group hover:border-emerald-400 transition cursor-default">
+                        <div class="text-3xl mb-2">🇨🇭 Switzerland</div>
+                        <div class="text-sm font-bold text-emerald-600 mb-2">GII: 0.018 (Very Low)</div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-500 w-[5%]"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">High empowerment, low teen birth rate.</p>
+                    </div>
+
+                    <!-- Country B -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center group hover:border-red-400 transition cursor-default">
+                        <div class="text-3xl mb-2">🇾🇪 Yemen</div>
+                        <div class="text-sm font-bold text-red-600 mb-2">GII: 0.795 (Very High)</div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-red-500 w-[80%]"></div>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Low labor participation, high maternal mortality.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- 1. HDI LOGIC ---
+        let hdiCount = 0;
+
+        function allowDrop(ev) { ev.preventDefault(); }
+        
+        function drag(ev) {
+            ev.dataTransfer.setData("id", ev.target.id);
+            ev.dataTransfer.setData("type", ev.target.dataset.type);
+        }
+
+        function dropHDI(ev) {
+            ev.preventDefault();
+            const id = ev.dataTransfer.getData("id");
+            const type = ev.dataTransfer.getData("type");
+            const item = document.getElementById(id);
+            const zone = ev.currentTarget; // Capture correct reference
+
+            // Only allow dropping into the zone, not into other items
+            if (!zone || !zone.classList.contains('drop-zone')) return;
+
+            if (type === 'correct') {
+                // Move item visually
+                if(item) {
+                    item.style.transform = "scale(0.8)";
+                    item.style.margin = "0";
+                    document.getElementById('hdi-slots').appendChild(item);
+                    hdiCount++;
+                }
+                
+                // Highlight success
+                zone.classList.add('highlight');
+                setTimeout(() => zone.classList.remove('highlight'), 300);
+
+                if (hdiCount === 3) {
+                    document.getElementById('hdi-result').classList.remove('hidden');
+                    document.getElementById('hdi-result').classList.add('fade-in');
+                    document.getElementById('hdi-prompt').classList.add('hidden');
+                    
+                    // Disable further dragging of incorrect items
+                    document.querySelectorAll('#item-mil, #item-fert, #item-gini').forEach(el => el.draggable = false);
+                }
+            } else {
+                // Shake animation for wrong answer
+                zone.classList.add('bg-red-100', 'border-red-300');
+                setTimeout(() => {
+                    zone.classList.remove('bg-red-100', 'border-red-300');
+                    zone.classList.add('bg-indigo-50', 'border-indigo-300');
+                }, 500);
+                alert("Incorrect! That is not a component of HDI.");
+            }
+        }
+
+        // --- 2. GINI LOGIC ---
+        function revealInequality() {
+            const overlay = document.getElementById('gini-overlay');
+            overlay.style.opacity = '0';
+            overlay.style.pointerEvents = 'none';
+        }
+
+    </script>
+</body>
+</html>
