@@ -985,8 +985,6 @@
         topicTotals = {};
         topicCorrect = {};
         missedQuestions = [];
-      } else {
-        // just reset player position, keep stats
       }
 
       updateHUD();
@@ -1046,7 +1044,6 @@
 
       for (const plat of platforms) {
         const pTop = plat.y;
-        const pBottom = plat.y + plat.height;
         const pLeft = plat.x;
         const pRight = plat.x + plat.width;
 
@@ -1072,7 +1069,6 @@
         lives = Math.max(0, lives - 1);
         resetPlayerAndLevel(false);
         if (lives === 0) {
-          // end game
           finishGame();
         }
       }
@@ -1111,7 +1107,6 @@
         const enemyBox = { x: e.x, y: e.y, width: e.width, height: e.height };
 
         if (rectsOverlap(playerBox, enemyBox)) {
-          // Simple penalty: lose a life and reset position
           lives = Math.max(0, lives - 1);
           resetPlayerAndLevel(false);
           if (lives === 0) {
@@ -1149,10 +1144,8 @@
         const playerBox = { x: player.x, y: player.y, width: player.width, height: player.height };
         if (rectsOverlap(playerBox, flagBox)) {
           if (flag.world === totalWorlds) {
-            // finished all worlds
             finishGame();
           } else {
-            // move player to next world start
             player.x = flag.x + 40;
           }
         }
@@ -1218,14 +1211,12 @@
         correctAnswers++;
         topicCorrect[key] += 1;
         qFeedback.innerHTML = `<strong>Correct!</strong> ${currentQuestion.rationale || ""}`;
-        // power-up: brief speed/jump boost + coins
         boostTimer = 4;
         slowTimer = 0;
         coins += 2;
       } else {
         missedQuestions.push(currentQuestion);
         qFeedback.innerHTML = `<strong>Not quite.</strong> ${currentQuestion.rationale || "Review this idea in your notes."}`;
-        // penalty: brief slowdown, lose coins and maybe a life fragment
         slowTimer = 4;
         boostTimer = 0;
         coins = Math.max(0, coins - 2);
@@ -1256,7 +1247,6 @@
       };
       const idx = mapping[e.code];
       if (idx !== undefined) {
-        // prevent double-answer
         const buttons = Array.from(answersContainer.children);
         if (!buttons.length || buttons[0].disabled) return;
         handleAnswer(idx);
@@ -1267,11 +1257,8 @@
     // Drawing
     // ======================
     function drawBackground() {
-      // simple background gradient already set by canvas; can add parallax hills
       ctx.fillStyle = "#1f2937";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // parallax “hills”
       ctx.fillStyle = "#0f172a";
       ctx.fillRect(0, 350, canvas.width, 130);
     }
@@ -1310,7 +1297,6 @@
       checkpoints.forEach(cp => {
         ctx.fillStyle = cp.used ? "#4b5563" : "#f97316";
         ctx.fillRect(cp.x - cameraX - 12, cp.y - 24, 24, 24);
-        // question mark
         if (!cp.used) {
           ctx.fillStyle = "#111827";
           ctx.font = "16px system-ui";
@@ -1325,10 +1311,8 @@
       flags.forEach(flag => {
         const baseX = flag.x - cameraX;
         const baseY = flag.y;
-        // pole
         ctx.fillStyle = "#e5e7eb";
         ctx.fillRect(baseX, baseY - 100, 4, 100);
-        // flag
         ctx.fillStyle = flag.world === totalWorlds ? "#22c55e" : "#3b82f6";
         ctx.beginPath();
         ctx.moveTo(baseX + 4, baseY - 100);
@@ -1342,16 +1326,12 @@
     function drawPlayer() {
       const px = player.x - cameraX;
       const py = player.y;
-      // body
       ctx.fillStyle = "#f97316";
       ctx.fillRect(px, py, player.width, player.height);
-      // head
       ctx.fillStyle = "#fed7aa";
       ctx.fillRect(px + 6, py - 16, player.width - 12, 16);
-      // backpack
       ctx.fillStyle = "#1d4ed8";
       ctx.fillRect(px - 6, py + 8, 10, 24);
-      // map in hand
       ctx.fillStyle = "#e5e7eb";
       ctx.fillRect(px + player.width - 6, py + 14, 8, 14);
     }
@@ -1445,7 +1425,7 @@
       }
       if (topicList.length > 1) {
         const nextWeakest = topicList[1];
-        tips.push(`Practice a few extra questions on <strong>${nextWeakest.topic</strong> to build confidence.}`);
+        tips.push(`Practice a few extra questions on <strong>${nextWeakest.topic}</strong> to build confidence.`);
       }
 
       // Specific content-based tips
