@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>APHG World 1: Thinking Geographically</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .wrapper {
+      max-width: 1100px;
+      width: 100%;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98));
+      border-radius: 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.85);
+      padding: 1.2rem 1.4rem 1.4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.7rem;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      font-size: 0.78rem;
+      padding: 0.12rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, 0.6);
+      background: rgba(250, 204, 21, 0.15);
+      color: #facc15;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .status-pill {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, rgba(148, 163, 184, 0.35), rgba(15, 23, 42, 0.9));
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: #9ca3af;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.9);
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 0.4rem;
+      gap: 0.25rem;
+    }
+
+    .hud span {
+      margin-right: 0.75rem;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      border-radius: 1.1rem;
+      background: #020617;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      max-width: 100%;
+    }
+
+    .instructions {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 0.4rem;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.12s ease, opacity 0.12s ease;
+    }
+
+    .btn-primary {
+      background: radial-gradient(circle at top, #facc15, #f97316);
+      color: #111827;
+      box-shadow: 0 12px 28px rgba(250, 204, 21, 0.7);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(250, 204, 21, 0.9);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Question overlay */
+    #questionOverlay,
+    #summaryOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    #questionCard,
+    #summaryCard {
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.98), #020617);
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      max-width: 600px;
+      width: calc(100% - 2rem);
+      padding: 1rem 1.2rem 1.1rem;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95);
+      font-size: 0.9rem;
+    }
+
+    #qTopic {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
+    }
+
+    #qText {
+      font-size: 0.98rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .answer-btn {
+      text-align: left;
+      width: 100%;
+      border-radius: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 0.45rem 0.65rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease;
+    }
+
+    .answer-btn:hover {
+      background: rgba(30, 64, 175, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .answer-btn.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border-color: #22c55e;
+    }
+
+    .answer-btn.incorrect {
+      background: rgba(185, 28, 28, 0.2);
+      border-color: #ef4444;
+    }
+
+    #qFeedback {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      min-height: 1em;
+    }
+
+    #qFeedback strong {
+      color: #facc15;
+    }
+
+    /* Summary card */
+    #summaryCard h2 {
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    #summaryCard p {
+      font-size: 0.86rem;
+      color: #9ca3af;
+      margin-bottom: 0.4rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .summary-box {
+      border-radius: 0.9rem;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98));
+      padding: 0.6rem 0.8rem;
+    }
+
+    .summary-box h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .summary-stat {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.16rem;
+    }
+
+    .topic-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      padding: 0.12rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      margin: 0.06rem;
+    }
+
+    #reviewTips li {
+      margin-left: 1rem;
+      margin-bottom: 0.15rem;
+    }
+
+    #missedList div {
+      margin-bottom: 0.35rem;
+    }
+
+    #reflectionPrompt {
+      margin-top: 0.35rem;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    @media (min-width: 700px) {
+      .answers {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrapper {
+        padding: 1rem 1rem 1.2rem;
+        border-radius: 1.25rem;
+      }
+      header h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header>
+      <div>
+        <h1>
+          APHG World 1
+          <span class="badge">Thinking Geographically</span>
+        </h1>
+        <p class="subtitle">
+          Side-scrolling review game. Run and jump through three worlds. Hit “?” blocks to answer Unit 1 questions.
+        </p>
+      </div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        Ready to play
+      </div>
+    </header>
+
+    <div class="hud">
+      <div>
+        <span id="hudWorld">World: 1 / 3</span>
+        <span id="hudLives">Lives: ❤️❤️❤️</span>
+        <span id="hudCoins">Coins: 0</span>
+      </div>
+      <div>
+        <span id="hudQuestions">Questions: 0 / 0</span>
+        <span id="hudCorrect">Correct: 0</span>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" width="960" height="480"></canvas>
+
+    <p class="instructions">
+      Controls: ← / → or A / D to move · ↑ or Space to jump. Touch a “?” block to answer an AP Human Geography Unit 1 question.
+      Correct = power-up · Incorrect = small penalty. Reach the flag at the end of World 3 to finish.
+    </p>
+
+    <div class="btn-row">
+      <button id="btnReset" class="btn btn-secondary">Restart level</button>
+    </div>
+  </div>
+
+  <!-- Question overlay -->
+  <div id="questionOverlay" class="hidden">
+    <div id="questionCard">
+      <div id="qTopic"></div>
+      <div id="qText"></div>
+      <div id="answersContainer" class="answers"></div>
+      <div id="qFeedback"></div>
+      <div class="btn-row" style="margin-top:0.4rem; justify-content:flex-start;">
+        <span style="font-size:0.75rem;color:#9ca3af;">Tip: You can press keys 1–4 to choose an answer.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary overlay -->
+  <div id="summaryOverlay" class="hidden">
+    <div id="summaryCard">
+      <h2 id="summaryTitle">World complete!</h2>
+      <p id="summarySubtitle"></p>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <h3>Scoreboard</h3>
+          <div class="summary-stat"><span>Total questions</span><span id="sumTotalQ"></span></div>
+          <div class="summary-stat"><span>Correct</span><span id="sumCorrectQ"></span></div>
+          <div class="summary-stat"><span>Accuracy</span><span id="sumAccuracy"></span></div>
+          <div class="summary-stat"><span>Worlds cleared</span><span id="sumWorlds"></span></div>
+          <div class="summary-stat"><span>Coins collected</span><span id="sumCoins"></span></div>
+          <div class="summary-stat"><span>Lives left</span><span id="sumLives"></span></div>
+        </div>
+
+        <div class="summary-box">
+          <h3>Topic breakdown</h3>
+          <div id="topicBreakdown"></div>
+        </div>
+
+        <div class="summary-box">
+          <h3>Review tips</h3>
+          <ul id="reviewTips"></ul>
+        </div>
+      </div>
+
+      <div class="summary-box" id="reflectionBox">
+        <h3>Reflection prompt</h3>
+        <div id="reflectionPrompt"></div>
+      </div>
+
+      <div class="summary-box" id="missedBox">
+        <h3>Missed questions</h3>
+        <p style="font-size:0.8rem;color:#9ca3af;margin-bottom:0.25rem;">
+          Use these as a quick class discussion, correction activity, or warm-up.
+        </p>
+        <div id="missedList"></div>
+      </div>
+
+      <div class="btn-row" style="margin-top:0.7rem;">
+        <button id="btnPlayAgain" class="btn btn-primary">
+          Play again
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ============================
+    //  APHG Unit 1 Question Bank
+    // ============================
+    const questions = [
+      // Map types & scale
+      {
+        topic: "Map Types & Scale",
+        topicGroup: "Map Types & Scale",
+        text: "Which type of map is BEST for showing the percentage of people who are farmers in each country of the world?",
+        choices: [
+          "Reference map",
+          "Choropleth map",
+          "Dot distribution map",
+          "Topographic map"
+        ],
+        correctIndex: 1,
+        rationale: "Choropleth maps use color/shading to show a value like a percentage for each area."
+      },
+      {
+        topic: "Map Scale",
+        topicGroup: "Map Types & Scale",
+        text: "A map has a scale of 1:100,000. What does this mean?",
+        choices: [
+          "1 unit on the map = 100,000 units in the real world",
+          "1 inch on the map = 100,000 miles in the real world",
+          "1 mile on the map = 100,000 inches in the real world",
+          "The real world is 100,000 times smaller than the map"
+        ],
+        correctIndex: 0,
+        rationale: "Map scale compares distance on the map to the same units in the real world."
+      },
+      {
+        topic: "Reference vs. Thematic",
+        topicGroup: "Map Types & Scale",
+        text: "Which statement describes a reference map?",
+        choices: [
+          "It uses colors to show election results by county.",
+          "It shows locations of cities, roads, and physical features.",
+          "It uses dots to show where earthquakes have occurred.",
+          "It shows average income with different shades of color."
+        ],
+        correctIndex: 1,
+        rationale: "Reference maps emphasize locations of places and features, not a single theme or variable."
+      },
+
+      // Projections & distortion
+      {
+        topic: "Projections & Distortion",
+        topicGroup: "Projections & Distortion",
+        text: "On a Mercator projection, Greenland looks almost as large as Africa, even though Africa is much bigger. This is distortion in:",
+        choices: [
+          "Shape",
+          "Distance",
+          "Size (area)",
+          "Direction"
+        ],
+        correctIndex: 2,
+        rationale: "Mercator projection distorts the relative size of landmasses, especially near the poles."
+      },
+      {
+        topic: "Projections & Distortion",
+        topicGroup: "Projections & Distortion",
+        text: "Why might a geographer choose the Robinson projection instead of the Mercator projection for a world map?",
+        choices: [
+          "It completely removes all distortion.",
+          "It preserves area perfectly but distorts shape everywhere.",
+          "It provides a good overall balance of size and shape distortion.",
+          "It only shows the oceans and not the continents."
+        ],
+        correctIndex: 2,
+        rationale: "The Robinson projection balances different types of distortion, making it good for general world maps."
+      },
+
+      // Location & Place
+      {
+        topic: "Location & Place",
+        topicGroup: "Location & Place",
+        text: "Which example shows absolute location?",
+        choices: [
+          "Denham Springs is east of Baton Rouge along I-12.",
+          "My house is near the big grocery store and high school.",
+          "30°N, 90°W",
+          "The coast feels humid and hot in summer."
+        ],
+        correctIndex: 2,
+        rationale: "Absolute location uses exact coordinates like latitude and longitude."
+      },
+      {
+        topic: "Location & Place",
+        topicGroup: "Location & Place",
+        text: "A student says, 'I love our football stadium because it reminds me of Friday nights with friends.' Which concept does this BEST represent?",
+        choices: [
+          "Site",
+          "Situation",
+          "Sense of place",
+          "Absolute location"
+        ],
+        correctIndex: 2,
+        rationale: "Sense of place is the emotional and personal meaning people attach to a location."
+      },
+      {
+        topic: "Location & Place",
+        topicGroup: "Location & Place",
+        text: "Which statement describes situation?",
+        choices: [
+          "The soil is rich and there is a gentle slope.",
+          "The town is at 50 meters above sea level.",
+          "The city is located at 35°N, 100°W.",
+          "The town is located on a river and near a major highway."
+        ],
+        correctIndex: 3,
+        rationale: "Situation describes a place's location relative to other places and features."
+      },
+
+      // Spatial concepts: density, patterns, distance decay, time–space compression, diffusion
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "A city has 200,000 people living in an area of 100 square kilometers. What concept does this number represent?",
+        choices: [
+          "Concentration",
+          "Density",
+          "Pattern",
+          "Diffusion"
+        ],
+        correctIndex: 1,
+        rationale: "Density is the number of something per unit area."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "A map shows houses arranged mostly along a single curving road. What term describes this pattern?",
+        choices: [
+          "Random",
+          "Clustered",
+          "Linear",
+          "Dispersed"
+        ],
+        correctIndex: 2,
+        rationale: "When features line up along a road or river, the pattern is linear."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "Distance decay refers to the idea that:",
+        choices: [
+          "Transportation costs always go down over time.",
+          "Interaction between places decreases as distance increases.",
+          "Maps get less accurate the farther they are from the equator.",
+          "The Earth’s surface is constantly wearing away."
+        ],
+        correctIndex: 1,
+        rationale: "As places get farther apart, interaction between them usually decreases."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "A music video released in South Korea becomes popular in Louisiana within hours because of social media. This best illustrates:",
+        choices: [
+          "Distance decay",
+          "Time–space compression",
+          "Hierarchical diffusion",
+          "Contagious diffusion"
+        ],
+        correctIndex: 1,
+        rationale: "Technology shrinks the time it takes ideas to spread, which is time–space compression."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "People from one country move to another and bring their language with them. Which type of diffusion is this?",
+        choices: [
+          "Hierarchical diffusion",
+          "Contagious diffusion",
+          "Stimulus diffusion",
+          "Relocation diffusion"
+        ],
+        correctIndex: 3,
+        rationale: "Relocation diffusion occurs when people physically move and carry culture traits with them."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "A fashion trend starts with celebrities and influencers, then spreads to many ordinary people. What type of diffusion is this?",
+        choices: [
+          "Contagious diffusion",
+          "Hierarchical diffusion",
+          "Stimulus diffusion",
+          "Relocation diffusion"
+        ],
+        correctIndex: 1,
+        rationale: "Hierarchical diffusion spreads from powerful or influential people to others."
+      },
+      {
+        topic: "Spatial Concepts",
+        topicGroup: "Spatial Concepts",
+        text: "Which situation BEST shows human–environment interaction?",
+        choices: [
+          "Giving a place a nickname",
+          "Using climate data to decide where to build floodwalls",
+          "Measuring the distance between two cities",
+          "Writing down coordinates for a location"
+        ],
+        correctIndex: 1,
+        rationale: "Human–environment interaction involves people adapting to or modifying the environment."
+      },
+
+      // Regions
+      {
+        topic: "Regions",
+        topicGroup: "Regions",
+        text: "'Latin America' is often described as a region where Romance languages are widely spoken. What type of region is this?",
+        choices: [
+          "Formal region",
+          "Functional region",
+          "Vernacular (perceptual) region",
+          "Nodal region"
+        ],
+        correctIndex: 0,
+        rationale: "Formal regions share one or more measurable traits, such as language."
+      },
+      {
+        topic: "Regions",
+        topicGroup: "Regions",
+        text: "A metropolitan area where people commute into a central city for work is best described as which type of region?",
+        choices: [
+          "Formal region",
+          "Functional region",
+          "Vernacular region",
+          "Uniform region"
+        ],
+        correctIndex: 1,
+        rationale: "Functional regions are organized around a focal point or node, like a city and its commuter zone."
+      },
+      {
+        topic: "Regions",
+        topicGroup: "Regions",
+        text: "Many people in the U.S. talk about 'the South,' even though it has no official boundaries. What kind of region is this?",
+        choices: [
+          "Formal",
+          "Functional",
+          "Vernacular (perceptual)",
+          "Core region"
+        ],
+        correctIndex: 2,
+        rationale: "Vernacular regions exist in people's ideas and perceptions, not just on official maps."
+      },
+
+      // Geospatial Tech & Data
+      {
+        topic: "Geospatial Tech & Data",
+        topicGroup: "Geospatial Tech & Data",
+        text: "A city combines layers for elevation, land use, and locations of schools to plan where to build new roads. Which tool are they using?",
+        choices: [
+          "GPS",
+          "Remote sensing",
+          "GIS",
+          "Topographic maps"
+        ],
+        correctIndex: 2,
+        rationale: "GIS stores and analyzes layered geographic data."
+      },
+      {
+        topic: "Geospatial Tech & Data",
+        topicGroup: "Geospatial Tech & Data",
+        text: "Remote sensing is best described as:",
+        choices: [
+          "Collecting data by visiting each location in person",
+          "Using satellites or aircraft to collect images and data about Earth's surface",
+          "Using a phone app to get step-by-step directions",
+          "Recording people's opinions through surveys"
+        ],
+        correctIndex: 1,
+        rationale: "Remote sensing collects data from a distance, usually via satellites or aircraft."
+      },
+      {
+        topic: "Geospatial Tech & Data",
+        topicGroup: "Geospatial Tech & Data",
+        text: "A driver uses a phone app that shows their exact position and gives directions. Which technology allows this?",
+        choices: [
+          "GIS",
+          "GPS",
+          "Remote sensing",
+          "Field observation"
+        ],
+        correctIndex: 1,
+        rationale: "GPS uses satellites to determine precise location on Earth."
+      },
+      {
+        topic: "Geospatial Tech & Data",
+        topicGroup: "Geospatial Tech & Data",
+        text: "Which of the following is an example of qualitative geographic data?",
+        choices: [
+          "A table listing population for each county",
+          "A graph of average temperatures by month",
+          "Interviews with residents about a new factory",
+          "A map of the number of hospitals per state"
+        ],
+        correctIndex: 2,
+        rationale: "Qualitative data focuses on descriptions and opinions, such as interview responses."
+      },
+      {
+        topic: "Geospatial Tech & Data",
+        topicGroup: "Geospatial Tech & Data",
+        text: "Students go downtown and record land uses, take photos, and talk to local business owners. This is an example of:",
+        choices: [
+          "Remote sensing",
+          "Field observations",
+          "GPS tracking",
+          "Online surveying"
+        ],
+        correctIndex: 1,
+        rationale: "Field observations involve directly visiting and observing places."
+      },
+
+      // Scale of analysis
+      {
+        topic: "Scale of Analysis",
+        topicGroup: "Scale of Analysis",
+        text: "A map shows the percentage of people in poverty in each country of the world. What is the scale of analysis?",
+        choices: [
+          "Local",
+          "Regional",
+          "National",
+          "Global"
+        ],
+        correctIndex: 3,
+        rationale: "The data are being analyzed at a global scale, using countries as units."
+      },
+      {
+        topic: "Scale of Analysis",
+        topicGroup: "Scale of Analysis",
+        text: "A geographer makes two maps of income in the U.S.: one by state and one by census tract. The patterns look different. This best demonstrates:",
+        choices: [
+          "Distance decay",
+          "Scale of analysis",
+          "Diffusion",
+          "Projection distortion"
+        ],
+        correctIndex: 1,
+        rationale: "Changing the scale of analysis can change how spatial patterns appear."
+      }
+    ];
+
+    // Reflection prompts
+    const reflectionPrompts = [
+      "In your notes, explain ONE way time–space compression affects how music, memes, or trends spread around the world.",
+      "Choose one real-world example of diffusion (like a food, sport, or app) and explain which type of diffusion it shows and why.",
+      "Explain why the pattern of a variable (like income or population density) might look different when mapped at the national scale vs. the local neighborhood scale."
+    ];
+
+    // ======================
+    // Utility helpers
+    // ======================
+    function shuffle(array) {
+      const a = [...array];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // ======================
+    // Game state
+    // ======================
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const hudWorld = document.getElementById("hudWorld");
+    const hudLives = document.getElementById("hudLives");
+    const hudCoins = document.getElementById("hudCoins");
+    const hudQuestions = document.getElementById("hudQuestions");
+    const hudCorrect = document.getElementById("hudCorrect");
+
+    const btnReset = document.getElementById("btnReset");
+    const questionOverlay = document.getElementById("questionOverlay");
+    const qTopic = document.getElementById("qTopic");
+    const qText = document.getElementById("qText");
+    const answersContainer = document.getElementById("answersContainer");
+    const qFeedback = document.getElementById("qFeedback");
+
+    const summaryOverlay = document.getElementById("summaryOverlay");
+    const summaryTitle = document.getElementById("summaryTitle");
+    const summarySubtitle = document.getElementById("summarySubtitle");
+    const sumTotalQ = document.getElementById("sumTotalQ");
+    const sumCorrectQ = document.getElementById("sumCorrectQ");
+    const sumAccuracy = document.getElementById("sumAccuracy");
+    const sumWorlds = document.getElementById("sumWorlds");
+    const sumCoins = document.getElementById("sumCoins");
+    const sumLives = document.getElementById("sumLives");
+    const topicBreakdown = document.getElementById("topicBreakdown");
+    const reviewTips = document.getElementById("reviewTips");
+    const reflectionPrompt = document.getElementById("reflectionPrompt");
+    const missedList = document.getElementById("missedList");
+    const btnPlayAgain = document.getElementById("btnPlayAgain");
+
+    // Player and level
+    const GRAVITY = 1500;
+    const BASE_SPEED = 260;
+    const BASE_JUMP = 550;
+
+    let player = {
+      x: 100,
+      y: 0,
+      width: 32,
+      height: 48,
+      vx: 0,
+      vy: 0,
+      onGround: false
+    };
+
+    let lives = 3;
+    let coins = 0;
+    let currentWorld = 1;
+    const totalWorlds = 3;
+
+    let cameraX = 0;
+    const levelWidth = 3000;
+
+    // Platforms: simple ground and a few raised ones per world
+    const platforms = [
+      // Main ground across worlds
+      { x: 0, y: 420, width: 3000, height: 60 },
+
+      // Some raised platforms in each world
+      // World 1 (0–1000)
+      { x: 250, y: 340, width: 120, height: 20 },
+      { x: 480, y: 300, width: 140, height: 20 },
+      { x: 720, y: 350, width: 120, height: 20 },
+
+      // World 2 (1000–2000)
+      { x: 1150, y: 360, width: 140, height: 20 },
+      { x: 1400, y: 320, width: 160, height: 20 },
+      { x: 1650, y: 280, width: 160, height: 20 },
+
+      // World 3 (2000–3000)
+      { x: 2100, y: 360, width: 140, height: 20 },
+      { x: 2350, y: 320, width: 150, height: 20 },
+      { x: 2600, y: 280, width: 150, height: 20 }
+    ];
+
+    // Coins
+    let coinsList = [
+      // World 1
+      { x: 280, y: 300, collected: false },
+      { x: 520, y: 260, collected: false },
+      { x: 760, y: 310, collected: false },
+      // World 2
+      { x: 1180, y: 320, collected: false },
+      { x: 1460, y: 280, collected: false },
+      { x: 1680, y: 240, collected: false },
+      // World 3
+      { x: 2130, y: 320, collected: false },
+      { x: 2390, y: 280, collected: false },
+      { x: 2630, y: 240, collected: false }
+    ];
+
+    // Enemies (simple walking rectangles)
+    let enemies = [
+      { x: 600, y: 380, width: 30, height: 30, vx: 60, minX: 580, maxX: 720 },
+      { x: 1450, y: 380, width: 30, height: 30, vx: -70, minX: 1350, maxX: 1550 },
+      { x: 2350, y: 380, width: 30, height: 30, vx: 80, minX: 2300, maxX: 2480 }
+    ];
+
+    // Checkpoints: “?” blocks that trigger questions
+    let checkpoints = [
+      // World 1
+      { x: 400, y: 280, used: false },
+      { x: 850, y: 280, used: false },
+      // World 2
+      { x: 1300, y: 280, used: false },
+      { x: 1750, y: 280, used: false },
+      // World 3
+      { x: 2200, y: 280, used: false },
+      { x: 2700, y: 280, used: false }
+    ];
+
+    // End flags for each world
+    const flags = [
+      { x: 950, y: 340, world: 1 },
+      { x: 1950, y: 340, world: 2 },
+      { x: 2950, y: 340, world: 3 }
+    ];
+
+    // Keyboard
+    const keys = {
+      left: false,
+      right: false,
+      jump: false
+    };
+
+    // Question state
+    let questionQueue = shuffle(questions);
+    let totalQuestionsToAsk = checkpoints.length; // one per checkpoint
+    let questionsAnswered = 0;
+    let correctAnswers = 0;
+    let topicTotals = {};
+    let topicCorrect = {};
+    let missedQuestions = [];
+
+    // Power-up / penalty timers
+    let boostTimer = 0;
+    let slowTimer = 0;
+
+    // General state
+    let lastTime = null;
+    let gameRunning = true;
+    let questionActive = false;
+    let currentQuestion = null;
+
+    // ======================
+    // HUD updates
+    // ======================
+    function updateHUD() {
+      hudWorld.textContent = `World: ${currentWorld} / ${totalWorlds}`;
+      hudLives.textContent = `Lives: ${"❤️".repeat(lives)}${lives === 0 ? " (game over soon)" : ""}`;
+      hudCoins.textContent = `Coins: ${coins}`;
+      hudQuestions.textContent = `Questions: ${questionsAnswered} / ${totalQuestionsToAsk}`;
+      hudCorrect.textContent = `Correct: ${correctAnswers}`;
+    }
+
+    // ======================
+    // Game reset
+    // ======================
+    function resetPlayerAndLevel(fullRestart = false) {
+      player.x = 100;
+      player.y = 300;
+      player.vx = 0;
+      player.vy = 0;
+      player.onGround = false;
+      cameraX = 0;
+      boostTimer = 0;
+      slowTimer = 0;
+
+      if (fullRestart) {
+        lives = 3;
+        coins = 0;
+        currentWorld = 1;
+        questionQueue = shuffle(questions);
+        checkpoints.forEach(cp => cp.used = false);
+        coinsList.forEach(c => c.collected = false);
+        enemies.forEach(e => {
+          // reset to original direction mid of their patrol
+          e.vx = Math.abs(e.vx) * (Math.random() < 0.5 ? 1 : -1);
+        });
+        questionsAnswered = 0;
+        correctAnswers = 0;
+        totalQuestionsToAsk = checkpoints.length;
+        topicTotals = {};
+        topicCorrect = {};
+        missedQuestions = [];
+      } else {
+        // just reset player position, keep stats
+      }
+
+      updateHUD();
+    }
+
+    // ======================
+    // Physics & collisions
+    // ======================
+    function getCurrentSpeed() {
+      if (boostTimer > 0 && slowTimer <= 0) return BASE_SPEED * 1.3;
+      if (slowTimer > 0 && boostTimer <= 0) return BASE_SPEED * 0.7;
+      return BASE_SPEED;
+    }
+
+    function getCurrentJump() {
+      if (boostTimer > 0 && slowTimer <= 0) return BASE_JUMP * 1.15;
+      if (slowTimer > 0 && boostTimer <= 0) return BASE_JUMP * 0.9;
+      return BASE_JUMP;
+    }
+
+    function updatePlayer(dt) {
+      // Timers
+      if (boostTimer > 0) {
+        boostTimer -= dt;
+        if (boostTimer < 0) boostTimer = 0;
+      }
+      if (slowTimer > 0) {
+        slowTimer -= dt;
+        if (slowTimer < 0) slowTimer = 0;
+      }
+
+      const speed = getCurrentSpeed();
+      // Horizontal movement
+      player.vx = 0;
+      if (keys.left) player.vx = -speed;
+      if (keys.right) player.vx = speed;
+
+      // Jump
+      if (keys.jump && player.onGround) {
+        player.vy = -getCurrentJump();
+        player.onGround = false;
+      }
+
+      // Apply gravity
+      player.vy += GRAVITY * dt;
+
+      // Horizontal move
+      let newX = player.x + player.vx * dt;
+      // Keep in level
+      if (newX < 0) newX = 0;
+      if (newX + player.width > levelWidth) newX = levelWidth - player.width;
+      player.x = newX;
+
+      // Vertical move with simple platform collision from above
+      let newY = player.y + player.vy * dt;
+      player.onGround = false;
+
+      for (const plat of platforms) {
+        const pTop = plat.y;
+        const pBottom = plat.y + plat.height;
+        const pLeft = plat.x;
+        const pRight = plat.x + plat.width;
+
+        const playerLeft = player.x;
+        const playerRight = player.x + player.width;
+        const prevBottom = player.y + player.height;
+        const nextBottom = newY + player.height;
+
+        const horizontalOverlap = playerRight > pLeft && playerLeft < pRight;
+
+        if (player.vy >= 0 && horizontalOverlap && prevBottom <= pTop && nextBottom >= pTop) {
+          // Land on top
+          newY = pTop - player.height;
+          player.vy = 0;
+          player.onGround = true;
+        }
+      }
+
+      player.y = newY;
+
+      // Simple "fall off the world" check
+      if (player.y > canvas.height + 200) {
+        lives = Math.max(0, lives - 1);
+        resetPlayerAndLevel(false);
+        if (lives === 0) {
+          // end game
+          finishGame();
+        }
+      }
+
+      // Camera follow
+      cameraX = player.x - canvas.width / 2 + player.width / 2;
+      if (cameraX < 0) cameraX = 0;
+      if (cameraX > levelWidth - canvas.width) cameraX = levelWidth - canvas.width;
+    }
+
+    function rectsOverlap(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    // ======================
+    // Enemies & coins
+    // ======================
+    function updateEnemies(dt) {
+      enemies.forEach(e => {
+        e.x += e.vx * dt;
+        if (e.x < e.minX) {
+          e.x = e.minX;
+          e.vx = Math.abs(e.vx);
+        }
+        if (e.x + e.width > e.maxX) {
+          e.x = e.maxX - e.width;
+          e.vx = -Math.abs(e.vx);
+        }
+
+        const playerBox = { x: player.x, y: player.y, width: player.width, height: player.height };
+        const enemyBox = { x: e.x, y: e.y, width: e.width, height: e.height };
+
+        if (rectsOverlap(playerBox, enemyBox)) {
+          // Simple penalty: lose a life and reset position
+          lives = Math.max(0, lives - 1);
+          resetPlayerAndLevel(false);
+          if (lives === 0) {
+            finishGame();
+          }
+        }
+      });
+    }
+
+    function updateCoins() {
+      coinsList.forEach(c => {
+        if (c.collected) return;
+        const dx = (player.x + player.width / 2) - c.x;
+        const dy = (player.y + player.height / 2) - c.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 24) {
+          c.collected = true;
+          coins += 1;
+        }
+      });
+    }
+
+    // ======================
+    // Worlds & flags
+    // ======================
+    function updateWorld() {
+      // Determine world from player x
+      if (player.x < 1000) currentWorld = 1;
+      else if (player.x < 2000) currentWorld = 2;
+      else currentWorld = 3;
+
+      // Check flag collisions
+      for (const flag of flags) {
+        const flagBox = { x: flag.x, y: flag.y - 80, width: 20, height: 80 };
+        const playerBox = { x: player.x, y: player.y, width: player.width, height: player.height };
+        if (rectsOverlap(playerBox, flagBox)) {
+          if (flag.world === totalWorlds) {
+            // finished all worlds
+            finishGame();
+          } else {
+            // move player to next world start
+            player.x = flag.x + 40;
+          }
+        }
+      }
+    }
+
+    // ======================
+    // Checkpoints & questions
+    // ======================
+    function updateCheckpoints() {
+      if (questionActive) return;
+      for (const cp of checkpoints) {
+        if (cp.used) continue;
+        const dx = (player.x + player.width / 2) - cp.x;
+        const dy = (player.y + player.height / 2) - cp.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 32) {
+          cp.used = true;
+          askQuestion();
+          break;
+        }
+      }
+    }
+
+    function askQuestion() {
+      if (!questionQueue.length) return;
+      questionActive = true;
+      currentQuestion = questionQueue.shift();
+
+      // record topic total
+      const key = currentQuestion.topicGroup || currentQuestion.topic;
+      topicTotals[key] = (topicTotals[key] || 0) + 1;
+
+      questionOverlay.classList.remove("hidden");
+      qTopic.textContent = (currentQuestion.topicGroup || currentQuestion.topic || "Question").toUpperCase();
+      qText.textContent = currentQuestion.text;
+      qFeedback.textContent = "";
+      answersContainer.innerHTML = "";
+
+      currentQuestion.choices.forEach((choice, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = choice;
+        btn.addEventListener("click", () => handleAnswer(idx));
+        answersContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(choiceIndex) {
+      const buttons = Array.from(answersContainer.children);
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === currentQuestion.correctIndex) btn.classList.add("correct");
+        if (idx === choiceIndex && idx !== currentQuestion.correctIndex) btn.classList.add("incorrect");
+      });
+
+      const correct = choiceIndex === currentQuestion.correctIndex;
+      const key = currentQuestion.topicGroup || currentQuestion.topic;
+      if (!topicCorrect[key]) topicCorrect[key] = 0;
+
+      questionsAnswered++;
+      if (correct) {
+        correctAnswers++;
+        topicCorrect[key] += 1;
+        qFeedback.innerHTML = `<strong>Correct!</strong> ${currentQuestion.rationale || ""}`;
+        // power-up: brief speed/jump boost + coins
+        boostTimer = 4;
+        slowTimer = 0;
+        coins += 2;
+      } else {
+        missedQuestions.push(currentQuestion);
+        qFeedback.innerHTML = `<strong>Not quite.</strong> ${currentQuestion.rationale || "Review this idea in your notes."}`;
+        // penalty: brief slowdown, lose coins and maybe a life fragment
+        slowTimer = 4;
+        boostTimer = 0;
+        coins = Math.max(0, coins - 2);
+        if (Math.random() < 0.3) {
+          lives = Math.max(0, lives - 1);
+          if (lives === 0) {
+            finishGame();
+          }
+        }
+      }
+
+      updateHUD();
+
+      setTimeout(() => {
+        questionOverlay.classList.add("hidden");
+        questionActive = false;
+      }, 1100);
+    }
+
+    // Allow keyboard 1–4 to answer
+    window.addEventListener("keydown", (e) => {
+      if (!questionActive) return;
+      const mapping = {
+        Digit1: 0,
+        Digit2: 1,
+        Digit3: 2,
+        Digit4: 3
+      };
+      const idx = mapping[e.code];
+      if (idx !== undefined) {
+        // prevent double-answer
+        const buttons = Array.from(answersContainer.children);
+        if (!buttons.length || buttons[0].disabled) return;
+        handleAnswer(idx);
+      }
+    });
+
+    // ======================
+    // Drawing
+    // ======================
+    function drawBackground() {
+      // simple background gradient already set by canvas; can add parallax hills
+      ctx.fillStyle = "#1f2937";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // parallax “hills”
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(0, 350, canvas.width, 130);
+    }
+
+    function drawPlatforms() {
+      ctx.fillStyle = "#374151";
+      platforms.forEach(p => {
+        ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
+      });
+    }
+
+    function drawCoins() {
+      coinsList.forEach(c => {
+        if (c.collected) return;
+        ctx.beginPath();
+        ctx.arc(c.x - cameraX, c.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#facc15";
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "#fbbf24";
+        ctx.stroke();
+        ctx.closePath();
+      });
+    }
+
+    function drawEnemies() {
+      enemies.forEach(e => {
+        ctx.fillStyle = "#b91c1c";
+        ctx.fillRect(e.x - cameraX, e.y, e.width, e.height);
+        ctx.fillStyle = "#fee2e2";
+        ctx.fillRect(e.x - cameraX + 6, e.y + 6, e.width - 12, 6);
+      });
+    }
+
+    function drawCheckpoints() {
+      checkpoints.forEach(cp => {
+        ctx.fillStyle = cp.used ? "#4b5563" : "#f97316";
+        ctx.fillRect(cp.x - cameraX - 12, cp.y - 24, 24, 24);
+        // question mark
+        if (!cp.used) {
+          ctx.fillStyle = "#111827";
+          ctx.font = "16px system-ui";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("?", cp.x - cameraX, cp.y - 12);
+        }
+      });
+    }
+
+    function drawFlags() {
+      flags.forEach(flag => {
+        const baseX = flag.x - cameraX;
+        const baseY = flag.y;
+        // pole
+        ctx.fillStyle = "#e5e7eb";
+        ctx.fillRect(baseX, baseY - 100, 4, 100);
+        // flag
+        ctx.fillStyle = flag.world === totalWorlds ? "#22c55e" : "#3b82f6";
+        ctx.beginPath();
+        ctx.moveTo(baseX + 4, baseY - 100);
+        ctx.lineTo(baseX + 40, baseY - 90);
+        ctx.lineTo(baseX + 4, baseY - 80);
+        ctx.closePath();
+        ctx.fill();
+      });
+    }
+
+    function drawPlayer() {
+      const px = player.x - cameraX;
+      const py = player.y;
+      // body
+      ctx.fillStyle = "#f97316";
+      ctx.fillRect(px, py, player.width, player.height);
+      // head
+      ctx.fillStyle = "#fed7aa";
+      ctx.fillRect(px + 6, py - 16, player.width - 12, 16);
+      // backpack
+      ctx.fillStyle = "#1d4ed8";
+      ctx.fillRect(px - 6, py + 8, 10, 24);
+      // map in hand
+      ctx.fillStyle = "#e5e7eb";
+      ctx.fillRect(px + player.width - 6, py + 14, 8, 14);
+    }
+
+    function drawScene() {
+      drawBackground();
+      drawPlatforms();
+      drawCoins();
+      drawEnemies();
+      drawCheckpoints();
+      drawFlags();
+      drawPlayer();
+    }
+
+    // ======================
+    // Main loop
+    // ======================
+    function gameLoop(timestamp) {
+      if (!gameRunning) return;
+
+      if (!lastTime) lastTime = timestamp;
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+
+      if (!questionActive) {
+        updatePlayer(dt);
+        updateEnemies(dt);
+        updateCoins();
+        updateWorld();
+        updateCheckpoints();
+        updateHUD();
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawScene();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    // ======================
+    // Finish & summary
+    // ======================
+    function finishGame() {
+      gameRunning = false;
+      summaryOverlay.classList.remove("hidden");
+
+      const totalQ = questionsAnswered;
+      const accuracy = totalQ > 0 ? Math.round((correctAnswers / totalQ) * 100) : 0;
+
+      if (lives === 0) {
+        summaryTitle.textContent = "Game over – practice complete";
+        summarySubtitle.textContent = "You ran out of lives, but you still got practice with Unit 1. Use the breakdown to guide your studying.";
+      } else {
+        summaryTitle.textContent = "🏁 World 3 flag reached!";
+        summarySubtitle.textContent = "Nice work racing through Maps & Scale, Spatial Patterns, and Data & Tech. Use this to fine-tune your Unit 1 review.";
+      }
+
+      sumTotalQ.textContent = totalQ;
+      sumCorrectQ.textContent = `${correctAnswers}`;
+      sumAccuracy.textContent = `${accuracy}%`;
+      sumWorlds.textContent = `${currentWorld} / ${totalWorlds}`;
+      sumCoins.textContent = `${coins}`;
+      sumLives.textContent = `${lives}`;
+
+      // Topic breakdown
+      topicBreakdown.innerHTML = "";
+      Object.keys(topicTotals).forEach(topic => {
+        const total = topicTotals[topic] || 0;
+        const correct = topicCorrect[topic] || 0;
+        const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+        const div = document.createElement("div");
+        div.className = "topic-pill";
+        div.innerHTML = `<span>${topic}</span> ${correct}/${total} · ${pct}%`;
+        topicBreakdown.appendChild(div);
+      });
+
+      // Review tips
+      reviewTips.innerHTML = "";
+      const tips = [];
+
+      // Find weakest two topics
+      const topicList = Object.keys(topicTotals).map(topic => {
+        const total = topicTotals[topic];
+        const correct = topicCorrect[topic] || 0;
+        return { topic, total, correct, pct: total > 0 ? correct / total : 0 };
+      }).sort((a, b) => a.pct - b.pct);
+
+      if (topicList.length) {
+        const weakest = topicList[0];
+        tips.push(`Review your notes and examples for <strong>${weakest.topic}</strong>. This was your lowest scoring topic.`);
+      }
+      if (topicList.length > 1) {
+        const nextWeakest = topicList[1];
+        tips.push(`Practice a few extra questions on <strong>${nextWeakest.topic</strong> to build confidence.}`);
+      }
+
+      // Specific content-based tips
+      if ((topicCorrect["Map Types & Scale"] || 0) < (topicTotals["Map Types & Scale"] || 0)) {
+        tips.push("Review map types (reference vs. thematic) and practice deciding when to use choropleth, dot, or proportional symbol maps.");
+      }
+      if ((topicCorrect["Regions"] || 0) < (topicTotals["Regions"] || 0)) {
+        tips.push("Practice distinguishing formal, functional, and vernacular regions with real-world examples.");
+      }
+      if ((topicCorrect["Geospatial Tech & Data"] || 0) < (topicTotals["Geospatial Tech & Data"] || 0)) {
+        tips.push("Review how GIS, GPS, and remote sensing are used in real-world situations like navigation, city planning, and weather tracking.");
+      }
+
+      if (!tips.length) {
+        tips.push("Nice job! Try explaining these concepts out loud to a partner or family member to lock them in.");
+      }
+
+      tips.forEach(t => {
+        const li = document.createElement("li");
+        li.innerHTML = t;
+        reviewTips.appendChild(li);
+      });
+
+      // Reflection prompt
+      const ref = reflectionPrompts[Math.floor(Math.random() * reflectionPrompts.length)];
+      reflectionPrompt.textContent = ref;
+
+      // Missed questions list
+      missedList.innerHTML = "";
+      if (!missedQuestions.length) {
+        missedList.innerHTML = "<p>You answered every question correctly. Awesome work!</p>";
+      } else {
+        missedQuestions.forEach((q, index) => {
+          const wrapper = document.createElement("div");
+          const correctChoice = q.choices[q.correctIndex];
+          wrapper.innerHTML = `
+            <div style="font-weight:600;margin-bottom:0.05rem;">${index + 1}. ${q.text}</div>
+            <div style="margin-left:0.7rem;">Correct answer: <strong>${correctChoice}</strong></div>
+            <div style="margin-left:0.7rem;color:#9ca3af;font-size:0.8rem;">${q.rationale || "Review this concept in your notes."}</div>
+          `;
+          missedList.appendChild(wrapper);
+        });
+      }
+    }
+
+    // ======================
+    // Event listeners
+    // ======================
+    window.addEventListener("keydown", (e) => {
+      if (summaryOverlay && !summaryOverlay.classList.contains("hidden")) return;
+
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = true;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = true;
+      if (e.code === "ArrowUp" || e.code === "Space") keys.jump = true;
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.code === "ArrowLeft" || e.code === "KeyA") keys.left = false;
+      if (e.code === "ArrowRight" || e.code === "KeyD") keys.right = false;
+      if (e.code === "ArrowUp" || e.code === "Space") keys.jump = false;
+    });
+
+    btnReset.addEventListener("click", () => {
+      resetPlayerAndLevel(false);
+    });
+
+    btnPlayAgain.addEventListener("click", () => {
+      summaryOverlay.classList.add("hidden");
+      gameRunning = true;
+      lastTime = null;
+      resetPlayerAndLevel(true);
+      requestAnimationFrame(gameLoop);
+    });
+
+    // ======================
+    // Start game
+    // ======================
+    resetPlayerAndLevel(true);
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
