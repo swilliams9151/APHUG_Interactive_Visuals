@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APHG Topic 4.3: Political Power & Territoriality</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
         body { font-family: 'Inter', sans-serif; }
@@ -49,6 +51,11 @@
         .flow-line {
             stroke-dasharray: 4;
             animation: flow 1s linear infinite;
+        }
+        
+        /* Map Container */
+        #choke-map {
+            z-index: 0;
         }
     </style>
 </head>
@@ -144,7 +151,19 @@
             </div>
         </section>
 
-        <!-- SECTION 2: Vocab Flashcards (SPS-4.D, E, F) -->
+        <!-- SECTION 2: SPS-4.F Choke Points Map -->
+        <section class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+            <div class="p-6 border-b border-gray-100 bg-blue-50">
+                <h2 class="text-2xl font-bold text-blue-900">SPS-4.F: Strategic Choke Points</h2>
+                <p class="text-sm text-blue-700 mt-1">Click the markers to see the economic and political power these locations grant.</p>
+            </div>
+            <div id="choke-map" class="h-96 w-full"></div>
+            <div class="p-4 bg-slate-50 text-xs text-gray-500 border-t border-gray-200 text-center">
+                Control of these narrow waterways provides immense leverage in global trade and military strategy.
+            </div>
+        </section>
+
+        <!-- SECTION 3: Vocab Flashcards (SPS-4.D, E, F) -->
         <section>
             <h2 class="text-2xl font-bold text-gray-800 mb-6 pl-2 border-l-4 border-indigo-500">Essential Vocabulary</h2>
             <p class="text-sm text-gray-500 mb-6 pl-2">Hover over (or tap) the cards to reveal the AP definition and a real-world example.</p>
@@ -262,7 +281,7 @@
             </div>
         </section>
 
-        <!-- SECTION 3: The Impact of Self-Determination -->
+        <!-- SECTION 4: The Impact of Self-Determination -->
         <section class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-8 text-white shadow-xl">
             <h2 class="text-2xl font-bold mb-4">SPS-4.D: Self-Determination & Political Systems</h2>
             <p class="text-slate-300 mb-6">Self-determination often leads to the creation of new states, but it can also cause instability.</p>
@@ -288,6 +307,74 @@
     <footer class="text-center p-8 text-slate-400 text-sm">
         AP Human Geography • Unit 4: Political Patterns and Processes
     </footer>
+
+    <!-- Load Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        window.onload = function() {
+            // 1. Initialize Map
+            const map = L.map('choke-map').setView([20, 20], 2);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 10,
+                minZoom: 2
+            }).addTo(map);
+
+            // 2. Choke Point Data with Benefits
+            const chokepoints = [
+                { 
+                    name: "Suez Canal", 
+                    coords: [30.5852, 32.2654], 
+                    owner: "Egypt", 
+                    benefit: "Economic Power: Generates ~$9 Billion/year in tolls. Strategic leverage over Europe-Asia trade route." 
+                },
+                { 
+                    name: "Strait of Hormuz", 
+                    coords: [26.5667, 56.2500], 
+                    owner: "Iran / Oman", 
+                    benefit: "Energy Leverage: 30% of world's seaborne oil passes here. Iran uses this as geopolitical leverage against sanctions." 
+                },
+                { 
+                    name: "Panama Canal", 
+                    coords: [9.1619, -79.7554], 
+                    owner: "Panama", 
+                    benefit: "Economic Sovereignty: Critical for Western Hemisphere trade. Represents Panama's successful reclamation of territory from the US." 
+                },
+                { 
+                    name: "Strait of Malacca", 
+                    coords: [4.2105, 101.9758], 
+                    owner: "Singapore / Malaysia", 
+                    benefit: "Trade Hub: Singapore leveraged this location to become a wealthy financial 'Entrepot' (break-of-bulk point)." 
+                },
+                { 
+                    name: "Turkish Straits", 
+                    coords: [41.0082, 28.9784], 
+                    owner: "Turkey", 
+                    benefit: "Military Gatekeeper: Montreux Convention gives Turkey legal control over warships entering/exiting the Black Sea (critical for Russia)." 
+                },
+                { 
+                    name: "Bab el-Mandeb", 
+                    coords: [12.5906, 43.3601], 
+                    owner: "Yemen / Djibouti", 
+                    benefit: "Strategic Control: Controls access to the Red Sea and Suez. Djibouti hosts multiple foreign military bases due to this location." 
+                }
+            ];
+
+            // 3. Add Markers
+            chokepoints.forEach(pt => {
+                const marker = L.marker(pt.coords).addTo(map);
+                marker.bindPopup(`
+                    <div class="p-1">
+                        <h3 class="font-bold text-indigo-900 text-sm">${pt.name}</h3>
+                        <div class="text-xs font-bold text-indigo-500 uppercase mb-2">${pt.owner}</div>
+                        <hr class="border-gray-200 my-2">
+                        <p class="text-xs text-gray-700 leading-relaxed">${pt.benefit}</p>
+                    </div>
+                `);
+            });
+        };
+    </script>
 
 </body>
 </html>
