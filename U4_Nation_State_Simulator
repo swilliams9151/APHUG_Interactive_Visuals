@@ -1,1 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nation State Simulator: APHG Unit 4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* CRT Monitor Effect */
+        .monitor-screen {
+            background-color: #111827;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .monitor-line {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes scanline { 0% { top: 0%; } 100% { top: 100%; } }
 
+        /* Stat Bar Animation */
+        .stat-fill { transition: width 0.5s ease-in-out, background-color 0.3s; }
+
+        /* Choice Button Hover */
+        .choice-btn { transition: all 0.2s; border-left: 4px solid transparent; }
+        .choice-btn:hover { transform: translateX(4px); border-color: #3b82f6; background-color: #1f2937; }
+
+        /* Input Style */
+        .retro-input {
+            background: transparent;
+            border: 2px solid #4b5563;
+            color: white;
+            font-family: monospace;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            max-width: 300px;
+            text-align: center;
+            font-size: 1.25rem;
+            transition: border-color 0.2s;
+        }
+        .retro-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Game Container -->
+    <div class="max-w-4xl w-full bg-slate-800 rounded-xl shadow-2xl overflow-hidden border border-slate-700">
+        
+        <!-- Header / Stats -->
+        <div class="bg-slate-900 p-4 border-b border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="text-3xl">🏛️</div>
+                <div>
+                    <h1 id="country-name-display" class="text-xl font-bold text-white tracking-wider">REPUBLIC OF GEO</h1>
+                    <p class="text-xs text-slate-500 uppercase font-bold">Unit 4 Command Center</p>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-3 gap-6 w-full md:w-auto">
+                <div class="w-32">
+                    <div class="flex justify-between text-xs font-bold text-emerald-400 mb-1">
+                        <span>STABILITY</span>
+                        <span id="val-stab">50%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-700 rounded-full"><div id="bar-stab" class="h-full bg-emerald-500 stat-fill" style="width: 50%"></div></div>
+                </div>
+                <div class="w-32">
+                    <div class="flex justify-between text-xs font-bold text-amber-400 mb-1">
+                        <span>WEALTH</span>
+                        <span id="val-wealth">50%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-700 rounded-full"><div id="bar-wealth" class="h-full bg-amber-500 stat-fill" style="width: 50%"></div></div>
+                </div>
+                <div class="w-32">
+                    <div class="flex justify-between text-xs font-bold text-blue-400 mb-1">
+                        <span>SOVEREIGNTY</span>
+                        <span id="val-sov">50%</span>
+                    </div>
+                    <div class="w-full h-2 bg-slate-700 rounded-full"><div id="bar-sov" class="h-full bg-blue-500 stat-fill" style="width: 50%"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Screen -->
+        <div class="monitor-screen min-h-[400px] p-8 flex flex-col relative">
+            <div class="monitor-line"></div>
+            
+            <!-- Start Screen -->
+            <div id="screen-start" class="flex flex-col items-center justify-center h-full text-center space-y-6 fade-in">
+                <h2 class="text-4xl font-extrabold text-white mb-2">Welcome, Leader.</h2>
+                <p class="text-slate-400 max-w-lg text-sm leading-relaxed">
+                    You lead a newly independent state. You must navigate borders, governance, and global politics. 
+                </p>
+                
+                <!-- Name Input -->
+                <div class="w-full flex flex-col items-center gap-2 my-4">
+                    <label for="input-name" class="text-xs font-bold text-blue-400 uppercase tracking-wider">Name Your Country</label>
+                    <input type="text" id="input-name" class="retro-input" placeholder="Republic of..." value="Republic of Geo">
+                </div>
+
+                <p class="text-slate-500 text-xs">
+                    Every decision relates to <strong class="text-blue-400">AP Human Geography Unit 4</strong>. 
+                    <br>Keep your stats high to survive.
+                </p>
+                
+                <button onclick="startGame()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow-lg transition transform hover:scale-105">
+                    Initialize Term ➔
+                </button>
+            </div>
+
+            <!-- Scenario Screen -->
+            <div id="screen-game" class="hidden flex-col h-full">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="scenario-counter" class="text-xs font-mono text-slate-500 border border-slate-700 px-2 py-1 rounded">CRISIS 1/10</span>
+                    <span id="scenario-topic" class="text-xs font-bold text-blue-400 bg-blue-900/30 px-3 py-1 rounded uppercase tracking-wider">Topic: Boundaries</span>
+                </div>
+
+                <h2 id="scenario-title" class="text-2xl font-bold text-white mb-4">Border Dispute</h2>
+                <p id="scenario-desc" class="text-slate-300 text-lg leading-relaxed mb-8 flex-1">
+                    Oil has been discovered exactly on the border line between you and your neighbor. The treaty is unclear about who owns the resources underground.
+                </p>
+
+                <div class="grid gap-4" id="choices-container">
+                    <!-- Buttons injected here -->
+                </div>
+            </div>
+
+            <!-- Debrief/Feedback Screen -->
+            <div id="screen-debrief" class="hidden flex-col items-center justify-center h-full text-center">
+                <div id="debrief-icon" class="text-6xl mb-4">✅</div>
+                <h2 id="debrief-title" class="text-2xl font-bold text-white mb-2">Allocational Boundary Dispute</h2>
+                
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-600 text-left w-full max-w-2xl">
+                    <p id="debrief-text" class="text-slate-300 text-sm leading-relaxed mb-4">
+                        Explanation goes here.
+                    </p>
+                    <div class="flex gap-4 text-xs font-mono border-t border-slate-700 pt-4">
+                        <span id="stat-change-1" class="text-emerald-400">Stability +10</span>
+                        <span id="stat-change-2" class="text-red-400">Sovereignty -5</span>
+                    </div>
+                </div>
+
+                <button onclick="nextTurn()" class="mt-8 px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded transition">
+                    Next Crisis ➔
+                </button>
+            </div>
+
+            <!-- Game Over / Win Screen -->
+            <div id="screen-end" class="hidden flex-col items-center justify-center h-full text-center">
+                <h2 id="end-title" class="text-4xl font-bold text-white mb-4">Term Finished</h2>
+                <p id="end-desc" class="text-slate-400 mb-8">Summary of your rule.</p>
+                <div class="grid grid-cols-2 gap-4 text-left bg-slate-800 p-6 rounded-xl border border-slate-700 w-full max-w-lg mb-8">
+                    <div>
+                        <div class="text-xs text-slate-500 uppercase">Final Stability</div>
+                        <div id="end-stab" class="text-xl font-bold text-emerald-400">80%</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-500 uppercase">Final Wealth</div>
+                        <div id="end-wealth" class="text-xl font-bold text-amber-400">60%</div>
+                    </div>
+                </div>
+                <button onclick="location.reload()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded shadow-lg">
+                    Play Again
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- GAME STATE ---
+        let stats = { stability: 50, wealth: 50, sovereignty: 50 };
+        let currentScenario = 0;
+        let countryName = "Republic of Geo";
+        
+        // --- SCENARIO BANK (Unit 4 Concepts) ---
+        const scenarios = [
+            {
+                topic: "4.4 Types of Boundaries",
+                title: "The River Shifts",
+                desc: "Your border with the south is defined by a river (Physical-Consequent Boundary). A massive flood shifted the river course 2 miles north. Your neighbor now claims that land.",
+                choices: [
+                    {
+                        text: "Build a wall along the OLD river path to mark the line.",
+                        feedback: "You created a <strong>Demarcated Boundary</strong> (Physical objects marking the border). While expensive, it solidifies your claim.",
+                        changes: { stability: 5, wealth: -10, sovereignty: 10 },
+                        icon: "🧱"
+                    },
+                    {
+                        text: "Negotiate a new treaty based on the new river location.",
+                        feedback: "You accepted the nature of <strong>Physical Boundaries</strong>. They move! This is diplomatic but you lost territory.",
+                        changes: { stability: 10, wealth: 0, sovereignty: -5 },
+                        icon: "📜"
+                    }
+                ]
+            },
+            {
+                topic: "4.5 UNCLOS (Law of the Sea)",
+                title: "Fishermen in the Water",
+                desc: "Foreign boats are fishing 150 miles off your coast. Your navy wants to arrest them. Can they?",
+                choices: [
+                    {
+                        text: "Yes! Arrest them immediately.",
+                        feedback: "<strong>Correct Application of UNCLOS.</strong> While your *Territorial Sea* is only 12 miles, your <strong>Exclusive Economic Zone (EEZ)</strong> extends 200 miles. You own the resources there.",
+                        changes: { stability: 5, wealth: 10, sovereignty: 10 },
+                        icon: "⚓"
+                    },
+                    {
+                        text: "No, that is International Waters.",
+                        feedback: "<strong>Incorrect Application of UNCLOS.</strong> International waters (High Seas) start after 200 miles. You just gave away your resources within your <strong>EEZ</strong>.",
+                        changes: { stability: -5, wealth: -10, sovereignty: -5 },
+                        icon: "🌊"
+                    }
+                ]
+            },
+            {
+                topic: "4.7 Forms of Governance",
+                title: "Regional Unrest",
+                desc: "A minority ethnic group in the Western Province is protesting. They feel the central government ignores their unique culture. How do you govern?",
+                choices: [
+                    {
+                        text: "Maintain strict central control (Unitary State).",
+                        feedback: "<strong>Unitary State:</strong> Power is centralized. This is efficient but dangerous in a multinational state. The protests have turned into riots (Centrifugal Force).",
+                        changes: { stability: -20, wealth: 0, sovereignty: 10 },
+                        icon: "✊"
+                    },
+                    {
+                        text: "Grant them a local parliament (Federal State).",
+                        feedback: "<strong>Federal State:</strong> You shared power with local levels. This reduced tension but makes passing national laws slower.",
+                        changes: { stability: 15, wealth: -5, sovereignty: -5 },
+                        icon: "🤝"
+                    }
+                ]
+            },
+            {
+                topic: "4.8 Devolution",
+                title: "The Independence Referendum",
+                desc: "The Western Province is now demanding full independence. If they leave, you lose your access to the sea.",
+                choices: [
+                    {
+                        text: "Grant them Semi-Autonomous status instead.",
+                        feedback: "<strong>Devolution:</strong> You transferred power downwards to keep the state intact. You avoided <strong>Balkanization</strong> (fragmentation into smaller states).",
+                        changes: { stability: 10, wealth: 5, sovereignty: 5 },
+                        icon: "📉"
+                    },
+                    {
+                        text: "Deny all requests. Send in the military.",
+                        feedback: "This triggered <strong>Irredentism</strong> or armed conflict. While you kept the land, the region is now a <strong>Shatterbelt</strong> of instability.",
+                        changes: { stability: -25, wealth: -15, sovereignty: 10 },
+                        icon: "⚔️"
+                    }
+                ]
+            },
+            {
+                topic: "4.9 Supranationalism",
+                title: "The Trade Bloc",
+                desc: "A regional organization (like the EU) invites you to join. You will get free trade, but you must follow their environmental laws.",
+                choices: [
+                    {
+                        text: "Join the organization.",
+                        feedback: "<strong>Supranationalism:</strong> You gave up some Sovereignty (control) to a higher power, but gained economic Wealth through reduced tariffs.",
+                        changes: { stability: 5, wealth: 15, sovereignty: -10 },
+                        icon: "🇪🇺"
+                    },
+                    {
+                        text: "Refuse. We make our own laws.",
+                        feedback: "You prioritized <strong>Sovereignty</strong>. However, your economy suffers as you face tariffs from your neighbors.",
+                        changes: { stability: 5, wealth: -10, sovereignty: 10 },
+                        icon: "🚫"
+                    }
+                ]
+            },
+            {
+                topic: "4.6 Internal Boundaries",
+                title: "The Census & Elections",
+                desc: "The census shows population has shifted to the cities. The ruling party wants to redraw the voting districts to ensure they stay in power.",
+                choices: [
+                    {
+                        text: "Allow the redraw (Gerrymandering).",
+                        feedback: "<strong>Gerrymandering:</strong> Redrawing boundaries for political gain. You stayed in power (Sovereignty), but the people feel the system is rigged (Stability loss).",
+                        changes: { stability: -15, wealth: 0, sovereignty: 15 },
+                        icon: "🗳️"
+                    },
+                    {
+                        text: "Appoint an independent commission.",
+                        feedback: "You avoided Gerrymandering. The districts are fair (Compact/Contiguous), increasing trust in the government.",
+                        changes: { stability: 10, wealth: 0, sovereignty: -5 },
+                        icon: "⚖️"
+                    }
+                ]
+            },
+            {
+                topic: "4.2 Political Geography",
+                title: "The Narrow Strait",
+                desc: "A strait near your coast handles 20% of world oil trade. Pirates have begun attacking ships there.",
+                choices: [
+                    {
+                        text: "Militarize the strait.",
+                        feedback: "You are protecting a <strong>Choke Point</strong>. This is a strategic narrow route providing passage. Controlling it gives you Geopolitical Power.",
+                        changes: { stability: 5, wealth: -5, sovereignty: 15 },
+                        icon: "🚢"
+                    },
+                    {
+                        text: "Let international navies handle it.",
+                        feedback: "You avoided the cost, but you lost leverage. Choke points are critical for <strong>Political Power</strong>.",
+                        changes: { stability: 0, wealth: 0, sovereignty: -10 },
+                        icon: "🏳️"
+                    }
+                ]
+            },
+            {
+                topic: "4.3 Neocolonialism",
+                title: "Foreign Investment",
+                desc: "A powerful foreign country offers to build you a high-speed rail network, but they want ownership of the port for 99 years.",
+                choices: [
+                    {
+                        text: "Accept the deal.",
+                        feedback: "<strong>Neocolonialism:</strong> Economic control rather than military control. You got infrastructure, but the foreign power now has leverage over your economy.",
+                        changes: { stability: 10, wealth: 10, sovereignty: -20 },
+                        icon: "🚄"
+                    },
+                    {
+                        text: "Reject the deal.",
+                        feedback: "You maintained independence, but your infrastructure lags behind. You avoided the debt trap.",
+                        changes: { stability: -5, wealth: -10, sovereignty: 10 },
+                        icon: "✋"
+                    }
+                ]
+            }
+        ];
+
+        // --- ENGINE ---
+        
+        function startGame() {
+            // Set Name
+            const input = document.getElementById('input-name');
+            if (input.value.trim() !== "") {
+                countryName = input.value.trim();
+            }
+            document.getElementById('country-name-display').innerText = countryName.toUpperCase();
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+            loadScenario();
+        }
+
+        function loadScenario() {
+            if (currentScenario >= scenarios.length) {
+                endGame();
+                return;
+            }
+
+            const data = scenarios[currentScenario];
+            
+            // Update UI
+            document.getElementById('scenario-counter').innerText = `CRISIS ${currentScenario + 1}/${scenarios.length}`;
+            document.getElementById('scenario-topic').innerText = data.topic;
+            document.getElementById('scenario-title').innerText = data.title;
+            document.getElementById('scenario-desc').innerText = data.desc;
+
+            // Build Buttons
+            const container = document.getElementById('choices-container');
+            container.innerHTML = '';
+            
+            data.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = "choice-btn w-full text-left p-4 bg-slate-700 rounded-lg border border-slate-600 flex items-center gap-4 text-slate-200 hover:text-white";
+                btn.innerHTML = `
+                    <span class="text-2xl">${choice.icon}</span>
+                    <div>
+                        <div class="font-bold text-sm">Option ${index === 0 ? 'A' : 'B'}</div>
+                        <div class="text-sm opacity-90">${choice.text}</div>
+                    </div>
+                `;
+                btn.onclick = () => handleChoice(choice);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleChoice(choice) {
+            // Update Stats
+            updateStat('stability', choice.changes.stability);
+            updateStat('wealth', choice.changes.wealth);
+            updateStat('sovereignty', choice.changes.sovereignty);
+
+            // Show Debrief
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('flex');
+            document.getElementById('screen-debrief').classList.remove('hidden');
+            document.getElementById('screen-debrief').classList.add('flex');
+
+            document.getElementById('debrief-icon').innerText = choice.icon;
+            document.getElementById('debrief-title').innerText = scenarios[currentScenario].title + " Resolved";
+            document.getElementById('debrief-text').innerHTML = choice.feedback; // Use HTML for bolding
+            
+            // Show stat changes text
+            const s1 = document.getElementById('stat-change-1');
+            const s2 = document.getElementById('stat-change-2');
+            
+            // Helper to format text
+            const fmt = (val, name) => `${val > 0 ? '+' : ''}${val} ${name}`;
+            const style = (val) => val > 0 ? "text-emerald-400" : "text-red-400";
+            
+            // Just grab first two non-zero stats for display
+            const changes = Object.entries(choice.changes).filter(([k,v]) => v !== 0);
+            
+            if (changes[0]) {
+                s1.innerText = fmt(changes[0][1], changes[0][0]);
+                s1.className = style(changes[0][1]);
+            } else s1.innerText = "";
+
+            if (changes[1]) {
+                s2.innerText = fmt(changes[1][1], changes[1][0]);
+                s2.className = style(changes[1][1]);
+            } else s2.innerText = "";
+        }
+
+        function updateStat(key, change) {
+            stats[key] += change;
+            if (stats[key] > 100) stats[key] = 100;
+            if (stats[key] < 0) stats[key] = 0;
+
+            const bar = document.getElementById(`bar-${key === 'stability' ? 'stab' : (key === 'sovereignty' ? 'sov' : key)}`);
+            const val = document.getElementById(`val-${key === 'stability' ? 'stab' : (key === 'sovereignty' ? 'sov' : key)}`);
+
+            bar.style.width = `${stats[key]}%`;
+            val.innerText = `${stats[key]}%`;
+            
+            // Color shift on low stats
+            if (stats[key] < 30) bar.classList.add('bg-red-500');
+            else bar.classList.remove('bg-red-500');
+        }
+
+        function nextTurn() {
+            currentScenario++;
+            document.getElementById('screen-debrief').classList.add('hidden');
+            document.getElementById('screen-debrief').classList.remove('flex');
+            document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('screen-game').classList.add('flex');
+            loadScenario();
+        }
+
+        function endGame() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('flex');
+            document.getElementById('screen-end').classList.remove('hidden');
+            document.getElementById('screen-end').classList.add('flex');
+
+            document.getElementById('end-stab').innerText = stats.stability + "%";
+            document.getElementById('end-wealth').innerText = stats.wealth + "%";
+
+            const title = document.getElementById('end-title');
+            const desc = document.getElementById('end-desc');
+
+            // Personalized ending
+            desc.innerText = `The history books will remember the ${countryName} as...`;
+
+            if (stats.stability < 20) {
+                title.innerText = "A Failed State";
+                title.className = "text-4xl font-bold text-red-500 mb-4";
+                desc.innerHTML += "<br>Your country has Balkanized due to lack of stability. Centrifugal forces won.";
+            } else if (stats.sovereignty < 20) {
+                title.innerText = "A Puppet State";
+                title.className = "text-4xl font-bold text-orange-500 mb-4";
+                desc.innerHTML += "<br>You survived, but Neocolonialism has taken over. You have little control over your own borders.";
+            } else {
+                title.innerText = "A Regional Power";
+                title.className = "text-4xl font-bold text-emerald-500 mb-4";
+                desc.innerHTML += "<br>You balanced international trade with local autonomy. A model of the Modern Nation-State.";
+            }
+        }
+
+    </script>
+</body>
+</html>
