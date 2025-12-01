@@ -106,9 +106,29 @@
                 </p>
                 
                 <!-- Name Input -->
-                <div class="w-full flex flex-col items-center gap-2 my-4">
-                    <label for="input-name" class="text-xs font-bold text-blue-400 uppercase tracking-wider">Name Your Country</label>
-                    <input type="text" id="input-name" class="retro-input" placeholder="Republic of..." value="Republic of Geo">
+                <div class="w-full grid md:grid-cols-3 gap-4 items-end my-4">
+                    <div class="flex flex-col gap-2 items-center">
+                        <label for="input-name" class="text-xs font-bold text-blue-400 uppercase tracking-wider">Name Your Country</label>
+                        <input type="text" id="input-name" class="retro-input" placeholder="Republic of..." value="Republic of Geo">
+                    </div>
+                    <div class="flex flex-col gap-2 items-center">
+                        <label for="select-gov" class="text-xs font-bold text-amber-400 uppercase tracking-wider">Government Type</label>
+                        <select id="select-gov" class="retro-input">
+                            <option>Unitary State</option>
+                            <option>Federal State</option>
+                            <option>Confederation</option>
+                            <option>Authoritarian Regime</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-2 items-center">
+                        <label for="select-composition" class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Internal Composition</label>
+                        <select id="select-composition" class="retro-input">
+                            <option>Multinational State</option>
+                            <option>Nation-State</option>
+                            <option>Fragmented State</option>
+                            <option>Perforated State</option>
+                        </select>
+                    </div>
                 </div>
 
                 <p class="text-slate-500 text-xs">
@@ -123,9 +143,13 @@
 
             <!-- Scenario Screen -->
             <div id="screen-game" class="hidden flex-col h-full">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                     <span id="scenario-counter" class="text-xs font-mono text-slate-500 border border-slate-700 px-2 py-1 rounded">CRISIS 1/10</span>
                     <span id="scenario-topic" class="text-xs font-bold text-blue-400 bg-blue-900/30 px-3 py-1 rounded uppercase tracking-wider">Topic: Boundaries</span>
+                    <div class="flex gap-2 text-[11px]">
+                        <span id="tag-gov" class="px-2 py-1 rounded-full bg-slate-700 border border-slate-600 text-amber-300">Unitary State</span>
+                        <span id="tag-comp" class="px-2 py-1 rounded-full bg-slate-700 border border-slate-600 text-emerald-300">Multinational State</span>
+                    </div>
                 </div>
 
                 <h2 id="scenario-title" class="text-2xl font-bold text-white mb-4">Border Dispute</h2>
@@ -143,10 +167,16 @@
                 <div id="debrief-icon" class="text-6xl mb-4">✅</div>
                 <h2 id="debrief-title" class="text-2xl font-bold text-white mb-2">Allocational Boundary Dispute</h2>
                 
-                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-600 text-left w-full max-w-2xl">
-                    <p id="debrief-text" class="text-slate-300 text-sm leading-relaxed mb-4">
+                <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-600 text-left w-full max-w-2xl space-y-4">
+                    <p id="debrief-text" class="text-slate-300 text-sm leading-relaxed">
                         Explanation goes here.
                     </p>
+                    <div class="bg-slate-900/60 border border-slate-700 rounded-lg p-4">
+                        <div class="text-[11px] uppercase font-bold text-slate-400 mb-2">Reflection & Consequences</div>
+                        <ul id="reflection-list" class="list-disc list-inside text-xs text-slate-300 space-y-1">
+                            <li>Example reflection</li>
+                        </ul>
+                    </div>
                     <div class="flex gap-4 text-xs font-mono border-t border-slate-700 pt-4">
                         <span id="stat-change-1" class="text-emerald-400">Stability +10</span>
                         <span id="stat-change-2" class="text-red-400">Sovereignty -5</span>
@@ -185,6 +215,8 @@
         let stats = { stability: 50, wealth: 50, sovereignty: 50 };
         let currentScenario = 0;
         let countryName = "Republic of Geo";
+        let governmentType = "Unitary State";
+        let compositionType = "Multinational State";
         
         // --- SCENARIO BANK (Unit 4 Concepts) ---
         const scenarios = [
@@ -197,13 +229,28 @@
                         text: "Build a wall along the OLD river path to mark the line.",
                         feedback: "You created a <strong>Demarcated Boundary</strong> (Physical objects marking the border). While expensive, it solidifies your claim.",
                         changes: { stability: 5, wealth: -10, sovereignty: 10 },
-                        icon: "🧱"
+                        icon: "🧱",
+                        tags: ["centralize", "boundary", "infrastructure"],
+                        pros: "A visible barrier reinforces sovereignty and reduces short-term confusion.",
+                        cons: "Spending and militarization could trigger neighbor resentment."
                     },
                     {
                         text: "Negotiate a new treaty based on the new river location.",
                         feedback: "You accepted the nature of <strong>Physical Boundaries</strong>. They move! This is diplomatic but you lost territory.",
                         changes: { stability: 10, wealth: 0, sovereignty: -5 },
-                        icon: "📜"
+                        icon: "📜",
+                        tags: ["diplomacy", "boundary", "share"],
+                        pros: "Reduced tension at the border and models good-faith cooperation.",
+                        cons: "Citizens may view the concession as weakness."
+                    },
+                    {
+                        text: "Create a joint resource zone with revenue-sharing.",
+                        feedback: "You established a <strong>Joint Commission</strong>, turning a dispute into a <em>functional cooperation</em> zone that can deepen regional ties.",
+                        changes: { stability: 8, wealth: 8, sovereignty: -2 },
+                        icon: "🤝",
+                        tags: ["cooperate", "wealth", "boundary"],
+                        pros: "Shared profits can fund services and reduce conflict risk.",
+                        cons: "Requires long-term trust and transparency to avoid collapse."
                     }
                 ]
             },
@@ -216,13 +263,28 @@
                         text: "Yes! Arrest them immediately.",
                         feedback: "<strong>Correct Application of UNCLOS.</strong> While your *Territorial Sea* is only 12 miles, your <strong>Exclusive Economic Zone (EEZ)</strong> extends 200 miles. You own the resources there.",
                         changes: { stability: 5, wealth: 10, sovereignty: 10 },
-                        icon: "⚓"
+                        icon: "⚓",
+                        tags: ["enforce", "maritime"],
+                        pros: "Defending the EEZ signals strength and protects fisheries.",
+                        cons: "Risk of escalated conflict if foreign state retaliates."
                     },
                     {
                         text: "No, that is International Waters.",
                         feedback: "<strong>Incorrect Application of UNCLOS.</strong> International waters (High Seas) start after 200 miles. You just gave away your resources within your <strong>EEZ</strong>.",
                         changes: { stability: -5, wealth: -10, sovereignty: -5 },
-                        icon: "🌊"
+                        icon: "🌊",
+                        tags: ["diplomacy", "maritime"],
+                        pros: "Avoids immediate confrontation or naval costs.",
+                        cons: "Lose control over ocean resources and frustrate coastal communities."
+                    },
+                    {
+                        text: "Call a bilateral coast-guard summit and set catch quotas.",
+                        feedback: "You used <strong>maritime diplomacy</strong> to clarify EEZ rights while avoiding arrests. This builds a paper trail that strengthens your legal claim.",
+                        changes: { stability: 8, wealth: 5, sovereignty: 2 },
+                        icon: "📑",
+                        tags: ["cooperate", "maritime"],
+                        pros: "Creates predictable rules and can prevent overfishing.",
+                        cons: "Takes time to negotiate and may be ignored by bad actors."
                     }
                 ]
             },
@@ -235,13 +297,28 @@
                         text: "Maintain strict central control (Unitary State).",
                         feedback: "<strong>Unitary State:</strong> Power is centralized. This is efficient but dangerous in a multinational state. The protests have turned into riots (Centrifugal Force).",
                         changes: { stability: -20, wealth: 0, sovereignty: 10 },
-                        icon: "✊"
+                        icon: "✊",
+                        tags: ["centralize", "minority"],
+                        pros: "Clear lines of authority can streamline decision-making.",
+                        cons: "Suppressing regional voices fuels centrifugal forces."
                     },
                     {
                         text: "Grant them a local parliament (Federal State).",
                         feedback: "<strong>Federal State:</strong> You shared power with local levels. This reduced tension but makes passing national laws slower.",
                         changes: { stability: 15, wealth: -5, sovereignty: -5 },
-                        icon: "🤝"
+                        icon: "🤝",
+                        tags: ["devolve", "minority"],
+                        pros: "Power-sharing recognizes cultural autonomy and lowers unrest.",
+                        cons: "Coordination costs rise and national policies may fragment."
+                    },
+                    {
+                        text: "Create a rotating cabinet seat reserved for the province.",
+                        feedback: "You added <strong>formal representation</strong> without full devolution. It signals inclusion while keeping the state integrated.",
+                        changes: { stability: 8, wealth: -2, sovereignty: 2 },
+                        icon: "🪑",
+                        tags: ["symbolic", "minority"],
+                        pros: "Gives the group voice in national decisions.",
+                        cons: "Symbolic gestures may not satisfy demands for real autonomy."
                     }
                 ]
             },
@@ -254,13 +331,28 @@
                         text: "Grant them Semi-Autonomous status instead.",
                         feedback: "<strong>Devolution:</strong> You transferred power downwards to keep the state intact. You avoided <strong>Balkanization</strong> (fragmentation into smaller states).",
                         changes: { stability: 10, wealth: 5, sovereignty: 5 },
-                        icon: "📉"
+                        icon: "📉",
+                        tags: ["devolve", "cooperate"],
+                        pros: "Maintains territorial integrity while addressing grievances.",
+                        cons: "Sets a precedent other regions might demand."
                     },
                     {
                         text: "Deny all requests. Send in the military.",
                         feedback: "This triggered <strong>Irredentism</strong> or armed conflict. While you kept the land, the region is now a <strong>Shatterbelt</strong> of instability.",
                         changes: { stability: -25, wealth: -15, sovereignty: 10 },
-                        icon: "⚔️"
+                        icon: "⚔️",
+                        tags: ["enforce", "centralize"],
+                        pros: "Demonstrates resolve to preserve borders.",
+                        cons: "Violence erodes legitimacy and invites outside intervention."
+                    },
+                    {
+                        text: "Invite a neutral mediator to design phased autonomy benchmarks.",
+                        feedback: "You used <strong>third-party mediation</strong> to cool tempers and keep shipping lanes open. This is devolution with accountability.",
+                        changes: { stability: 12, wealth: 3, sovereignty: -3 },
+                        icon: "🕊️",
+                        tags: ["cooperate", "devolve"],
+                        pros: "Builds trust and reduces the risk of secessionist violence.",
+                        cons: "External mediators can pressure you to concede more than planned."
                     }
                 ]
             },
@@ -273,13 +365,28 @@
                         text: "Join the organization.",
                         feedback: "<strong>Supranationalism:</strong> You gave up some Sovereignty (control) to a higher power, but gained economic Wealth through reduced tariffs.",
                         changes: { stability: 5, wealth: 15, sovereignty: -10 },
-                        icon: "🇪🇺"
+                        icon: "🇪🇺",
+                        tags: ["cooperate", "wealth"],
+                        pros: "Market access boosts GDP and foreign investment.",
+                        cons: "Shared rules can constrain domestic policy."
                     },
                     {
                         text: "Refuse. We make our own laws.",
                         feedback: "You prioritized <strong>Sovereignty</strong>. However, your economy suffers as you face tariffs from your neighbors.",
                         changes: { stability: 5, wealth: -10, sovereignty: 10 },
-                        icon: "🚫"
+                        icon: "🚫",
+                        tags: ["sovereignty", "centralize"],
+                        pros: "Keeps policy flexibility and border control.",
+                        cons: "Lost trade opportunities and slower growth."
+                    },
+                    {
+                        text: "Seek observer status to test the waters.",
+                        feedback: "You opted for <strong>limited integration</strong>. You gain some cooperation benefits while protecting most sovereignty.",
+                        changes: { stability: 6, wealth: 7, sovereignty: -2 },
+                        icon: "👀",
+                        tags: ["cooperate", "sovereignty"],
+                        pros: "Allows gradual alignment and data-gathering.",
+                        cons: "Fewer benefits than full membership and possible pressure to commit later."
                     }
                 ]
             },
@@ -292,13 +399,28 @@
                         text: "Allow the redraw (Gerrymandering).",
                         feedback: "<strong>Gerrymandering:</strong> Redrawing boundaries for political gain. You stayed in power (Sovereignty), but the people feel the system is rigged (Stability loss).",
                         changes: { stability: -15, wealth: 0, sovereignty: 15 },
-                        icon: "🗳️"
+                        icon: "🗳️",
+                        tags: ["centralize", "power"],
+                        pros: "Short-term political control ensures policy continuity.",
+                        cons: "Public trust falls and turnout declines."
                     },
                     {
                         text: "Appoint an independent commission.",
                         feedback: "You avoided Gerrymandering. The districts are fair (Compact/Contiguous), increasing trust in the government.",
                         changes: { stability: 10, wealth: 0, sovereignty: -5 },
-                        icon: "⚖️"
+                        icon: "⚖️",
+                        tags: ["devolve", "power"],
+                        pros: "Legitimacy rises and reduces accusations of electoral fraud.",
+                        cons: "You surrender some partisan advantage."
+                    },
+                    {
+                        text: "Invest in civic education before redrawing anything.",
+                        feedback: "You slowed the process to build <strong>political literacy</strong>. Voters now monitor boundaries more closely, deterring extreme gerrymanders.",
+                        changes: { stability: 12, wealth: -3, sovereignty: 0 },
+                        icon: "📚",
+                        tags: ["symbolic", "power"],
+                        pros: "Strengthens civil society oversight.",
+                        cons: "Delayed maps may postpone reforms and elections."
                     }
                 ]
             },
@@ -311,13 +433,28 @@
                         text: "Militarize the strait.",
                         feedback: "You are protecting a <strong>Choke Point</strong>. This is a strategic narrow route providing passage. Controlling it gives you Geopolitical Power.",
                         changes: { stability: 5, wealth: -5, sovereignty: 15 },
-                        icon: "🚢"
+                        icon: "🚢",
+                        tags: ["enforce", "security"],
+                        pros: "Secures trade flows and deters piracy quickly.",
+                        cons: "High costs and risk of accidental clashes with other navies."
                     },
                     {
                         text: "Let international navies handle it.",
                         feedback: "You avoided the cost, but you lost leverage. Choke points are critical for <strong>Political Power</strong>.",
                         changes: { stability: 0, wealth: 0, sovereignty: -10 },
-                        icon: "🏳️"
+                        icon: "🏳️",
+                        tags: ["diplomacy", "security"],
+                        pros: "Shares burden with allies and reduces expenses.",
+                        cons: "Gives away strategic influence in your backyard."
+                    },
+                    {
+                        text: "Launch joint patrols with neighbors and merchants.",
+                        feedback: "You formed a <strong>multilateral task force</strong>. Collective security increases legitimacy and keeps chokepoint traffic open.",
+                        changes: { stability: 8, wealth: -2, sovereignty: 5 },
+                        icon: "🛰️",
+                        tags: ["cooperate", "security"],
+                        pros: "Burden-sharing cuts costs and builds regional trust.",
+                        cons: "Coordination can be slow and rules of engagement messy."
                     }
                 ]
             },
@@ -330,13 +467,28 @@
                         text: "Accept the deal.",
                         feedback: "<strong>Neocolonialism:</strong> Economic control rather than military control. You got infrastructure, but the foreign power now has leverage over your economy.",
                         changes: { stability: 10, wealth: 10, sovereignty: -20 },
-                        icon: "🚄"
+                        icon: "🚄",
+                        tags: ["wealth", "dependency"],
+                        pros: "Modern infrastructure arrives quickly with outside funding.",
+                        cons: "Foreign control over key nodes limits your autonomy."
                     },
                     {
                         text: "Reject the deal.",
                         feedback: "You maintained independence, but your infrastructure lags behind. You avoided the debt trap.",
                         changes: { stability: -5, wealth: -10, sovereignty: 10 },
-                        icon: "✋"
+                        icon: "✋",
+                        tags: ["sovereignty", "dependency"],
+                        pros: "Prevents leverage from external powers.",
+                        cons: "No new infrastructure and growth slows."
+                    },
+                    {
+                        text: "Seek a multilateral loan with transparency rules.",
+                        feedback: "You diversified partners through <strong>development banks</strong>. More paperwork, but no single country dominates your economy.",
+                        changes: { stability: 8, wealth: 6, sovereignty: -5 },
+                        icon: "🏛️",
+                        tags: ["cooperate", "wealth", "dependency"],
+                        pros: "Spreads risk across lenders and reduces neocolonial pressure.",
+                        cons: "Conditionality may still limit policy flexibility."
                     }
                 ]
             }
@@ -350,7 +502,11 @@
             if (input.value.trim() !== "") {
                 countryName = input.value.trim();
             }
+            governmentType = document.getElementById('select-gov').value;
+            compositionType = document.getElementById('select-composition').value;
             document.getElementById('country-name-display').innerText = countryName.toUpperCase();
+            document.getElementById('tag-gov').innerText = governmentType;
+            document.getElementById('tag-comp').innerText = compositionType;
 
             document.getElementById('screen-start').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
@@ -406,7 +562,15 @@
             document.getElementById('debrief-icon').innerText = choice.icon;
             document.getElementById('debrief-title').innerText = scenarios[currentScenario].title + " Resolved";
             document.getElementById('debrief-text').innerHTML = choice.feedback; // Use HTML for bolding
-            
+
+            const reflectionList = document.getElementById('reflection-list');
+            reflectionList.innerHTML = '';
+            buildReflection(choice).forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = item;
+                reflectionList.appendChild(li);
+            });
+
             // Show stat changes text
             const s1 = document.getElementById('stat-change-1');
             const s2 = document.getElementById('stat-change-2');
@@ -443,6 +607,48 @@
             // Color shift on low stats
             if (stats[key] < 30) bar.classList.add('bg-red-500');
             else bar.classList.remove('bg-red-500');
+        }
+
+        function buildReflection(choice) {
+            const notes = [];
+
+            // Immediate pros/cons
+            if (choice.pros) notes.push(`✅ ${choice.pros}`);
+            if (choice.cons) notes.push(`⚠️ ${choice.cons}`);
+
+            // Government context
+            if (choice.tags?.includes('centralize')) {
+                notes.push(governmentType === 'Unitary State' || governmentType === 'Authoritarian Regime'
+                    ? '✔️ Centralization matches your government design, making enforcement easier.'
+                    : '⚠️ Centralizing may undercut the shared-power expectations of your chosen system.');
+            }
+            if (choice.tags?.includes('devolve')) {
+                notes.push(governmentType === 'Federal State' || governmentType === 'Confederation'
+                    ? '✔️ Devolution aligns with your promise of regional voice.'
+                    : '⚠️ Decentralizing could weaken the coherence you need as a unitary-style state.');
+            }
+            if (choice.tags?.includes('symbolic')) {
+                notes.push('ℹ️ Symbolic inclusion helps legitimacy but may require follow-up reforms to last.');
+            }
+
+            // Composition context
+            if (choice.tags?.includes('minority')) {
+                notes.push(compositionType === 'Multinational State'
+                    ? '✔️ Addressing minority needs reduces centrifugal forces in a multinational context.'
+                    : '⚠️ Even in a nation-state, ignoring local culture can ignite unexpected separatism.');
+            }
+            if (choice.tags?.includes('security')) {
+                notes.push(compositionType === 'Fragmented State'
+                    ? '⚠️ Fragmented states struggle to project force everywhere—budget carefully.'
+                    : 'ℹ️ Secure trade routes improve stability if managed transparently.');
+            }
+            if (choice.tags?.includes('boundary')) {
+                notes.push(compositionType === 'Perforated State'
+                    ? '⚠️ Boundaries already complicate movement; hard barriers may add friction.'
+                    : 'ℹ️ Clear boundaries can deter disputes but need diplomatic messaging.');
+            }
+
+            return notes;
         }
 
         function nextTurn() {
