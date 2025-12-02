@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP HUG: The Global Menu Project</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --mc-red: #DA291C;
+            --mc-yellow: #FFC72C;
+            --mc-black: #27251F;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #f8f9fa;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Tab Animations */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Card Hover Effects */
+        .menu-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .menu-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-color: var(--mc-red);
+        }
+
+        /* Receipt Style for Analysis */
+        .receipt-edge {
+            background-image: linear-gradient(135deg, #ffffff 50%, transparent 50%),
+                            linear-gradient(225deg, #ffffff 50%, transparent 50%);
+            background-position: bottom left, bottom left;
+            background-size: 20px 20px;
+            background-repeat: repeat-x;
+        }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen pb-12">
+
+    <!-- HERO HEADER -->
+    <header class="bg-[#DA291C] text-white shadow-xl relative overflow-hidden">
+        <!-- Background decorative circles -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-40 h-40 rounded-full bg-[#FFC72C] opacity-20 blur-xl"></div>
+
+        <div class="max-w-6xl mx-auto px-4 py-8 md:py-12 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="bg-[#FFC72C] text-[#DA291C] text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">Unit 3: Culture</span>
+                        <span class="bg-black/20 text-white text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">AP Human Geography</span>
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-bold tracking-tight uppercase drop-shadow-sm">
+                        Global <span class="text-[#FFC72C]">Menu</span> Project
+                    </h1>
+                    <p class="text-red-100 text-lg md:text-xl mt-2 max-w-2xl font-light">
+                        Investigating Glocalization and Stimulus Diffusion through the golden arches.
+                    </p>
+                </div>
+                
+                <!-- Decorative Icon -->
+                <div class="hidden md:block opacity-90 transform rotate-12">
+                    <svg class="w-24 h-24 text-[#FFC72C]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.22-7.52-3.22 3.22 7.52 3.22-7.52-3.22-3.22-3.22 3.22z"/> 
+                        <!-- Abstract globe icon representative -->
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 19.93C7.05 19.44 4 16.08 4 12C4 11.38 4.08 10.79 4.21 10.21L9 15V16C9 17.1 9.9 18 11 18V19.93ZM17.9 17.39C17.64 16.58 16.9 16 16 16H15V13C15 12.45 14.55 12 14 12H8V10H10C10.55 10 11 9.55 11 9V7H13C14.1 7 15 6.1 15 5V4.59C17.93 5.78 20 8.65 20 12C20 14.08 19.2 15.97 17.9 17.39Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION BAR (Sticky) -->
+    <div class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-md">
+        <div class="max-w-6xl mx-auto px-4">
+            <nav class="flex space-x-1 md:space-x-4 overflow-x-auto no-scrollbar" aria-label="Tabs">
+                <button onclick="switchTab('mission')" id="btn-mission" class="tab-btn active border-b-4 border-[#DA291C] text-[#DA291C] whitespace-nowrap py-4 px-4 md:px-8 font-bold text-sm uppercase tracking-widest hover:bg-red-50 transition-colors">
+                    1. The Mission
+                </button>
+                <button onclick="switchTab('menus')" id="btn-menus" class="tab-btn border-b-4 border-transparent text-gray-500 whitespace-nowrap py-4 px-4 md:px-8 font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                    2. Select Countries
+                </button>
+                <button onclick="switchTab('analysis')" id="btn-analysis" class="tab-btn border-b-4 border-transparent text-gray-500 whitespace-nowrap py-4 px-4 md:px-8 font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                    3. Your Analysis
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+
+        <!-- TAB 1: THE MISSION -->
+        <div id="mission" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Welcome Card -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-900 px-6 py-4 flex items-center justify-between">
+                        <h2 class="text-white text-xl font-bold uppercase tracking-wide">Project Overview</h2>
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                            McDonald's is a global corporation, but to survive in local markets, it must adapt. This is the essence of <strong class="text-[#DA291C]">Glocalization</strong>. Your mission is to explore international menus to see how a "global" burger chain changes its products to fit local culture, religion, and taste.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                                <h3 class="text-blue-900 font-bold mb-2 flex items-center">
+                                    <span class="mr-2 text-xl">🎯</span> Your Task
+                                </h3>
+                                <ul class="text-sm text-blue-800 space-y-2">
+                                    <li>• Select <strong>5 countries</strong> from the "Menus" tab.</li>
+                                    <li>• Pick at least 1 from each major region.</li>
+                                    <li>• Analyze menus for cultural clues.</li>
+                                    <li>• Record findings in your notebook.</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-50 p-5 rounded-xl border border-yellow-100">
+                                <h3 class="text-yellow-900 font-bold mb-2 flex items-center">
+                                    <span class="mr-2 text-xl">💡</span> Key Concept
+                                </h3>
+                                <p class="text-sm text-yellow-900 italic mb-2">"Stimulus Diffusion"</p>
+                                <p class="text-xs text-yellow-800">
+                                    When an idea (like a burger) spreads, but the specific trait is changed to fit the new culture (e.g., changing beef to potato in India).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Getting Started Sidecar -->
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col justify-center items-center text-center">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 text-3xl">
+                        🚀
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Ready to Start?</h3>
+                    <p class="text-gray-500 mb-6 text-sm">Follow the tabs at the top of the page. Move to "Select Countries" when you are ready to explore.</p>
+                    <button onclick="switchTab('menus')" class="bg-[#DA291C] text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-red-700 hover:shadow-xl transition-all transform hover:-translate-y-1 w-full">
+                        View The Menus &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: THE MENUS -->
+        <div id="menus" class="tab-content">
+            <div class="mb-6 flex items-center justify-between">
+                <h2 class="text-2xl font-bold text-gray-800 uppercase brand-font">Select Your Destinations</h2>
+                <span class="text-sm bg-gray-200 px-3 py-1 rounded-full text-gray-600 font-medium">Pick 5 Total</span>
+            </div>
+
+            <!-- ASIA -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center border-b border-red-200 pb-2">
+                    <span class="mr-2">🌏</span> ASIA
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="https://www.mcdonalds.co.jp/en/menu/" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇯🇵</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Japan</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Teriyaki Burgers, Shrimp Filet</p>
+                    </a>
+                    <a href="https://mcdindia.com/menu/" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇮🇳</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">India</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: McAloo Tikki, Paneer, No Beef</p>
+                    </a>
+                    <a href="https://www.mcdonalds.co.kr/eng/main.do" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇰🇷</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Korea</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Bulgogi Burger, Shrimp</p>
+                    </a>
+                    <a href="https://www.mcdonalds.co.th/" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇹🇭</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Thailand</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Samurai Pork, Pie Corn</p>
+                    </a>
+                    <a href="https://mcdonalds.vn/thuc-don" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇻🇳</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Vietnam</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Rice dishes, Fried Chicken</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- EUROPE -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center border-b border-red-200 pb-2">
+                    <span class="mr-2">🌍</span> EUROPE
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="https://www.mcdonalds.fr/la-carte/burgers" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇫🇷</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">France</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Le McBaguette, Macarons</p>
+                    </a>
+                    <a href="https://www.mcdonalds.it/prodotti/panini" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇮🇹</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Italy</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Panzerotti, Parmesan Snack</p>
+                    </a>
+                    <a href="https://www.mcdonalds.com/de/de-de/produkte.html" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇩🇪</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Germany</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: McRib (permanent), Vegan</p>
+                    </a>
+                    <a href="https://www.mcdonalds.pl/nasze-menu/" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇵🇱</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Poland</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: WiesMac, Seasonal Mushrooms</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MIDDLE EAST -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center border-b border-red-200 pb-2">
+                    <span class="mr-2">🕌</span> MIDDLE EAST
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="https://www.mcdonalds.com/sa/en-sa/full-menu.html" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇸🇦</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Saudi Arabia</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: McArabia, Halal Cert.</p>
+                    </a>
+                    <a href="https://www.mcdonalds.com/ae/en-ae/full-menu.html" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇦🇪</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">UAE</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: McArabia Chicken</p>
+                    </a>
+                    <a href="https://www.mcdonalds.com/om/en-om/full-menu.html" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇴🇲</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Oman</h4>
+                    </a>
+                    <a href="https://www.mcdonalds.com/qa/en-qa/full-menu.html" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇶🇦</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Qatar</h4>
+                    </a>
+                </div>
+            </div>
+
+            <!-- LATIN AMERICA -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-red-700 mb-4 flex items-center border-b border-red-200 pb-2">
+                    <span class="mr-2">🌮</span> LATIN AMERICA
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <a href="https://www.mcdonalds.com.br/cardapio" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇧🇷</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Brazil</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Cheddar McMelt, Banana Pie</p>
+                    </a>
+                    <a href="https://www.mcdonalds.com.mx/menu" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇲🇽</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Mexico</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: McBurrito, Salsa options</p>
+                    </a>
+                    <a href="https://www.mcdonalds.com.ar/menu" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇦🇷</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Argentina</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Dulce de Leche items</p>
+                    </a>
+                    <a href="https://www.mcdonalds.cl/menu" target="_blank" class="menu-card bg-white p-4 rounded-xl shadow border border-gray-200 block group">
+                        <div class="flex justify-between items-start">
+                            <span class="text-3xl">🇨🇱</span>
+                            <span class="text-gray-300 group-hover:text-[#DA291C] transition-colors">↗</span>
+                        </div>
+                        <h4 class="font-bold text-lg mt-2 text-gray-800 group-hover:text-[#DA291C]">Chile</h4>
+                        <p class="text-xs text-gray-500 mt-1">Look for: Avocado (Palta) on burgers</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: ANALYSIS -->
+        <div id="analysis" class="tab-content">
+            <div class="max-w-3xl mx-auto">
+                <!-- Receipt Header -->
+                <div class="bg-white p-8 rounded-t-lg shadow-xl relative border-t-8 border-[#FFC72C]">
+                    <div class="text-center border-b-2 border-dashed border-gray-300 pb-6 mb-6">
+                        <h2 class="text-3xl font-bold uppercase tracking-widest brand-font text-gray-900">Analysis Order</h2>
+                        <p class="text-sm text-gray-500 mt-2 font-mono">Order #302 • AP Human Geo</p>
+                        <p class="text-xs text-gray-400 mt-1">Please answer in your own notebook.</p>
+                    </div>
+
+                    <!-- Question Blocks -->
+                    <div class="space-y-8">
+                        <!-- SECTION A -->
+                        <div>
+                            <h3 class="font-bold text-lg text-red-700 uppercase mb-3 flex items-center">
+                                <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">A</span>
+                                The 5-Country Audit
+                            </h3>
+                            <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 text-sm md:text-base space-y-3 font-medium text-gray-700">
+                                <p>For <strong>EACH</strong> country, record:</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600 font-normal ml-2">
+                                    <li><strong>Language:</strong> (e.g., Japanese, French)</li>
+                                    <li><strong>Vibe Check:</strong> Colors, music, types of people shown?</li>
+                                    <li><strong>Breakfast Find:</strong> Name & Description of one item.</li>
+                                    <li><strong>Main Meal Find:</strong> Name & Description of one unique burger/sandwich.</li>
+                                    <li><strong>Sides/Dessert:</strong> What is weird or different? (e.g., Corn pie?)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- SECTION B -->
+                        <div>
+                            <h3 class="font-bold text-lg text-red-700 uppercase mb-3 flex items-center">
+                                <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">B</span>
+                                Cultural Deep Dive
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white border-l-4 border-yellow-400 p-4 shadow-sm">
+                                    <h4 class="font-bold text-gray-900">1. The Halal Factor</h4>
+                                    <p class="text-sm text-gray-600 mt-1">Read the BBC article on Halal. Explain how McDonald's adapts to Islamic religious norms in the Middle East.</p>
+                                    <a href="https://www.bbc.com/news/uk-27324224" target="_blank" class="inline-block mt-2 text-xs font-bold text-blue-600 hover:underline">Read Article ↗</a>
+                                </div>
+                                <div class="bg-white border-l-4 border-yellow-400 p-4 shadow-sm">
+                                    <h4 class="font-bold text-gray-900">2. The Pork Prohibition</h4>
+                                    <p class="text-sm text-gray-600 mt-1">Why is the McRib missing in Saudi Arabia but present in Germany? Connect this to religious cultural traits.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION C -->
+                        <div>
+                            <h3 class="font-bold text-lg text-red-700 uppercase mb-3 flex items-center">
+                                <span class="bg-red-100 text-red-600 w-8 h-8 flex items-center justify-center rounded-full mr-3 text-sm">C</span>
+                                AP Concept Application
+                            </h3>
+                            <div class="bg-red-50 p-6 rounded-lg border border-red-100">
+                                <h4 class="font-bold text-red-900 mb-2">Stimulus Diffusion Analysis</h4>
+                                <p class="text-sm text-red-800 mb-4">
+                                    Define <strong>Stimulus Diffusion</strong> in your own words. Then, identify <span class="underline decoration-red-400 decoration-2">TWO</span> specific menu items that are examples of this concept.
+                                </p>
+                                <div class="bg-white p-3 rounded border border-red-100 text-xs text-gray-500 italic">
+                                    Example: "The McAloo Tikki is a burger (idea diffused), but it uses potato instead of beef (trait adapted)."
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Receipt Jagged Edge -->
+                <div class="h-6 w-full receipt-edge opacity-50"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-8 text-gray-400 text-sm">
+        <p class="mb-2">AP Human Geography • Cultural Patterns & Processes</p>
+        <p class="text-xs opacity-50">Not affiliated with McDonald's Corporation. Educational Use Only.</p>
+    </footer>
+
+    <!-- JavaScript for Tabs -->
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Deactivate all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-[#DA291C]', 'text-[#DA291C]', 'active');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+
+            // Activate selected button
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-[#DA291C]', 'text-[#DA291C]', 'active');
+            
+            // Scroll to top of main content on mobile
+            if(window.innerWidth < 768) {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
+        }
+    </script>
+</body>
+</html>
