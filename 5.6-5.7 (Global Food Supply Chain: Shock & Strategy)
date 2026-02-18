@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Food Supply Chain: Shock & Strategy</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #c0392b;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --p-color: #16a085; /* Profit */
+            --s-color: #2980b9; /* Sustainability */
+            --e-color: #8e44ad; /* Equity */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header h1 { margin: 0; font-size: 1.5rem; }
+        header p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.8; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 20px;
+        }
+
+        /* Setup Screen */
+        #setup-screen {
+            grid-column: 1 / -1;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .instructions-box {
+            background: #eef2f3;
+            border: 1px solid #cbd5e0;
+            padding: 15px;
+            text-align: left;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+        .instructions-box h3 { margin-top: 0; color: var(--primary); }
+        .instructions-box ul { padding-left: 20px; margin-bottom: 0; }
+        .instructions-box li { margin-bottom: 5px; }
+
+        .role-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .role-card {
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .role-card:hover { border-color: var(--accent); background: #f0f8ff; }
+        .role-card.selected { border-color: var(--accent); background: #e1f0fa; box-shadow: 0 0 5px var(--accent); }
+        .role-icon { font-size: 2rem; display: block; margin-bottom: 5px; }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background-color: #2980b9; }
+        
+        .btn-secondary { background-color: #95a5a6; }
+        .btn-danger { background-color: var(--danger); margin-top: 10px;}
+        
+        .pulse-btn {
+            animation: pulse-animation 2s infinite;
+            background-color: var(--success);
+        }
+        
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+        }
+
+        /* Game Layout */
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        h2 { border-bottom: 2px solid var(--light); padding-bottom: 10px; margin-top: 0; font-size: 1.2rem; color: var(--dark); }
+
+        /* SCORING BARS (Feature #2) */
+        .scoreboard {
+            background: #dfe6e9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .score-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .score-label { width: 100px; font-weight: bold; font-size: 0.9rem; }
+        .bar-container { flex-grow: 1; background: #b2bec3; height: 16px; border-radius: 8px; overflow: hidden; position: relative; }
+        .bar-fill { height: 100%; transition: width 0.5s ease; }
+        .score-val { width: 40px; text-align: right; font-weight: bold; font-size: 0.9rem; margin-left: 10px; }
+        
+        .fill-p { background-color: var(--p-color); }
+        .fill-s { background-color: var(--s-color); }
+        .fill-e { background-color: var(--e-color); }
+        .fill-budget { background-color: var(--dark); }
+
+        /* DECISION CARDS (Feature #1 Scaffolding) */
+        .decision-group { margin-bottom: 25px; }
+        .decision-group h3 { margin: 0 0 10px 0; font-size: 1.1rem; border-left: 4px solid var(--accent); padding-left: 10px; }
+        
+        .opt-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+        
+        .opt-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            position: relative;
+        }
+        
+        .opt-card:hover { border-color: var(--accent); background: #f9f9f9; }
+        .opt-card.selected { border-color: var(--accent); background: #e8f4fc; font-weight: bold; }
+        
+        /* TOOLTIP LOGIC */
+        .tooltip-icon {
+            background: #95a5a6; color: white; border-radius: 50%; width: 18px; height: 18px;
+            text-align: center; line-height: 18px; font-size: 12px; margin-left: 8px; display: inline-block;
+        }
+        
+        .opt-card:hover .tooltip-text { display: block; }
+        
+        .tooltip-text {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #34495e;
+            color: #fff;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            width: 250px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-weight: normal;
+        }
+
+        .stats-badge { font-size: 0.75rem; color: #666; background: #eee; padding: 2px 5px; border-radius: 3px; }
+
+        /* Shock Section */
+        #shock-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 6px;
+            display: none;
+        }
+        .shock-card {
+            border: 2px solid var(--warning);
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .response-options { display: grid; gap: 10px; margin-top: 10px; }
+        .response-btn {
+            text-align: left;
+            background: white;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+        .response-btn:hover { background: #f9f9f9; border-color: var(--accent); }
+
+        /* Analyst Note (Feature #4) */
+        .analyst-note {
+            background: #e8f4f8;
+            border-left: 4px solid var(--accent);
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #ddd; }
+        .tab-btn {
+            background: transparent;
+            color: #7f8c8d;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            width: auto;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        
+        .round-log { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .debt-alert { color: var(--danger); font-weight: bold; margin-top: 5px; }
+
+        /* Copy Box */
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 10px;
+            font-family: monospace;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        /* Utilities */
+        .hidden { display: none !important; }
+        .locked { opacity: 0.6; pointer-events: none; }
+        
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Global Food Supply Chain: Shock & Strategy</h1>
+    <p>APHG Unit 5: Agricultural Regions (5.6) & Spatial Organization (5.7)</p>
+</header>
+
+<div id="setup-screen">
+    <h2>Game Setup</h2>
+
+    <!-- INSTRUCTIONS ADDED HERE -->
+    <div class="instructions-box">
+        <h3>📋 Mission Briefing (How to Play)</h3>
+        <ul>
+            <li><strong>Step 1:</strong> Select strategies for <strong>Production</strong>, <strong>Processing</strong>, and <strong>Distribution</strong>.</li>
+            <li><strong>Step 2:</strong> Click "Lock & Draw Shock". A random event (1-8) will occur.</li>
+            <li><strong>Step 3:</strong> Choose Response A or B.</li>
+            <li><strong>Step 4:</strong> 📝 <strong>Record the results</strong> on your worksheet (Evidence/Reasoning).</li>
+            <li><strong>Step 5:</strong> Repeat for 3 Rounds. Try to keep your Budget above 0!</li>
+        </ul>
+    </div>
+    
+    <!-- Feature #3: Role Selection -->
+    <p><strong>Step 1: Choose your Role (Mission Objective)</strong></p>
+    <div class="role-cards">
+        <div class="role-card" onclick="game.selectRole('CEO', this)" id="role-ceo">
+            <span class="role-icon">🏭</span>
+            <strong>Agribusiness CEO</strong>
+            <p style="font-size:0.8rem; margin:5px 0;">Goal: Maximize Profit through efficiency and scale.</p>
+        </div>
+        <div class="role-card" onclick="game.selectRole('NGO', this)" id="role-ngo">
+            <span class="role-icon">🤝</span>
+            <strong>NGO Director</strong>
+            <p style="font-size:0.8rem; margin:5px 0;">Goal: Maximize Equity & Sustainability (Fair Trade).</p>
+        </div>
+        <div class="role-card" onclick="game.selectRole('PLANNER', this)" id="role-planner">
+            <span class="role-icon">⚖️</span>
+            <strong>Govt Planner</strong>
+            <p style="font-size:0.8rem; margin:5px 0;">Goal: Balance. Keep all scores above zero.</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Step 2: Product (Commodity)</label>
+        <select id="setup-product">
+            <option value="Wheat Bread">Wheat Bread</option>
+            <option value="Coffee">Coffee</option>
+            <option value="Rice">Rice</option>
+            <option value="Beef">Beef</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Step 3: Starting Budget</label>
+        <select id="setup-budget">
+            <option value="18">18 (Hard)</option>
+            <option value="20" selected>20 (Standard)</option>
+            <option value="22">22 (Easy)</option>
+        </select>
+    </div>
+
+    <button onclick="game.start()">Start Simulation</button>
+    <div style="margin-top: 15px;">
+        <button class="btn-secondary" onclick="game.load()">Resume Previous Game</button>
+    </div>
+</div>
+
+<div id="game-ui" class="container hidden">
+    
+    <!-- Left Panel: Controls -->
+    <div class="panel">
+        <h2 id="round-indicator">Round 1 Decisions</h2>
+        
+        <div id="decision-form">
+            <!-- Feature #1: Scaffolding Tooltips via Cards -->
+            <div class="decision-group">
+                <h3>1. Production Strategy (5.6) <span style="font-size:0.8em; font-weight:normal; float:right;">(Select 1)</span></h3>
+                <div class="opt-grid" id="opt-production-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <div class="decision-group">
+                <h3>2. Processing Strategy (5.7) <span style="font-size:0.8em; font-weight:normal; float:right;">(Select 1)</span></h3>
+                <div class="opt-grid" id="opt-processing-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <div class="decision-group">
+                <h3>3. Distribution Strategy (5.7) <span style="font-size:0.8em; font-weight:normal; float:right;">(Select 1)</span></h3>
+                <div class="opt-grid" id="opt-distribution-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <div class="decision-group">
+                <h3>4. Food Miles</h3>
+                <select id="opt-distance">
+                    <option value="Local">Local (Low Transport Costs)</option>
+                    <option value="Regional">Regional</option>
+                    <option value="Global">Global (Access to wider markets)</option>
+                </select>
+            </div>
+
+            <div style="margin-top:20px; border-top: 1px solid #eee; padding-top:10px;">
+                 <label>Shock Selection Mode:</label>
+                 <select id="shock-mode" style="margin-bottom: 10px;">
+                     <option value="random">Random Draw (1-8)</option>
+                     <option value="1">1. Fuel Price Spike</option>
+                     <option value="2">2. Drought</option>
+                     <option value="3">3. Pest Outbreak</option>
+                     <option value="4">4. Port Strike</option>
+                     <option value="5">5. Sustainability Law</option>
+                     <option value="6">6. Consumer Boycott</option>
+                     <option value="7">7. Plant Shutdown</option>
+                     <option value="8">8. Tariff/Trade Barrier</option>
+                 </select>
+                <button onclick="game.lockDecisions()">Lock Decisions & Draw Shock</button>
+            </div>
+        </div>
+
+        <!-- Shock UI (Hidden until decisions locked) -->
+        <div id="shock-section">
+            <h3>⚠ MARKET SHOCK</h3>
+            <div id="shock-display" class="shock-card">
+                <!-- Javascript populates this -->
+            </div>
+        </div>
+        
+        <div id="next-round-btn-area" class="hidden" style="margin-top: 20px;">
+            <button class="pulse-btn" onclick="game.nextRound()">Start Next Round ➡</button>
+        </div>
+        <div id="game-over-area" class="hidden" style="margin-top: 20px;">
+            <div style="text-align: center; font-weight: bold; color: var(--primary);">Simulation Complete</div>
+        </div>
+
+    </div>
+
+    <!-- Right Panel: Data -->
+    <div class="panel">
+        <h2>Mission Status: <span id="mission-role">Undefined</span></h2>
+        
+        <!-- Feature #2: Visual Health Bars -->
+        <div class="scoreboard">
+            <div class="score-row">
+                <span class="score-label">Budget</span>
+                <div class="bar-container">
+                    <div class="bar-fill fill-budget" id="bar-budget" style="width: 50%;"></div>
+                </div>
+                <span class="score-val" id="score-budget">20</span>
+            </div>
+            <div class="score-row">
+                <span class="score-label">Profit</span>
+                <div class="bar-container">
+                    <div class="bar-fill fill-p" id="bar-p" style="width: 50%;"></div>
+                </div>
+                <span class="score-val" id="score-p">0</span>
+            </div>
+            <div class="score-row">
+                <span class="score-label">Sustain.</span>
+                <div class="bar-container">
+                    <div class="bar-fill fill-s" id="bar-s" style="width: 50%;"></div>
+                </div>
+                <span class="score-val" id="score-s">0</span>
+            </div>
+            <div class="score-row">
+                <span class="score-label">Equity</span>
+                <div class="bar-container">
+                    <div class="bar-fill fill-e" id="bar-e" style="width: 50%;"></div>
+                </div>
+                <span class="score-val" id="score-e">0</span>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="game.switchTab(1)">Round 1</button>
+            <button class="tab-btn" onclick="game.switchTab(2)">Round 2</button>
+            <button class="tab-btn" onclick="game.switchTab(3)">Round 3</button>
+            <button class="tab-btn" onclick="game.switchTab(4)">Summary</button>
+        </div>
+
+        <div id="tab-content-area">
+            <!-- Content injected here -->
+            <p style="color:#777; font-style: italic;">Waiting for round completion...</p>
+        </div>
+
+        <div id="summary-tools" class="hidden" style="margin-top: 20px;">
+            <h3>Export Results</h3>
+            <p style="font-size: 0.85rem;">Copy this text to your student packet.</p>
+            <textarea id="export-text" readonly></textarea>
+            <button onclick="game.copyText()">Copy to Clipboard</button>
+            <button class="btn-danger" onclick="game.reset()">Reset Game</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* --- GAME DATA & LOGIC --- */
+
+// Configuration Data
+const SPECS = {
+    prod: {
+        'P1': { name: "Subsistence Co-op", cost: 2, p: 1, s: 2, e: 3, def: "Farmers grow food for themselves/community. Cooperatives pool resources. Low profit, high social benefit." },
+        'P2': { name: "Mixed Farming Reg.", cost: 3, p: 2, s: 1, e: 1, def: "Growing crops and raising animals on the same farm. Manure feeds crops; crops feed animals. Resilient." },
+        'P3': { name: "Commercial Monocrop", cost: 4, p: 4, s: -2, e: -1, def: "Growing ONE crop (cash crop) for export. Efficient (Economies of Scale) but hurts soil biodiversity." },
+        'P4': { name: "Intensive High-Input", cost: 5, p: 3, s: -3, e: 0, def: "Using lots of money, labor, machines, and chemicals to maximize yield per acre." },
+        'P5': { name: "Extensive Low-Input", cost: 2, p: 2, s: 1, e: 0, def: "Using large amounts of land with minimal labor/money (e.g., Ranching). Lower yield but lower cost." }
+    },
+    proc: {
+        'PR1': { name: "Central Mega-Plant", cost: 4, p: 3, s: -1, e: -1, def: "One massive factory processes everything. Highly efficient (Scale) but vulnerable to shutdowns." },
+        'PR2': { name: "Regional Processing", cost: 3, p: 2, s: 0, e: 1, def: "Several medium factories spread out. Creates local jobs and resilience." },
+        'PR3': { name: "Near-Market Proc.", cost: 4, p: 1, s: 1, e: 1, def: "Processing happens close to customers (Bulk-Gaining). Reduces spoilage but high land cost (Bid-Rent)." }
+    },
+    dist: {
+        'D1': { name: "Big-Box Only", cost: 2, p: 3, s: 0, e: -2, def: "Selling only to supermarkets like Walmart. Efficient, but can create Food Deserts for poor areas." },
+        'D2': { name: "Mixed Retail", cost: 3, p: 2, s: 0, e: 2, def: "Selling to grocery stores, markets, and bodegas. Better access for all income levels." },
+        'D3': { name: "Export-Heavy", cost: 3, p: 4, s: -1, e: -2, def: "Selling mostly to other countries. High profit, but locals face higher prices and reliance on trade." },
+        'D4': { name: "Local/Regional Focus", cost: 2, p: 1, s: 2, e: 2, def: "Farm-to-Table. Reduces Food Miles and carbon footprint. Strengthens local community." }
+    }
+};
+
+const SHOCKS = [
+    {
+        id: 1, title: "Fuel Price Spike",
+        desc: "Transportation costs soar due to global energy crisis.",
+        calcBase: (d) => ({ p: -2, s: 0, e: 0 }),
+        optA: { text: "Switch to Local/Regional dist (Cost 1)", cost: 1, p: -1, s: 1, e: 1 },
+        optB: { text: "Raise prices (Cost 0)", cost: 0, p: 1, s: 0, e: -2 },
+        analyst: (d) => d.miles === 'Global' ? "Analyst: Long supply chains (Global) are most vulnerable to energy costs due to distance." : "Analyst: Local supply chains are more resilient to fuel shocks."
+    },
+    {
+        id: 2, title: "Drought in Production Region",
+        desc: "Lack of rainfall threatens crop yields.",
+        calcBase: (d) => ({ p: -2, s: 0, e: -1 }),
+        optA: { text: "Invest irrigation/tech (Cost 2)", cost: 2, p: 2, s: -1, e: 0 },
+        optB: { text: "Diversify crops (Cost 1)", cost: 1, p: -1, s: 1, e: 1 },
+        analyst: (d) => d.prod === 'P4' ? "Analyst: High-Input farming often requires massive water usage, making drought devastating." : "Analyst: Diversified crops can help weather climate shocks better than single crops."
+    },
+    {
+        id: 3, title: "Pest Outbreak",
+        desc: "Invasive species attacking crops. Monocrops are hit hardest.",
+        calcBase: (d) => (d.prod === 'P3' ? { p: -3, s: 0, e: 0 } : { p: -1, s: 0, e: 0 }),
+        optA: { text: "Increase pesticide use (Cost 1)", cost: 1, p: 2, s: -2, e: 0 },
+        optB: { text: "Integrated Pest Mgmt (Cost 2)", cost: 2, p: 1, s: 1, e: 0 },
+        analyst: (d) => d.prod === 'P3' ? "Analyst: Monocultures lack genetic diversity, allowing pests to wipe out the entire harvest." : "Analyst: Mixed farming creates biological barriers that slow down pests."
+    },
+    {
+        id: 4, title: "Port Strike / Shipping Delays",
+        desc: "Dock workers strike. Global supply chains paralyzed.",
+        calcBase: (d) => (d.miles === 'Global' ? { p: -3, s: 0, e: 0 } : { p: -1, s: 0, e: 0 }),
+        optA: { text: "Reroute regionally (Cost 1)", cost: 1, p: -1, s: 0, e: 1 },
+        optB: { text: "Wait it out (Cost 0)", cost: 0, p: 0, s: 0, e: -1 },
+        analyst: (d) => d.miles === 'Global' ? "Analyst: Reliance on global choke points (ports) creates risk (Interdependence)." : "Analyst: Short supply chains avoided the strike entirely."
+    },
+    {
+        id: 5, title: "New Sustainability Law",
+        desc: "Gov restricts chemical run-off. High-Input farming targeted.",
+        calcBase: (d) => (d.prod === 'P4' ? { p: -2, s: 1, e: 0 } : { p: 0, s: 1, e: 0 }),
+        optA: { text: "Plan switch to Mixed Farming (Cost 0)", cost: 0, p: 0, s: 1, e: 0 },
+        optB: { text: "Delay compliance/fines (Cost 1)", cost: 1, p: 1, s: -2, e: 0 },
+        analyst: (d) => d.prod === 'P4' ? "Analyst: Intensive farming relies on chemicals that are increasingly regulated." : "Analyst: Sustainable practices future-proof your business against regulation."
+    },
+    {
+        id: 6, title: "Consumer Boycott",
+        desc: "Viral video exposes poor labor conditions in sector.",
+        calcBase: (d) => ({ p: -2, s: 0, e: 0 }),
+        optA: { text: "Improve labor practices (Cost 1)", cost: 1, p: -1, s: 0, e: 2 },
+        optB: { text: "PR Campaign only (Cost 0)", cost: 0, p: 1, s: 0, e: -1 },
+        analyst: (d) => d.dist === 'D1' ? "Analyst: Big corporations are visible targets for social movements." : "Analyst: Fair trade and equity focus builds customer loyalty."
+    },
+    {
+        id: 7, title: "Processing Plant Shutdown",
+        desc: "Equipment failure or health violation closes plant.",
+        calcBase: (d) => (d.proc === 'PR1' ? { p: -3, s: 0, e: 0 } : { p: -1, s: 0, e: 0 }),
+        optA: { text: "Emergency regional processing (Cost 1)", cost: 1, p: -1, s: 0, e: 1 },
+        optB: { text: "Upgrade maintenance (Cost 2)", cost: 2, p: 1, s: 0, e: 0 },
+        analyst: (d) => d.proc === 'PR1' ? "Analyst: Centralization (Economies of Scale) creates a single point of failure." : "Analyst: Regional distribution (Decentralization) adds resilience."
+    },
+    {
+        id: 8, title: "Tariff / Trade Barrier",
+        desc: "Geopolitical tensions lead to new export taxes.",
+        calcBase: (d) => (d.dist === 'D3' ? { p: -3, s: 0, e: 0 } : { p: -1, s: 0, e: 0 }),
+        optA: { text: "Shift to Mixed Retail (Cost 1)", cost: 1, p: -1, s: 0, e: 2 },
+        optB: { text: "Find new export market (Cost 2)", cost: 2, p: 2, s: -1, e: 0 },
+        analyst: (d) => d.dist === 'D3' ? "Analyst: Export-oriented strategies are vulnerable to political borders." : "Analyst: Local markets are insulated from international trade wars."
+    }
+];
+
+// Game State
+const game = {
+    state: {
+        role: null,
+        product: '',
+        round: 1,
+        budget: 20,
+        scores: { p: 0, s: 0, e: 0 },
+        history: [], // Stores round summaries
+        currentDecisions: {},
+        currentShock: null
+    },
+
+    selectRole: function(role, el) {
+        this.state.role = role;
+        document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    },
+
+    // Initialize Game
+    start: function() {
+        if(!this.state.role) {
+            alert("Please select a Role first!");
+            return;
+        }
+        const product = document.getElementById('setup-product').value;
+        const budget = parseInt(document.getElementById('setup-budget').value);
+        
+        this.state.product = product;
+        this.state.budget = budget;
+        this.state.scores = { p: 0, s: 0, e: 0 };
+        this.state.history = [];
+        this.state.round = 1;
+
+        // Populate Choice Cards (Feature #1)
+        this.renderChoices();
+
+        this.updateUI();
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('game-ui').classList.remove('hidden');
+        document.getElementById('mission-role').innerText = this.state.role;
+        this.save();
+    },
+
+    renderChoices: function() {
+        // Production
+        let html = '';
+        for(let k in SPECS.prod) {
+            html += `<div class="opt-card" onclick="game.selectOpt('prod', '${k}', this)">
+                        <div><strong>${SPECS.prod[k].name}</strong> <span class="stats-badge">Cost ${SPECS.prod[k].cost}</span></div>
+                        <span class="tooltip-icon">?<div class="tooltip-text">${SPECS.prod[k].def}</div></span>
+                     </div>`;
+        }
+        document.getElementById('opt-production-container').innerHTML = html;
+
+        // Processing
+        html = '';
+        for(let k in SPECS.proc) {
+            html += `<div class="opt-card" onclick="game.selectOpt('proc', '${k}', this)">
+                        <div><strong>${SPECS.proc[k].name}</strong> <span class="stats-badge">Cost ${SPECS.proc[k].cost}</span></div>
+                        <span class="tooltip-icon">?<div class="tooltip-text">${SPECS.proc[k].def}</div></span>
+                     </div>`;
+        }
+        document.getElementById('opt-processing-container').innerHTML = html;
+
+        // Distribution
+        html = '';
+        for(let k in SPECS.dist) {
+            html += `<div class="opt-card" onclick="game.selectOpt('dist', '${k}', this)">
+                        <div><strong>${SPECS.dist[k].name}</strong> <span class="stats-badge">Cost ${SPECS.dist[k].cost}</span></div>
+                        <span class="tooltip-icon">?<div class="tooltip-text">${SPECS.dist[k].def}</div></span>
+                     </div>`;
+        }
+        document.getElementById('opt-distribution-container').innerHTML = html;
+    },
+
+    selectOpt: function(category, value, el) {
+        if(document.getElementById('decision-form').classList.contains('locked')) return;
+        
+        // Remove selected class from siblings
+        el.parentElement.querySelectorAll('.opt-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        
+        // Store decision
+        this.state.currentDecisions[category] = value;
+    },
+
+    load: function() {
+        const saved = localStorage.getItem('aphg_game_state');
+        if (saved) {
+            this.state = JSON.parse(saved);
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-ui').classList.remove('hidden');
+            document.getElementById('mission-role').innerText = this.state.role || "CEO";
+            this.renderChoices();
+            this.updateUI();
+            
+            // If round is finished, show summary tab
+            if (this.state.round > 3) {
+                this.switchTab(4);
+            } else {
+                this.switchTab(this.state.round);
+            }
+        } else {
+            alert("No saved game found.");
+        }
+    },
+
+    // Step 1: Lock Decisions
+    lockDecisions: function() {
+        const d = this.state.currentDecisions;
+        d.miles = document.getElementById('opt-distance').value;
+        
+        if(!d.prod || !d.proc || !d.dist) {
+            alert("Please make a selection for all 3 categories.");
+            return;
+        }
+        
+        // Disable inputs
+        document.getElementById('decision-form').classList.add('locked');
+        
+        // Trigger Shock
+        this.triggerShock();
+    },
+
+    // Step 2: Trigger Shock
+    triggerShock: function() {
+        const mode = document.getElementById('shock-mode').value;
+        let shockIndex;
+        
+        if (mode === 'random') {
+            shockIndex = Math.floor(Math.random() * 8);
+        } else {
+            shockIndex = parseInt(mode) - 1;
+        }
+
+        const shock = SHOCKS[shockIndex];
+        this.state.currentShock = shock;
+
+        // Render Shock Card
+        const container = document.getElementById('shock-display');
+        const base = shock.calcBase(this.state.currentDecisions);
+        
+        let html = `<h4>${shock.title}</h4>
+                    <p>${shock.desc}</p>
+                    <p><strong>Immediate Impact:</strong> Profit ${base.p > 0 ? '+' : ''}${base.p}, Sustain ${base.s > 0 ? '+' : ''}${base.s}, Equity ${base.e > 0 ? '+' : ''}${base.e}</p>
+                    <p><strong>Choose Response:</strong></p>
+                    <div class="response-options">
+                        <button class="response-btn" onclick="game.resolveRound('A')">
+                            <strong>Option A:</strong> ${shock.optA.text} <br>
+                            <small>Effects: P ${shock.optA.p}, S ${shock.optA.s}, E ${shock.optA.e}</small>
+                        </button>
+                        <button class="response-btn" onclick="game.resolveRound('B')">
+                            <strong>Option B:</strong> ${shock.optB.text} <br>
+                            <small>Effects: P ${shock.optB.p}, S ${shock.optB.s}, E ${shock.optB.e}</small>
+                        </button>
+                    </div>`;
+        
+        container.innerHTML = html;
+        document.getElementById('shock-section').style.display = 'block';
+    },
+
+    // Step 3: Resolve Round Math
+    resolveRound: function(choice) {
+        const s = this.state;
+        const d = s.currentDecisions;
+        const sh = s.currentShock;
+        const resp = choice === 'A' ? sh.optA : sh.optB;
+        
+        // Calculate Costs
+        const prodCost = SPECS.prod[d.prod].cost;
+        const procCost = SPECS.proc[d.proc].cost;
+        const distCost = SPECS.dist[d.dist].cost;
+        const respCost = resp.cost;
+        const totalCost = prodCost + procCost + distCost + respCost;
+
+        // Calculate Points (Base + Shock Base + Response)
+        const baseShock = sh.calcBase(d);
+        
+        let pDelta = SPECS.prod[d.prod].p + SPECS.proc[d.proc].p + SPECS.dist[d.dist].p + baseShock.p + resp.p;
+        let sDelta = SPECS.prod[d.prod].s + SPECS.proc[d.proc].s + SPECS.dist[d.dist].s + baseShock.s + resp.s;
+        let eDelta = SPECS.prod[d.prod].e + SPECS.proc[d.proc].e + SPECS.dist[d.dist].e + baseShock.e + resp.e;
+
+        // Apply Budget
+        let newBudget = s.budget - totalCost;
+        let debtPenalty = false;
+
+        // Debt Penalty Logic
+        if (newBudget < 0) {
+            debtPenalty = true;
+            pDelta -= 3;
+        }
+
+        // Update State
+        s.budget = newBudget;
+        s.scores.p += pDelta;
+        s.scores.s += sDelta;
+        s.scores.e += eDelta;
+
+        // Save Round History
+        s.history.push({
+            round: s.round,
+            decisions: d,
+            shock: sh.title,
+            response: choice,
+            costs: { prod: prodCost, proc: procCost, dist: distCost, resp: respCost, total: totalCost },
+            deltas: { p: pDelta, s: sDelta, e: eDelta },
+            penalty: debtPenalty,
+            budgetEnd: newBudget,
+            analystNote: sh.analyst(d) // Feature #4
+        });
+
+        // Update UI
+        document.getElementById('shock-section').style.display = 'none'; // hide shock
+        document.getElementById('next-round-btn-area').classList.remove('hidden');
+        
+        // Hide response buttons so they can't double click
+        document.getElementById('shock-display').innerHTML = "<strong>Round Finalized.</strong> See summary tab.";
+
+        this.updateUI();
+        this.switchTab(s.round); // Show result immediately
+        this.save();
+    },
+
+    nextRound: function() {
+        if (this.state.round >= 3) {
+            this.endGame();
+            return;
+        }
+        
+        this.state.round++;
+        this.state.currentDecisions = {};
+        this.state.currentShock = null;
+        
+        // Reset UI for next round
+        document.getElementById('decision-form').classList.remove('locked');
+        document.querySelectorAll('.opt-card').forEach(c => c.classList.remove('selected'));
+        
+        document.getElementById('shock-section').style.display = 'none';
+        document.getElementById('next-round-btn-area').classList.add('hidden');
+        document.getElementById('round-indicator').innerText = "Round " + this.state.round + " Decisions";
+        
+        this.save();
+    },
+
+    endGame: function() {
+        document.getElementById('decision-form').classList.add('hidden');
+        document.getElementById('next-round-btn-area').classList.add('hidden');
+        document.getElementById('game-over-area').classList.remove('hidden');
+        this.state.round = 4; // flag for end
+        this.updateUI();
+        this.switchTab(4); // Summary
+    },
+
+    updateUI: function() {
+        // Feature #2: Visual Bars Update
+        const calcWidth = (val) => Math.min(Math.max((val + 10) * 3, 5), 100) + '%'; // Map -10to25 range roughly to %
+        const calcBudget = (val) => Math.min(Math.max(val * 4, 5), 100) + '%'; // Map 0-25 to %
+
+        document.getElementById('score-budget').innerText = this.state.budget;
+        document.getElementById('bar-budget').style.width = calcBudget(this.state.budget);
+
+        document.getElementById('score-p').innerText = this.state.scores.p;
+        document.getElementById('bar-p').style.width = calcWidth(this.state.scores.p);
+
+        document.getElementById('score-s').innerText = this.state.scores.s;
+        document.getElementById('bar-s').style.width = calcWidth(this.state.scores.s);
+
+        document.getElementById('score-e').innerText = this.state.scores.e;
+        document.getElementById('bar-e').style.width = calcWidth(this.state.scores.e);
+
+        // Generate summary text for copy
+        this.generateCopyText();
+    },
+
+    switchTab: function(tabIndex) {
+        // Update Buttons
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach((b, i) => {
+            if (i === (tabIndex - 1)) b.classList.add('active');
+            else b.classList.remove('active');
+        });
+
+        const container = document.getElementById('tab-content-area');
+        
+        // Handle Summary Tab (4)
+        if (tabIndex === 4) {
+            document.getElementById('summary-tools').classList.remove('hidden');
+            let html = `<h3>Game Summary: ${this.state.product} (${this.state.role})</h3>`;
+            if (this.state.history.length === 0) {
+                html += "<p>No rounds played yet.</p>";
+            } else {
+                html += `<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-bottom:15px;">
+                            <div class="stat-p"><strong>Total Profit: ${this.state.scores.p}</strong></div>
+                            <div class="stat-s"><strong>Total Sustain: ${this.state.scores.s}</strong></div>
+                            <div class="stat-e"><strong>Total Equity: ${this.state.scores.e}</strong></div>
+                         </div>`;
+            }
+            container.innerHTML = html;
+            return;
+        }
+
+        // Handle Round Tabs (1, 2, 3)
+        document.getElementById('summary-tools').classList.add('hidden');
+        const roundData = this.state.history.find(h => h.round === tabIndex);
+
+        if (!roundData) {
+            container.innerHTML = `<p style="padding:20px; text-align:center; color:#777;">Round ${tabIndex} not yet finalized.</p>`;
+        } else {
+            // Feature #4: Analyst Note integration
+            container.innerHTML = `
+                <div class="round-log">
+                    <div class="analyst-note">${roundData.analystNote}</div>
+                    <h4>Decisions</h4>
+                    <ul>
+                        <li><strong>Prod:</strong> ${SPECS.prod[roundData.decisions.prod].name}</li>
+                        <li><strong>Proc:</strong> ${SPECS.proc[roundData.decisions.proc].name}</li>
+                        <li><strong>Dist:</strong> ${SPECS.dist[roundData.decisions.dist].name}</li>
+                        <li><strong>Range:</strong> ${roundData.decisions.miles}</li>
+                    </ul>
+                    <h4>Event</h4>
+                    <p><strong>Shock:</strong> ${roundData.shock} (${roundData.response === 'A' ? 'Response A' : 'Response B'})</p>
+                    ${roundData.penalty ? '<p class="debt-alert">⚠ DEBT PENALTY APPLIED (-3 Profit)</p>' : ''}
+                    <hr>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><strong>Cost:</strong> ${roundData.costs.total}</span>
+                        <span><strong>Results:</strong> P ${roundData.deltas.p} / S ${roundData.deltas.s} / E ${roundData.deltas.e}</span>
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    generateCopyText: function() {
+        const s = this.state;
+        let txt = `APHG UNIT 5 SIMULATION REPORT\n`;
+        txt += `Role: ${s.role} | Product: ${s.product} | Final Budget: ${s.budget}\n`;
+        txt += `Totals: Profit ${s.scores.p} | Sustain ${s.scores.s} | Equity ${s.scores.e}\n\n`;
+
+        s.history.forEach(h => {
+            txt += `[R${h.round}] ${SPECS.prod[h.decisions.prod].name}, ${SPECS.proc[h.decisions.proc].name}, ${SPECS.dist[h.decisions.dist].name} (${h.decisions.miles}).\n`;
+            txt += `Shock: ${h.shock} (Resp ${h.response}). ${h.penalty ? 'DEBT PENALTY.' : ''}\n`;
+            txt += `Outcome: P${h.deltas.p} S${h.deltas.s} E${h.deltas.e}\n\n`;
+        });
+
+        // Feature #5: Reflection Prompt
+        const minScore = Math.min(s.scores.p, s.scores.s, s.scores.e);
+        let reflection = "REFLECTION Q: ";
+        
+        if (s.scores.p === minScore) {
+            reflection += "My Profit score was lowest. How could 'Economies of Scale' (5.7) or 'Commercial Agriculture' (5.6) help raise this next time?";
+        } else if (s.scores.s === minScore) {
+            reflection += "My Sustainability score was lowest. How did 'High-Input' farming or 'Global Food Miles' contribute to environmental damage?";
+        } else {
+            reflection += "My Equity score was lowest. Did my distribution choices create 'Food Deserts' or exclude low-income populations?";
+        }
+        
+        txt += "\n" + reflection;
+
+        document.getElementById('export-text').value = txt;
+    },
+
+    copyText: function() {
+        const copyText = document.getElementById("export-text");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value).then(() => {
+            alert("Summary copied to clipboard!");
+        });
+    },
+
+    save: function() {
+        localStorage.setItem('aphg_game_state', JSON.stringify(this.state));
+    },
+
+    reset: function() {
+        if(confirm("Are you sure? This deletes all progress.")) {
+            localStorage.removeItem('aphg_game_state');
+            location.reload();
+        }
+    }
+};
+
+</script>
+</body>
+</html>
