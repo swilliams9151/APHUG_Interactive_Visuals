@@ -1,0 +1,509 @@
+import React, { useMemo, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Trophy, RotateCcw, Eye, EyeOff, Plus, Minus, Flag, MonitorPlay } from "lucide-react";
+
+const GAME_TITLE = "APHUG Jeopardy — Unit 1 Edition";
+
+const initialTeams = [
+  { id: 1, name: "Team 1", score: 0 },
+  { id: 2, name: "Team 2", score: 0 },
+  { id: 3, name: "Team 3", score: 0 },
+  { id: 4, name: "Team 4", score: 0 },
+];
+
+const categories = [
+  {
+    name: "Space vs. Place",
+    clues: [
+      {
+        value: 100,
+        clue: "A geographer describes a location only by latitude and longitude.",
+        answer: "Space",
+        explanation: "Space refers to location in a more abstract sense without personal meaning.",
+      },
+      {
+        value: 200,
+        clue: "A community views a battlefield as sacred and historically important.",
+        answer: "Place",
+        explanation: "Place includes meaning, value, and human attachment.",
+      },
+      {
+        value: 300,
+        clue: "This concept is more about emotional meaning and human significance than simple coordinates.",
+        answer: "Place",
+        explanation: "A place has cultural or personal importance.",
+      },
+      {
+        value: 400,
+        clue: "A map shows where cities are located, but not what those cities mean to the people living there. This focuses more on ______ than ______.",
+        answer: "Space more than place",
+        explanation: "The map shows location, not meaning.",
+      },
+      {
+        value: 500,
+        clue: "Explain the difference between space and place using one example.",
+        answer: "Space is abstract location, while place is location plus meaning. Example: New Orleans is a space on a map, but as a place it has cultural identity tied to music, food, and history.",
+        explanation: "Students should distinguish abstract location from lived meaning.",
+      },
+    ],
+  },
+  {
+    name: "Site vs. Situation",
+    clues: [
+      {
+        value: 100,
+        clue: "This term refers to the physical characteristics of a location itself.",
+        answer: "Site",
+        explanation: "Site describes features at the location itself.",
+      },
+      {
+        value: 200,
+        clue: "This term refers to a place’s relative location compared to surrounding places.",
+        answer: "Situation",
+        explanation: "Situation describes connectivity and location relative to other places.",
+      },
+      {
+        value: 300,
+        clue: "A city grew where a river meets the sea, creating a natural harbor.",
+        answer: "Site",
+        explanation: "A natural harbor is a physical characteristic of the location.",
+      },
+      {
+        value: 400,
+        clue: "A city becomes important because it sits near major trade routes and highways connecting it to other cities.",
+        answer: "Situation",
+        explanation: "This is about relative location and connectivity.",
+      },
+      {
+        value: 500,
+        clue: "A city has fertile soil, flat land, and nearby fresh water. Which concept best fits, and why?",
+        answer: "Site, because those are characteristics at the location itself.",
+        explanation: "Students should focus on internal physical characteristics.",
+      },
+    ],
+  },
+  {
+    name: "Scale of Analysis",
+    clues: [
+      {
+        value: 100,
+        clue: "A geographer studies migration trends across the entire world.",
+        answer: "Global scale",
+        explanation: "The whole world is being studied.",
+      },
+      {
+        value: 200,
+        clue: "A geographer compares the U.S. South, Midwest, and Northeast.",
+        answer: "Regional scale",
+        explanation: "These are large regions within a country.",
+      },
+      {
+        value: 300,
+        clue: "A geographer studies housing prices in one neighborhood.",
+        answer: "Local scale",
+        explanation: "The focus is one small area.",
+      },
+      {
+        value: 400,
+        clue: "A geographer compares population growth among states within one country.",
+        answer: "National or subnational/state scale",
+        explanation: "The analysis is inside one country but across states.",
+      },
+      {
+        value: 500,
+        clue: "Why is scale of analysis important to geographers?",
+        answer: "Patterns and explanations can change depending on whether you look locally, regionally, nationally, or globally.",
+        explanation: "A pattern at one scale may look different at another.",
+      },
+    ],
+  },
+  {
+    name: "Types of Regions",
+    clues: [
+      {
+        value: 100,
+        clue: "A region defined by one shared trait, such as language or climate.",
+        answer: "Formal region",
+        explanation: "Formal regions share one or more measurable characteristics.",
+      },
+      {
+        value: 200,
+        clue: "A region organized around a node or focal point.",
+        answer: "Functional region",
+        explanation: "Functional regions are connected through a center or node.",
+      },
+      {
+        value: 300,
+        clue: "A region people believe exists, even if boundaries are debated.",
+        answer: "Vernacular region",
+        explanation: "Vernacular regions are perceptual.",
+      },
+      {
+        value: 400,
+        clue: '“The South” in the United States is the best example of what type of region?',
+        answer: "Vernacular region",
+        explanation: "Its boundaries are based on perception and identity.",
+      },
+      {
+        value: 500,
+        clue: "A school attendance zone is what kind of region?",
+        answer: "Functional region",
+        explanation: "It is organized around a central service area.",
+      },
+    ],
+  },
+  {
+    name: "Spatial Patterns",
+    clues: [
+      {
+        value: 100,
+        clue: "People living in a straight line along a river show this pattern.",
+        answer: "Linear",
+        explanation: "The settlement follows a line along the river.",
+      },
+      {
+        value: 200,
+        clue: "Homes spread evenly across large farms show this pattern.",
+        answer: "Dispersed",
+        explanation: "The homes are spread apart rather than clustered.",
+      },
+      {
+        value: 300,
+        clue: "A dense downtown where most people and businesses gather shows this pattern.",
+        answer: "Clustered",
+        explanation: "The population and activity are concentrated together.",
+      },
+      {
+        value: 400,
+        clue: "Roads and railways often create what kind of settlement pattern?",
+        answer: "Linear",
+        explanation: "Settlements stretch along transportation routes.",
+      },
+      {
+        value: 500,
+        clue: "Why might people settle in a clustered pattern?",
+        answer: "For defense, shared services, jobs, religion, or access to a central feature.",
+        explanation: "Clustered settlement reflects the benefits of being near others or a central node.",
+      },
+    ],
+  },
+  {
+    name: "Think Like a Geographer",
+    clues: [
+      {
+        value: 100,
+        clue: "Geographers do not just ask “where?” They also ask this bigger question.",
+        answer: "Why there? / the why of where",
+        explanation: "Geography focuses on explaining spatial patterns.",
+      },
+      {
+        value: 200,
+        clue: "This framework asks students to move from comprehension to identification, explanation, and prediction.",
+        answer: "Four-Level Analysis Spatial Framework",
+        explanation: "It organizes geographic thinking in steps.",
+      },
+      {
+        value: 300,
+        clue: "If students identify a pattern on a map and then explain why it exists, they are moving from which level to which level?",
+        answer: "From identification to explanation",
+        explanation: "They move from noticing the pattern to explaining its cause.",
+      },
+      {
+        value: 400,
+        clue: "A map shows bright coasts and dim interiors at night. What is one likely explanation?",
+        answer: "People cluster near coasts because of trade, resources, transportation, and milder climates.",
+        explanation: "Coastal settlement patterns often reflect access and opportunity.",
+      },
+      {
+        value: 500,
+        clue: "Why do APHG students often struggle more with Concepts and Processes than with simple identification?",
+        answer: "Because they must choose the right geographic framework, apply it to a scenario, and explain the cause-and-effect relationship, not just define a term.",
+        explanation: "This requires deeper reasoning and transfer.",
+      },
+    ],
+  },
+];
+
+const finalJeopardy = {
+  category: "Regional Analysis",
+  clue: "A geographer describes an area as having shared language traits, similar cultural traditions, and a strong identity, but different people disagree on its exact boundaries. What type of region is this, and why?",
+  answer: "Vernacular region, because it is based on people’s perceptions and shared identity rather than exact official boundaries.",
+};
+
+function getCellId(categoryIndex, clueIndex) {
+  return `${categoryIndex}-${clueIndex}`;
+}
+
+function ScoreControls({ team, onRename, onAdd, onSubtract }) {
+  return (
+    <Card className="rounded-2xl shadow-sm border-blue-200">
+      <CardContent className="p-4 space-y-3">
+        <Input
+          value={team.name}
+          onChange={(e) => onRename(team.id, e.target.value)}
+          className="font-semibold"
+        />
+        <div className="flex items-center justify-between">
+          <div className="text-3xl font-bold text-slate-800">{team.score}</div>
+          <Badge variant="secondary" className="text-sm">points</Badge>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" className="flex-1" onClick={() => onAdd(team.id, 100)}>
+            <Plus className="w-4 h-4 mr-1" />100
+          </Button>
+          <Button size="sm" variant="outline" className="flex-1" onClick={() => onSubtract(team.id, 100)}>
+            <Minus className="w-4 h-4 mr-1" />100
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function AphugUnit1JeopardyWebsite() {
+  const [teams, setTeams] = useState(initialTeams);
+  const [used, setUsed] = useState({});
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [mode, setMode] = useState("board");
+  const [showSetup, setShowSetup] = useState(true);
+  const [dailyDouble, setDailyDouble] = useState({ "2-4": true, "5-3": true });
+
+  const leaderboard = useMemo(
+    () => [...teams].sort((a, b) => b.score - a.score),
+    [teams]
+  );
+
+  const handleRename = (id, name) => {
+    setTeams((prev) => prev.map((t) => (t.id === id ? { ...t, name } : t)));
+  };
+
+  const handleAdd = (id, amt) => {
+    setTeams((prev) => prev.map((t) => (t.id === id ? { ...t, score: t.score + amt } : t)));
+  };
+
+  const handleSubtract = (id, amt) => {
+    setTeams((prev) => prev.map((t) => (t.id === id ? { ...t, score: t.score - amt } : t)));
+  };
+
+  const openClue = (categoryIndex, clueIndex) => {
+    const id = getCellId(categoryIndex, clueIndex);
+    const category = categories[categoryIndex];
+    const clue = category.clues[clueIndex];
+    setSelected({ id, category: category.name, clue, categoryIndex, clueIndex, isDailyDouble: !!dailyDouble[id] });
+    setShowAnswer(false);
+  };
+
+  const markUsed = () => {
+    if (!selected) return;
+    setUsed((prev) => ({ ...prev, [selected.id]: true }));
+  };
+
+  const resetGame = () => {
+    setTeams(initialTeams);
+    setUsed({});
+    setSelected(null);
+    setShowAnswer(false);
+    setMode("board");
+  };
+
+  const allRegularUsed = Object.keys(used).length >= categories.reduce((sum, cat) => sum + cat.clues.length, 0);
+
+  return (
+    <div className="min-h-screen bg-slate-100 p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-slate-900">{GAME_TITLE}</h1>
+            <p className="text-slate-600 mt-1">A JeopardyLabs-style review game for AP Human Geography Unit 1</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => setShowSetup((s) => !s)}>
+              <MonitorPlay className="w-4 h-4 mr-2" />
+              {showSetup ? "Hide Setup" : "Show Setup"}
+            </Button>
+            <Button variant="outline" onClick={() => setMode(mode === "board" ? "host" : "board")}>
+              {mode === "board" ? "Host View" : "Board View"}
+            </Button>
+            <Button variant="outline" onClick={resetGame}>
+              <RotateCcw className="w-4 h-4 mr-2" />Reset Game
+            </Button>
+          </div>
+        </div>
+
+        {showSetup && (
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
+            <Card className="xl:col-span-3 rounded-2xl shadow-sm border-blue-200">
+              <CardHeader>
+                <CardTitle className="text-xl">How to use this on your website</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-slate-700">
+                <p>Rename teams, project the board, click a dollar amount to open a clue, reveal the answer when ready, and adjust scores from the sidebar or host view.</p>
+                <p>This version includes Daily Double support, clue tracking, Final Jeopardy, score controls, and a clean classroom presentation mode.</p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Badge className="bg-blue-700">6 categories</Badge>
+                  <Badge className="bg-blue-700">5 clues each</Badge>
+                  <Badge className="bg-blue-700">Daily Double</Badge>
+                  <Badge className="bg-blue-700">Final Jeopardy</Badge>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-2xl shadow-sm border-blue-200">
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-2"><Trophy className="w-5 h-5" />Leaderboard</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {leaderboard.map((team, idx) => (
+                  <div key={team.id} className="flex items-center justify-between rounded-xl bg-slate-50 p-3 border">
+                    <div className="font-medium text-slate-800">{idx + 1}. {team.name}</div>
+                    <div className="font-bold text-lg text-slate-900">{team.score}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          <div className="xl:col-span-3">
+            <Card className="rounded-3xl shadow-md overflow-hidden border-blue-300">
+              <CardContent className="p-0">
+                <div className="grid grid-cols-6 bg-blue-950 text-white">
+                  {categories.map((cat) => (
+                    <div key={cat.name} className="border border-blue-700 p-3 min-h-24 flex items-center justify-center text-center font-bold text-sm md:text-base leading-tight">
+                      {cat.name}
+                    </div>
+                  ))}
+                </div>
+                {[0, 1, 2, 3, 4].map((rowIndex) => (
+                  <div key={rowIndex} className="grid grid-cols-6 bg-blue-900">
+                    {categories.map((cat, categoryIndex) => {
+                      const clue = cat.clues[rowIndex];
+                      const id = getCellId(categoryIndex, rowIndex);
+                      const isUsed = !!used[id];
+                      const isDD = !!dailyDouble[id];
+                      return (
+                        <button
+                          key={id}
+                          onClick={() => openClue(categoryIndex, rowIndex)}
+                          disabled={isUsed}
+                          className={`border border-blue-700 min-h-24 md:min-h-28 p-2 flex items-center justify-center text-center transition-all ${
+                            isUsed
+                              ? "bg-blue-950 text-blue-950 cursor-not-allowed"
+                              : "bg-blue-900 hover:bg-blue-800"
+                          }`}
+                        >
+                          {!isUsed && (
+                            <div className="flex flex-col items-center gap-1">
+                              {isDD && <Badge className="bg-amber-400 text-slate-900 hover:bg-amber-400">Daily Double</Badge>}
+                              <span className="text-yellow-300 font-extrabold text-2xl md:text-4xl drop-shadow-sm">
+                                ${clue.value}
+                              </span>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button onClick={() => setSelected({ id: "final", category: finalJeopardy.category, clue: finalJeopardy, isFinal: true })} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold">
+                <Flag className="w-4 h-4 mr-2" />Open Final Jeopardy
+              </Button>
+              {allRegularUsed && <Badge className="bg-green-700">All regular clues completed</Badge>}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <Tabs defaultValue="scores" className="w-full">
+              <TabsList className="grid grid-cols-2 w-full">
+                <TabsTrigger value="scores">Scores</TabsTrigger>
+                <TabsTrigger value="host">Host Notes</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-3">
+              {teams.map((team) => (
+                <ScoreControls
+                  key={team.id}
+                  team={team}
+                  onRename={handleRename}
+                  onAdd={handleAdd}
+                  onSubtract={handleSubtract}
+                />
+              ))}
+            </div>
+
+            <Card className="rounded-2xl shadow-sm border-blue-200">
+              <CardHeader>
+                <CardTitle className="text-lg">Host reminders</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-slate-700 space-y-2">
+                <p>Require teams to explain why their answer fits to earn full points.</p>
+                <p>Use the clue explanation as your quick teaching point after each reveal.</p>
+                <p>You can subtract points manually for incorrect buzz-ins, just like JeopardyLabs.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
+        <DialogContent className="max-w-5xl rounded-3xl p-0 overflow-hidden">
+          {selected && (
+            <div className="bg-blue-950 text-white min-h-[70vh] flex flex-col">
+              <DialogHeader className="px-6 py-4 border-b border-blue-800">
+                <DialogTitle className="text-2xl md:text-3xl font-bold text-center">{selected.isFinal ? `Final Jeopardy — ${selected.category}` : `${selected.category} — $${selected.clue.value}`}</DialogTitle>
+              </DialogHeader>
+              <div className="flex-1 flex items-center justify-center p-8 md:p-12 text-center">
+                <ScrollArea className="max-h-[48vh] w-full">
+                  <div className="text-2xl md:text-4xl font-semibold leading-relaxed px-4">
+                    {selected.clue.clue}
+                  </div>
+                </ScrollArea>
+              </div>
+              <div className="border-t border-blue-800 p-5 space-y-4 bg-blue-900/50">
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Button onClick={() => setShowAnswer((s) => !s)} className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold">
+                    {showAnswer ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
+                    {showAnswer ? "Hide Answer" : "Reveal Answer"}
+                  </Button>
+                  {!selected.isFinal && (
+                    <Button variant="secondary" onClick={markUsed}>
+                      Mark Used
+                    </Button>
+                  )}
+                  <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-slate-900" onClick={() => setSelected(null)}>
+                    Close
+                  </Button>
+                </div>
+                {showAnswer && (
+                  <Card className="rounded-2xl border-amber-300 bg-white text-slate-900 max-w-4xl mx-auto">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Answer</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-base md:text-lg">
+                      <p><span className="font-bold">Correct response:</span> {selected.clue.answer}</p>
+                      <Separator />
+                      <p><span className="font-bold">Why it fits:</span> {selected.clue.explanation}</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
